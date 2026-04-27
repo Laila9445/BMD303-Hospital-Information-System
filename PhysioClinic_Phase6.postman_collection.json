@@ -1,0 +1,566 @@
+{
+  "info": {
+    "name": "PhysioTherapy Clinic \u2013 Phase 6 (PostgreSQL)",
+    "_postman_id": "f1a2b3c4-d5e6-7a8b-9c0d-e1f2a3b4c5d6",
+    "description": "Full end-to-end test suite against PostgreSQL.\nRun requests top-to-bottom \u2014 POST responses auto-save IDs into collection variables for subsequent requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",       "value": "http://127.0.0.1:8000", "type": "string" },
+    { "key": "service_id",     "value": "",                      "type": "string" },
+    { "key": "patient_id",     "value": "",                      "type": "string" },
+    { "key": "referral_id",    "value": "",                      "type": "string" },
+    { "key": "appointment_id", "value": "",                      "type": "string" },
+    { "key": "session_id",     "value": "",                      "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "0 \u2013 Setup",
+      "item": [
+        {
+          "name": "0.1 Health Check",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('status is ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/", "host": ["{{base_url}}"], "path": [""] }
+          }
+        },
+        {
+          "name": "0.2 Seed 10 services (idempotent)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('seeded field present', () => pm.expect(b).to.have.property('seeded'));",
+            "pm.test('message present',  () => pm.expect(b).to.have.property('message'));",
+            "console.log('Seed result:', JSON.stringify(b));"
+          ]}}],
+          "request": {
+            "method": "POST", "header": [],
+            "url": { "raw": "{{base_url}}/admin/seed", "host": ["{{base_url}}"], "path": ["admin","seed"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "1 \u2013 Services",
+      "item": [
+        {
+          "name": "1.1 List all services",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('is array of 10', () => pm.expect(body).to.be.an('array').with.lengthOf(10));",
+            "pm.test('service shape', () => {",
+            "  pm.expect(body[0]).to.have.all.keys('id','name','tagline','description','duration_minutes','is_active','created_at');",
+            "});",
+            "pm.test('is_active is true', () => pm.expect(body[0].is_active).to.be.true);",
+            "pm.collectionVariables.set('service_id', body[0].id);",
+            "console.log('service_id saved:', body[0].id);"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/services", "host": ["{{base_url}}"], "path": ["services"] }
+          }
+        },
+        {
+          "name": "1.2 Get service by ID",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('ID matches', () => pm.expect(body.id).to.eql(pm.collectionVariables.get('service_id')));",
+            "pm.test('name is string', () => pm.expect(body.name).to.be.a('string').and.not.empty);"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/services/{{service_id}}", "host": ["{{base_url}}"], "path": ["services","{{service_id}}"] }
+          }
+        },
+        {
+          "name": "1.3 Non-existent service \u2192 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('404 Not Found', () => pm.response.to.have.status(404));",
+            "pm.test('detail present', () => pm.expect(pm.response.json()).to.have.property('detail'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/services/00000000-0000-0000-0000-000000000000", "host": ["{{base_url}}"], "path": ["services","00000000-0000-0000-0000-000000000000"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "2 \u2013 Patients",
+      "item": [
+        {
+          "name": "2.1 Create patient",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('201 Created', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.test('shape correct', () => pm.expect(body).to.have.all.keys('id','name','phone','email','created_at','updated_at'));",
+            "pm.test('name matches',  () => pm.expect(body.name).to.eql('Noor Al-Rashidi'));",
+            "pm.test('phone matches', () => pm.expect(body.phone).to.eql('+971507654321'));",
+            "pm.collectionVariables.set('patient_id', body.id);",
+            "console.log('patient_id saved:', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Noor Al-Rashidi\",\n  \"phone\": \"+971507654321\",\n  \"email\": \"noor@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/patients", "host": ["{{base_url}}"], "path": ["patients"] }
+          }
+        },
+        {
+          "name": "2.2 Duplicate phone \u2192 409",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('409 Conflict', () => pm.response.to.have.status(409));",
+            "pm.test('detail mentions Phone', () => pm.expect(pm.response.json().detail).to.include('Phone'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Another Person\",\n  \"phone\": \"+971507654321\",\n  \"email\": \"other@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/patients", "host": ["{{base_url}}"], "path": ["patients"] }
+          }
+        },
+        {
+          "name": "2.3 List all patients",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK',       () => pm.response.to.have.status(200));",
+            "pm.test('returns array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/patients", "host": ["{{base_url}}"], "path": ["patients"] }
+          }
+        },
+        {
+          "name": "2.4 Get patient by ID",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('ID matches',   () => pm.expect(body.id).to.eql(pm.collectionVariables.get('patient_id')));",
+            "pm.test('name matches', () => pm.expect(body.name).to.eql('Noor Al-Rashidi'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/patients/{{patient_id}}", "host": ["{{base_url}}"], "path": ["patients","{{patient_id}}"] }
+          }
+        },
+        {
+          "name": "2.5 Patch patient email",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK',        () => pm.response.to.have.status(200));",
+            "pm.test('email updated', () => pm.expect(pm.response.json().email).to.eql('noor.updated@example.com'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"noor.updated@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/patients/{{patient_id}}", "host": ["{{base_url}}"], "path": ["patients","{{patient_id}}"] }
+          }
+        },
+        {
+          "name": "2.6 Non-existent patient \u2192 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/patients/00000000-0000-0000-0000-000000000000", "host": ["{{base_url}}"], "path": ["patients","00000000-0000-0000-0000-000000000000"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "3 \u2013 Referrals",
+      "item": [
+        {
+          "name": "3.1 Create referral (dedup: links to existing patient)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('201 Created', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.test('shape correct', () => pm.expect(body).to.have.all.keys('id','patient_id','service_id','referring_doctor','doctor_notes','status','created_at','updated_at'));",
+            "pm.test('status is pending', () => pm.expect(body.status).to.eql('pending'));",
+            "pm.test('dedup: patient_id matches pre-created patient', () => {",
+            "  pm.expect(body.patient_id).to.eql(pm.collectionVariables.get('patient_id'));",
+            "});",
+            "pm.collectionVariables.set('referral_id', body.id);",
+            "console.log('referral_id saved:', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_name\": \"Noor Al-Rashidi\",\n  \"patient_phone\": \"+971507654321\",\n  \"patient_email\": \"noor@example.com\",\n  \"service_id\": \"{{service_id}}\",\n  \"referring_doctor\": \"Dr. Fatima Hassan\",\n  \"doctor_notes\": \"Patient reports chronic lower-back pain for 3 months.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/referrals", "host": ["{{base_url}}"], "path": ["referrals"] }
+          }
+        },
+        {
+          "name": "3.2 Second referral same phone \u2192 same patient (dedup confirmed)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('201 Created', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.test('dedup: still same patient_id', () => {",
+            "  pm.expect(body.patient_id).to.eql(pm.collectionVariables.get('patient_id'));",
+            "});",
+            "pm.test('different referral id', () => {",
+            "  pm.expect(body.id).to.not.eql(pm.collectionVariables.get('referral_id'));",
+            "});"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_name\": \"Noor Al-Rashidi\",\n  \"patient_phone\": \"+971507654321\",\n  \"patient_email\": \"noor@example.com\",\n  \"service_id\": \"{{service_id}}\",\n  \"referring_doctor\": \"Dr. Mahmoud Ali\",\n  \"doctor_notes\": \"Follow-up referral for shoulder rehabilitation.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/referrals", "host": ["{{base_url}}"], "path": ["referrals"] }
+          }
+        },
+        {
+          "name": "3.3 List referrals for patient (expects 2)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('returns array', () => pm.expect(body).to.be.an('array'));",
+            "pm.test('2 referrals for this patient', () => pm.expect(body).to.have.lengthOf(2));",
+            "pm.test('all belong to patient', () => {",
+            "  const pid = pm.collectionVariables.get('patient_id');",
+            "  body.forEach(r => pm.expect(r.patient_id).to.eql(pid));",
+            "});"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{base_url}}/referrals?patient_id={{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["referrals"],
+              "query": [{ "key": "patient_id", "value": "{{patient_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "3.4 Get referral by ID",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('ID matches',     () => pm.expect(body.id).to.eql(pm.collectionVariables.get('referral_id')));",
+            "pm.test('status pending', () => pm.expect(body.status).to.eql('pending'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/referrals/{{referral_id}}", "host": ["{{base_url}}"], "path": ["referrals","{{referral_id}}"] }
+          }
+        },
+        {
+          "name": "3.5 Patch referral doctor_notes",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('doctor_notes updated', () => pm.expect(pm.response.json().doctor_notes).to.include('MRI'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctor_notes\": \"Patient reports chronic lower-back pain. MRI confirms L4-L5 disc protrusion.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/referrals/{{referral_id}}", "host": ["{{base_url}}"], "path": ["referrals","{{referral_id}}"] }
+          }
+        },
+        {
+          "name": "3.6 Invalid service_id \u2192 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('404 Not Found', () => pm.response.to.have.status(404));",
+            "pm.test('detail mentions Service', () => pm.expect(pm.response.json().detail).to.include('Service'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_name\": \"Ghost Patient\",\n  \"patient_phone\": \"+971500000001\",\n  \"service_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"referring_doctor\": \"Dr. Nobody\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/referrals", "host": ["{{base_url}}"], "path": ["referrals"] }
+          }
+        },
+        {
+          "name": "3.7 Invalid status value \u2192 422",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('422 Unprocessable', () => pm.response.to.have.status(422));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"flying\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/referrals/{{referral_id}}", "host": ["{{base_url}}"], "path": ["referrals","{{referral_id}}"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "4 \u2013 Appointments",
+      "item": [
+        {
+          "name": "4.1 Create appointment (referral \u2192 scheduled)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('201 Created', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.test('shape correct', () => pm.expect(body).to.have.all.keys('id','patient_id','referral_id','service_id','therapist_name','appointment_date','appointment_time','status','notes','created_at','updated_at'));",
+            "pm.test('status is scheduled',  () => pm.expect(body.status).to.eql('scheduled'));",
+            "pm.test('therapist_name match', () => pm.expect(body.therapist_name).to.eql('Ahmed Al-Dosari'));",
+            "pm.test('appointment_date',     () => pm.expect(body.appointment_date).to.eql('2026-04-01'));",
+            "pm.test('appointment_time',     () => pm.expect(body.appointment_time).to.eql('09:00:00'));",
+            "pm.collectionVariables.set('appointment_id', body.id);",
+            "console.log('appointment_id saved:', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"referral_id\": \"{{referral_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"therapist_name\": \"Ahmed Al-Dosari\",\n  \"appointment_date\": \"2026-04-01\",\n  \"appointment_time\": \"09:00:00\",\n  \"notes\": \"First session \u2014 full assessment included.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/appointments", "host": ["{{base_url}}"], "path": ["appointments"] }
+          }
+        },
+        {
+          "name": "4.2 Verify referral \u2192 scheduled (cascade check)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('referral status = scheduled', () => pm.expect(pm.response.json().status).to.eql('scheduled'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/referrals/{{referral_id}}", "host": ["{{base_url}}"], "path": ["referrals","{{referral_id}}"] }
+          }
+        },
+        {
+          "name": "4.3 List appointments for patient",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('returns array with 1 item', () => pm.expect(body).to.be.an('array').with.lengthOf(1));",
+            "pm.test('patient_id matches', () => pm.expect(body[0].patient_id).to.eql(pm.collectionVariables.get('patient_id')));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{base_url}}/appointments?patient_id={{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["appointments"],
+              "query": [{ "key": "patient_id", "value": "{{patient_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "4.4 Get appointment by ID",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('ID matches',      () => pm.expect(body.id).to.eql(pm.collectionVariables.get('appointment_id')));",
+            "pm.test('status scheduled',() => pm.expect(body.status).to.eql('scheduled'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/appointments/{{appointment_id}}", "host": ["{{base_url}}"], "path": ["appointments","{{appointment_id}}"] }
+          }
+        },
+        {
+          "name": "4.5 Patch appointment notes",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK',        () => pm.response.to.have.status(200));",
+            "pm.test('notes updated', () => pm.expect(pm.response.json().notes).to.include('reassessment'));",
+            "pm.test('still scheduled',() => pm.expect(pm.response.json().status).to.eql('scheduled'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"First session \u2014 full assessment included. Patient requested early reassessment.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/appointments/{{appointment_id}}", "host": ["{{base_url}}"], "path": ["appointments","{{appointment_id}}"] }
+          }
+        },
+        {
+          "name": "4.6 Non-existent patient FK \u2192 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('404 Not Found', () => pm.response.to.have.status(404));",
+            "pm.test('detail mentions Patient', () => pm.expect(pm.response.json().detail).to.include('Patient'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"referral_id\": \"{{referral_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"therapist_name\": \"Dr. Nobody\",\n  \"appointment_date\": \"2026-05-01\",\n  \"appointment_time\": \"10:00:00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/appointments", "host": ["{{base_url}}"], "path": ["appointments"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "5 \u2013 Session Notes",
+      "item": [
+        {
+          "name": "5.1 Create session note (appt \u2192 completed, referral \u2192 completed)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('201 Created', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.test('shape correct', () => pm.expect(body).to.have.all.keys('id','appointment_id','patient_id','therapist_name','assessment','treatment','home_exercises','pain_score_before','pain_score_after','next_appointment_date','created_at'));",
+            "pm.test('appointment_id matches', () => pm.expect(body.appointment_id).to.eql(pm.collectionVariables.get('appointment_id')));",
+            "pm.test('patient_id matches',     () => pm.expect(body.patient_id).to.eql(pm.collectionVariables.get('patient_id')));",
+            "pm.test('pain_score_before = 7',  () => pm.expect(body.pain_score_before).to.eql(7));",
+            "pm.test('pain_score_after = 4',   () => pm.expect(body.pain_score_after).to.eql(4));",
+            "pm.test('next_appointment_date',  () => pm.expect(body.next_appointment_date).to.eql('2026-04-08'));",
+            "pm.collectionVariables.set('session_id', body.id);",
+            "console.log('session_id saved:', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointment_id\": \"{{appointment_id}}\",\n  \"patient_id\": \"{{patient_id}}\",\n  \"therapist_name\": \"Ahmed Al-Dosari\",\n  \"assessment\": \"Lumbar stiffness, limited flexion to 40\u00b0. No neurological signs.\",\n  \"treatment\": \"Soft-tissue mobilisation, TENS, and core stabilisation exercises.\",\n  \"home_exercises\": \"Cat-cow stretch 3\u00d710 twice daily. Pelvic tilts 3\u00d715.\",\n  \"pain_score_before\": 7,\n  \"pain_score_after\": 4,\n  \"next_appointment_date\": \"2026-04-08\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/sessions", "host": ["{{base_url}}"], "path": ["sessions"] }
+          }
+        },
+        {
+          "name": "5.2 Duplicate session note \u2192 409",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('409 Conflict', () => pm.response.to.have.status(409));",
+            "pm.test('detail mentions session', () => pm.expect(pm.response.json().detail.toLowerCase()).to.include('session'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointment_id\": \"{{appointment_id}}\",\n  \"patient_id\": \"{{patient_id}}\",\n  \"therapist_name\": \"Ahmed Al-Dosari\",\n  \"assessment\": \"Duplicate attempt.\",\n  \"treatment\": \"Should be rejected.\",\n  \"pain_score_before\": 5,\n  \"pain_score_after\": 3\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/sessions", "host": ["{{base_url}}"], "path": ["sessions"] }
+          }
+        },
+        {
+          "name": "5.3 Verify appointment \u2192 completed (cascade)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('appointment status = completed', () => pm.expect(pm.response.json().status).to.eql('completed'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/appointments/{{appointment_id}}", "host": ["{{base_url}}"], "path": ["appointments","{{appointment_id}}"] }
+          }
+        },
+        {
+          "name": "5.4 Verify referral \u2192 completed (cascade)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.test('referral status = completed', () => pm.expect(pm.response.json().status).to.eql('completed'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/referrals/{{referral_id}}", "host": ["{{base_url}}"], "path": ["referrals","{{referral_id}}"] }
+          }
+        },
+        {
+          "name": "5.5 Patient summary",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('shape correct', () => pm.expect(body).to.have.all.keys('id','name','phone','total_referrals','total_appointments','total_sessions'));",
+            "pm.test('id matches',              () => pm.expect(body.id).to.eql(pm.collectionVariables.get('patient_id')));",
+            "pm.test('total_referrals = 2',     () => pm.expect(body.total_referrals).to.eql(2));",
+            "pm.test('total_appointments = 1',  () => pm.expect(body.total_appointments).to.eql(1));",
+            "pm.test('total_sessions = 1',      () => pm.expect(body.total_sessions).to.eql(1));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/patients/{{patient_id}}/summary", "host": ["{{base_url}}"], "path": ["patients","{{patient_id}}","summary"] }
+          }
+        },
+        {
+          "name": "5.6 List session notes for patient",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('returns array of 1', () => pm.expect(body).to.be.an('array').with.lengthOf(1));",
+            "pm.test('patient_id matches', () => pm.expect(body[0].patient_id).to.eql(pm.collectionVariables.get('patient_id')));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{base_url}}/sessions?patient_id={{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["sessions"],
+              "query": [{ "key": "patient_id", "value": "{{patient_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "5.7 Get session note by ID",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('id matches', () => pm.expect(body.id).to.eql(pm.collectionVariables.get('session_id')));",
+            "pm.test('therapist_name', () => pm.expect(body.therapist_name).to.eql('Ahmed Al-Dosari'));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/sessions/{{session_id}}", "host": ["{{base_url}}"], "path": ["sessions","{{session_id}}"] }
+          }
+        },
+        {
+          "name": "5.8 Non-existent session \u2192 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{base_url}}/sessions/00000000-0000-0000-0000-000000000000", "host": ["{{base_url}}"], "path": ["sessions","00000000-0000-0000-0000-000000000000"] }
+          }
+        }
+      ]
+    }
+
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "PhysioTherapy Clinic — Phase 1",
+    "_postman_id": "physio-phase1-collection",
+    "description": "Phase 1 smoke tests: server health check and OpenAPI schema validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 — Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/",
+          "host": ["{{base_url}}"],
+          "path": ["/"]
+        },
+        "description": "Verifies the server is running and the lifespan startup completed without crashing.\nExpected: 200 OK  →  { \"status\": \"ok\" }"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Body contains status ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 — OpenAPI Schema",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/openapi.json",
+          "host": ["{{base_url}}"],
+          "path": ["openapi.json"]
+        },
+        "description": "Fetches the auto-generated OpenAPI 3.x schema to confirm all routers are registered correctly.\nExpected: 200 OK  →  JSON object with keys 'openapi', 'info', 'paths'"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response is valid OpenAPI schema', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('openapi');",
+              "    pm.expect(json).to.have.property('info');",
+              "    pm.expect(json).to.have.property('paths');",
+              "});",
+              "",
+              "pm.test('API title is PhysioTherapy Clinic', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.info.title).to.eql('PhysioTherapy Clinic');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
