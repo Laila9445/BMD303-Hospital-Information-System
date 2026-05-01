@@ -1,0 +1,38 @@
+﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=ClinicSystemDb_Dev.db"
+  },
+  "JwtSettings": {
+    "SecretKey": "YourSuperSecretKeyThatIsAtLeast32CharactersLong!!",
+    "ExpirationMinutes": 120,
+    "Issuer": "ClinicAPI",
+    "Audience": "ClinicApp"
+  },
+  "ExternalServices": {
+    "PhysiotherapyApi": {
+      "BaseUrl": "https://localhost:5002",
+      "ApiKey": "your-physiotherapy-api-key-here",
+      "TimeoutSeconds": 30
+    },
+    "PatientPortalApi": {
+      "BaseUrl": "https://localhost:5003",
+      "ApiKey": "your-patient-portal-api-key-here",
+      "TimeoutSeconds": 30
+    }
+  },
+  "EmailSettings": {
+    "FromEmail": "noreply@clinic.com",
+    "FromName": "Dr. Ahmed Nabil Clinic",
+    "SmtpHost": "smtp.gmail.com",
+    "SmtpPort": "587",
+    "SmtpUser": "your-email@gmail.com",
+    "SmtpPassword": "your-app-password"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

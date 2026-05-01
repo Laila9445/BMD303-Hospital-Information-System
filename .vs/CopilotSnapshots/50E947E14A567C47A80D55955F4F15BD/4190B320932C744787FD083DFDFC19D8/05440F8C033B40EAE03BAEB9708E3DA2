@@ -1,0 +1,278 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Data.DTOs;
+using CLINICSYSTEM.Models;
+using CLINICSYSTEM.Helpers;
+
+namespace CLINICSYSTEM.Services
+{
+    public class AuthenticationService : IAuthenticationService
+    {
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ClinicDbContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthenticationService> _logger;
+
+        public AuthenticationService(
+            UserManager<IdentityUser> userManager, 
+            RoleManager<IdentityRole> roleManager, 
+            ClinicDbContext context, 
+            IConfiguration configuration,
+            ILogger<AuthenticationService> logger)
+        {
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _context = context;
+            _configuration = configuration;
+            _logger = logger;
+        }
+
+        public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
+        {
+            try
+            {
+                // Check if email already exists
+                if (await IsEmailExistsAsync(request.Email))
+                {
+                    _logger.LogWarning("Registration failed: Email {Email} already exists", request.Email);
+                    return new AuthResponse { Success = false, Message = "Email already exists" };
+                }
+
+                // Ensure roles exist
+                await EnsureRolesExistAsync();
+
+                // Create Identity user
+                var identityUser = new IdentityUser 
+                { 
+                    UserName = request.Email, 
+                    Email = request.Email,
+                    EmailConfirmed = true
+                };
+
+                var identityResult = await _userManager.CreateAsync(identityUser, request.Password);
+                
+                if (!identityResult.Succeeded)
+                {
+                    var errors = string.Join(", ", identityResult.Errors.Select(e => e.Description));
+                    _logger.LogError("Identity user creation failed: {Errors}", errors);
+                    return new AuthResponse { Success = false, Message = $"Registration failed: {errors}" };
+                }
+
+                // Add role
+                var roleResult = await _userManager.AddToRoleAsync(identityUser, request.Role);
+                if (!roleResult.Succeeded)
+                {
+                    var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                    _logger.LogError("Role assignment failed: {Errors}", errors);
+                    await _userManager.DeleteAsync(identityUser);
+                    return new AuthResponse { Success = false, Message = $"Role assignment failed: {errors}" };
+                }
+
+                // Create custom user
+                var user = new UserModel
+                {
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Role = request.Role,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("User created with UserId: {UserId}", user.UserId);
+
+                // Create role-specific profile
+                if (request.Role == "Doctor")
+                {
+                    await CreateDoctorProfileAsync(user.UserId, request);
+                }
+                // Admin and Staff roles don't need additional profiles
+
+                _logger.LogInformation("User {Email} registered successfully as {Role} with UserId {UserId}", 
+                    request.Email, request.Role, user.UserId);
+
+                var token = GenerateToken(user);
+
+                return new AuthResponse
+                {
+                    Success = true,
+                    Token = token,
+                    User = new UserDTO
+                    {
+                        UserId = user.UserId,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        PhoneNumber = user.PhoneNumber,
+                        Role = user.Role
+                    },
+                    Message = "Registration successful"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Registration failed for email {Email}", request.Email);
+                return new AuthResponse { Success = false, Message = $"Registration failed: {ex.Message}" };
+            }
+        }
+
+        private async Task CreateDoctorProfileAsync(int userId, RegisterRequest request)
+        {
+            try
+            {
+                var doctor = new DoctorModel
+                {
+                    UserId = userId,
+                    Specialization = request.Specialization ?? "General",
+                    LicenseNumber = request.LicenseNumber,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.Doctors.Add(doctor);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Doctor profile created for UserId: {UserId}, DoctorId: {DoctorId}", 
+                    userId, doctor.DoctorId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create doctor profile for UserId: {UserId}", userId);
+                throw;
+            }
+        }
+
+        private async Task EnsureRolesExistAsync()
+        {
+            var roles = new[] { "Doctor", "Admin", "Staff" };
+            
+            foreach (var roleName in roles)
+            {
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(roleName));
+                    _logger.LogInformation("Created role: {RoleName}", roleName);
+                }
+            }
+        }
+
+        public async Task<AuthResponse> LoginAsync(LoginRequest request)
+        {
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+                
+                if (user == null)
+                {
+                    _logger.LogWarning("Login failed: User {Email} not found", request.Email);
+                    return new AuthResponse { Success = false, Message = "Invalid email or password" };
+                }
+
+                var identityUser = await _userManager.FindByEmailAsync(request.Email);
+                if (identityUser == null)
+                {
+                    _logger.LogWarning("Login failed: Identity user {Email} not found", request.Email);
+                    return new AuthResponse { Success = false, Message = "Invalid email or password" };
+                }
+
+                var isPasswordValid = await _userManager.CheckPasswordAsync(identityUser, request.Password);
+                if (!isPasswordValid)
+                {
+                    _logger.LogWarning("Login failed: Invalid password for {Email}", request.Email);
+                    return new AuthResponse { Success = false, Message = "Invalid email or password" };
+                }
+
+                var token = GenerateToken(user);
+
+                _logger.LogInformation("User {Email} (UserId: {UserId}) logged in successfully", request.Email, user.UserId);
+
+                return new AuthResponse
+                {
+                    Success = true,
+                    Token = token,
+                    User = new UserDTO
+                    {
+                        UserId = user.UserId,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        PhoneNumber = user.PhoneNumber,
+                        Role = user.Role
+                    },
+                    Message = "Login successful"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Login failed for email {Email}", request.Email);
+                return new AuthResponse { Success = false, Message = "Login failed. Please try again." };
+            }
+        }
+
+        public async Task<bool> IsEmailExistsAsync(string email)
+        {
+            try
+            {
+                return await _userManager.FindByEmailAsync(email) != null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking if email {Email} exists", email);
+                return false;
+            }
+        }
+
+        private string GenerateToken(UserModel user)
+        {
+            try
+            {
+                var jwtSettings = _configuration.GetSection("JwtSettings");
+                var secretKey = jwtSettings["SecretKey"];
+                
+                if (string.IsNullOrEmpty(secretKey))
+                {
+                    throw new InvalidOperationException("JWT SecretKey is not configured");
+                }
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+                var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                    new Claim(ClaimTypes.Role, user.Role),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+
+                var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "1440");
+                
+                var token = new JwtSecurityToken(
+                    issuer: jwtSettings["Issuer"],
+                    audience: jwtSettings["Audience"],
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
+                    signingCredentials: credentials
+                );
+
+                return new JwtSecurityTokenHandler().WriteToken(token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Token generation failed for user {UserId}", user.UserId);
+                throw;
+            }
+        }
+    }
+}

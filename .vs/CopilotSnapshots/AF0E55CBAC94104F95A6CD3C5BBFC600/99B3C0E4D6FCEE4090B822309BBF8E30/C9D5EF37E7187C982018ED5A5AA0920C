@@ -1,0 +1,28 @@
+﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=DESKTOP-UERNKOD;Database=ClinicSystemDb_Dev;Integrated Security=true;TrustServerCertificate=true;"
+  },
+  "JwtSettings": {
+    "SecretKey": "DevelopmentSecretKeyThatIsAtLeast32CharactersLong!!",
+    "ExpirationMinutes": 1440,
+    "Issuer": "ClinicAPI",
+    "Audience": "ClinicApp"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Information",
+        "System": "Information"
+      }
+    }
+  }
+}

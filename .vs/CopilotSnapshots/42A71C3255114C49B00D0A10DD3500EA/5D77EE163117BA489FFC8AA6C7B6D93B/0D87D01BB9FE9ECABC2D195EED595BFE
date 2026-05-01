@@ -1,0 +1,298 @@
+﻿using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Data.DTOs;
+using CLINICSYSTEM.Models;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+
+namespace CLINICSYSTEM.Services
+{
+    /// <summary>
+    /// Service for aggregating patient timeline across all systems
+    /// Combines visits, referrals, imaging, therapy sessions, and prescriptions
+    /// </summary>
+    public interface IPatientTimelineService
+    {
+        Task<PatientTimelineDTO> GetPatientTimelineAsync(Guid patientExternalId, GetPatientTimelineRequest? request = null);
+        Task<List<TimelineEventDTO>> GetPatientEventsAsync(Guid patientExternalId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<PainScoreTrendDTO>> GetPainScoreTrendAsync(Guid patientExternalId);
+    }
+
+    public class PatientTimelineService : IPatientTimelineService
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly ILogger<PatientTimelineService> _logger;
+        private readonly IExternalPatientIdService _patientIdService;
+
+        public PatientTimelineService(
+            ClinicDbContext context,
+            IMapper mapper,
+            ILogger<PatientTimelineService> logger,
+            IExternalPatientIdService patientIdService)
+        {
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
+            _patientIdService = patientIdService;
+        }
+
+        public async Task<PatientTimelineDTO> GetPatientTimelineAsync(Guid patientExternalId, GetPatientTimelineRequest? request = null)
+        {
+            try
+            {
+                request ??= new GetPatientTimelineRequest { PatientExternalId = patientExternalId };
+
+                // Get patient
+                var localPatientId = await _patientIdService.GetLocalPatientIdAsync(patientExternalId);
+                var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == localPatientId);
+
+                if (patient == null)
+                    throw new KeyNotFoundException($"Patient {patientExternalId} not found");
+
+                // Get all related data
+                var referrals = await _context.Referrals
+                    .Where(r => r.PatientExternalId == patientExternalId.ToString())
+                    .ToListAsync();
+
+                var consultations = await _context.Consultations
+                    .Include(c => c.Appointment)
+                    .ThenInclude(a => a.Patient)
+                    .Where(c => c.Appointment.Patient.ExternalPatientId == patientExternalId.ToString())
+                    .ToListAsync();
+
+                var imagings = await _context.MedicalImagings
+                    .Where(i => i.PatientExternalId == patientExternalId)
+                    .ToListAsync();
+
+                var sessions = await _context.TherapySessions
+                    .Where(s => s.PatientExternalId == patientExternalId)
+                    .ToListAsync();
+
+                var prescriptions = await _context.Prescriptions
+                    .Where(p => p.PatientId == localPatientId)
+                    .ToListAsync();
+
+                // Calculate statistics
+                var latestSession = sessions.OrderByDescending(s => s.SessionDate).FirstOrDefault();
+                var painScores = sessions.Select(s => new PainScoreTrendDTO
+                {
+                    SessionDate = s.SessionDate,
+                    PainBefore = s.PainScoreBefore,
+                    PainAfter = s.PainScoreAfter,
+                    TherapyType = "Physiotherapy"
+                }).OrderBy(p => p.SessionDate).ToList();
+
+                var averagePainImprovement = painScores.Any() 
+                    ? painScores.Average(p => p.PainBefore - p.PainAfter) 
+                    : 0;
+
+                // Build timeline
+                var timeline = new PatientTimelineDTO
+                {
+                    PatientExternalId = patientExternalId,
+                    LocalPatientId = patient.PatientId,
+                    PatientName = patient.FullName,
+                    PhoneNumber = patient.PhoneNumber,
+
+                    // Statistics
+                    TotalVisits = consultations.Count,
+                    TotalReferrals = referrals.Count,
+                    TotalImagingTests = imagings.Count,
+                    TotalTherapySessions = sessions.Count,
+                    ActiveReferrals = referrals.Count(r => r.Status != "Completed"),
+
+                    // Pain tracking
+                    LatestPainScoreBefore = latestSession?.PainScoreBefore,
+                    LatestPainScoreAfter = latestSession?.PainScoreAfter,
+                    AveragePainImprovement = averagePainImprovement,
+                    PainScoreTrend = painScores,
+
+                    // Next appointment
+                    NextAppointmentDate = latestSession?.NextAppointmentDate,
+                    NextAppointmentType = "Therapy",
+
+                    // Detailed data
+                    Referrals = _mapper.Map<List<ReferralSummaryDTO>>(referrals),
+                    Visits = MapConsultationsToVisits(consultations),
+                    ImagingTests = _mapper.Map<List<ImagingTimelineDTO>>(imagings),
+                    TherapySessions = _mapper.Map<List<TherapySessionTimelineDTO>>(sessions),
+                    ActivePrescriptions = MapPrescriptions(prescriptions)
+                };
+
+                // Add timeline events
+                if (request.IncludeDetailedEvents)
+                {
+                    timeline.TimelineEvents = await GetPatientEventsAsync(
+                        patientExternalId,
+                        request.FromDate,
+                        request.ToDate
+                    );
+                }
+
+                _logger.LogInformation($"Patient timeline retrieved for {patientExternalId}");
+                return timeline;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving patient timeline for {patientExternalId}");
+                throw;
+            }
+        }
+
+        public async Task<List<TimelineEventDTO>> GetPatientEventsAsync(Guid patientExternalId, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            try
+            {
+                var localPatientId = await _patientIdService.GetLocalPatientIdAsync(patientExternalId);
+                var events = new List<TimelineEventDTO>();
+
+                // Consultations
+                var consultations = await _context.Consultations
+                    .Where(c => c.PatientId == localPatientId)
+                    .Where(c => !fromDate.HasValue || c.CreatedAt >= fromDate)
+                    .Where(c => !toDate.HasValue || c.CreatedAt <= toDate)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToListAsync();
+
+                foreach (var consultation in consultations)
+                {
+                    events.Add(new TimelineEventDTO
+                    {
+                        EventDate = consultation.CreatedAt,
+                        EventType = "Visit",
+                        EventTitle = "Doctor Consultation",
+                        EventDescription = $"Visited for: {consultation.Reason}",
+                        Status = "Completed",
+                        RelatedId = consultation.ConsultationId,
+                        ActionableBy = "Doctor"
+                    });
+                }
+
+                // Referrals
+                var referrals = await _context.Referrals
+                    .Where(r => r.PatientExternalId == patientExternalId.ToString())
+                    .Where(r => !fromDate.HasValue || r.CreatedAt >= fromDate)
+                    .Where(r => !toDate.HasValue || r.CreatedAt <= toDate)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .ToListAsync();
+
+                foreach (var referral in referrals)
+                {
+                    events.Add(new TimelineEventDTO
+                    {
+                        EventDate = referral.CreatedAt,
+                        EventType = "Referral",
+                        EventTitle = $"{referral.ReferralType} Referral Created",
+                        EventDescription = $"Diagnosis: {referral.Diagnosis}",
+                        Status = referral.Status,
+                        RelatedId = referral.ReferralId,
+                        ActionableBy = referral.ReferralType == "Physiotherapy" ? "Physiotherapy" : "Radiology"
+                    });
+                }
+
+                // Imaging
+                var imagings = await _context.MedicalImagings
+                    .Where(i => i.PatientExternalId == patientExternalId)
+                    .Where(i => !fromDate.HasValue || i.RequestedAt >= fromDate)
+                    .Where(i => !toDate.HasValue || i.RequestedAt <= toDate)
+                    .OrderByDescending(i => i.RequestedAt)
+                    .ToListAsync();
+
+                foreach (var imaging in imagings)
+                {
+                    events.Add(new TimelineEventDTO
+                    {
+                        EventDate = imaging.RequestedAt,
+                        EventType = "Imaging",
+                        EventTitle = $"{imaging.ImagingType} Imaging",
+                        EventDescription = $"Body Part: {imaging.BodyPart}",
+                        Status = imaging.Status,
+                        RelatedId = imaging.ImagingId,
+                        ActionableBy = "Radiology"
+                    });
+                }
+
+                // Therapy Sessions
+                var sessions = await _context.TherapySessions
+                    .Where(s => s.PatientExternalId == patientExternalId)
+                    .Where(s => !fromDate.HasValue || s.SessionDate >= fromDate)
+                    .Where(s => !toDate.HasValue || s.SessionDate <= toDate)
+                    .OrderByDescending(s => s.SessionDate)
+                    .ToListAsync();
+
+                foreach (var session in sessions)
+                {
+                    events.Add(new TimelineEventDTO
+                    {
+                        EventDate = session.SessionDate,
+                        EventType = "Therapy",
+                        EventTitle = "Therapy Session",
+                        EventDescription = $"Pain: {session.PainScoreBefore}/10 ? {session.PainScoreAfter}/10",
+                        Status = session.Status,
+                        RelatedId = session.SessionId,
+                        ActionableBy = "Physiotherapy"
+                    });
+                }
+
+                return events.OrderByDescending(e => e.EventDate).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving patient events");
+                throw;
+            }
+        }
+
+        public async Task<List<PainScoreTrendDTO>> GetPainScoreTrendAsync(Guid patientExternalId)
+        {
+            try
+            {
+                var sessions = await _context.TherapySessions
+                    .Where(s => s.PatientExternalId == patientExternalId)
+                    .OrderBy(s => s.SessionDate)
+                    .ToListAsync();
+
+                return sessions.Select(s => new PainScoreTrendDTO
+                {
+                    SessionDate = s.SessionDate,
+                    PainBefore = s.PainScoreBefore,
+                    PainAfter = s.PainScoreAfter,
+                    TherapyType = "Physiotherapy"
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving pain score trend");
+                throw;
+            }
+        }
+
+        // Helper methods
+        private List<VisitSummaryDTO> MapConsultationsToVisits(List<ConsultationModel> consultations)
+        {
+            return consultations.Select(c => new VisitSummaryDTO
+            {
+                ConsultationId = c.ConsultationId,
+                VisitDate = c.CreatedAt,
+                DoctorName = c.Appointment?.Doctor?.User?.Email ?? "Unknown",
+                Reason = c.Symptoms ?? string.Empty,
+                Diagnosis = c.Diagnosis,
+                Treatment = c.Notes
+            }).ToList();
+        }
+
+        private List<PrescriptionSummaryDTO> MapPrescriptions(List<PrescriptionModel> prescriptions)
+        {
+            return prescriptions.Select(p => new PrescriptionSummaryDTO
+            {
+                PrescriptionId = p.PrescriptionId,
+                Medication = p.MedicationName,
+                Dosage = $"{p.Dosage}",
+                Frequency = p.Frequency,
+                StartDate = p.CreatedAt,
+                EndDate = p.CreatedAt.AddDays(p.DurationDays),
+                IsActive = p.CreatedAt.AddDays(p.DurationDays) > DateTime.UtcNow
+            }).ToList();
+        }
+    }
+}

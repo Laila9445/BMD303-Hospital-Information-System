@@ -1,0 +1,315 @@
+﻿using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Data.DTOs;
+using CLINICSYSTEM.Models;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+
+namespace CLINICSYSTEM.Services
+{
+    /// <summary>
+    /// Service for managing therapy sessions and plans (Physiotherapy integration)
+    /// </summary>
+    public interface ITherapyService
+    {
+        // Therapy Sessions
+        Task<TherapySessionDTO> CreateSessionAsync(CreateTherapySessionRequest request);
+        Task<TherapySessionDTO> GetSessionByIdAsync(int sessionId);
+        Task<List<TherapySessionDTO>> GetPatientSessionsAsync(Guid patientExternalId);
+        Task<List<TherapySessionDTO>> GetReferralSessionsAsync(int referralId);
+        Task<TherapySessionDTO> UpdateSessionAsync(int sessionId, CreateTherapySessionRequest request);
+
+        // Therapy Plans
+        Task<TherapyPlanDTO> CreatePlanAsync(CreateTherapyPlanRequest request);
+        Task<TherapyPlanDTO> GetPlanByIdAsync(int planId);
+        Task<List<TherapyPlanDTO>> GetPatientPlansAsync(Guid patientExternalId);
+        Task<TherapyPlanDTO> UpdatePlanAsync(int planId, CreateTherapyPlanRequest request);
+
+        // Progress Tracking
+        Task<PatientProgressDTO> GetPatientProgressAsync(Guid patientExternalId);
+    }
+
+    public class TherapyService : ITherapyService
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly ILogger<TherapyService> _logger;
+
+        public TherapyService(
+            ClinicDbContext context,
+            IMapper mapper,
+            ILogger<TherapyService> logger)
+        {
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
+        }
+
+        // Therapy Sessions
+        public async Task<TherapySessionDTO> CreateSessionAsync(CreateTherapySessionRequest request)
+        {
+            try
+            {
+                var session = new TherapySessionModel
+                {
+                    PatientExternalId = request.PatientExternalId,
+                    ReferralId = request.ReferralId,
+                    SessionDate = request.SessionDate,
+                    TherapistName = request.TherapistName,
+                    PainScoreBefore = request.PainScoreBefore,
+                    PainScoreAfter = request.PainScoreAfter,
+                    Assessment = request.Assessment,
+                    Treatment = request.Treatment,
+                    HomeExercises = request.HomeExercises,
+                    NextAppointmentDate = request.NextAppointmentDate,
+                    Status = "Completed"
+                };
+
+                _context.TherapySessions.Add(session);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Therapy session created: {session.SessionId}");
+
+                return _mapper.Map<TherapySessionDTO>(session);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating therapy session");
+                throw;
+            }
+        }
+
+        public async Task<TherapySessionDTO> GetSessionByIdAsync(int sessionId)
+        {
+            try
+            {
+                var session = await _context.TherapySessions
+                    .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+                if (session == null)
+                    throw new KeyNotFoundException($"Session {sessionId} not found");
+
+                return _mapper.Map<TherapySessionDTO>(session);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving session {sessionId}");
+                throw;
+            }
+        }
+
+        public async Task<List<TherapySessionDTO>> GetPatientSessionsAsync(Guid patientExternalId)
+        {
+            try
+            {
+                var sessions = await _context.TherapySessions
+                    .Where(s => s.PatientExternalId == patientExternalId)
+                    .OrderByDescending(s => s.SessionDate)
+                    .ToListAsync();
+
+                return _mapper.Map<List<TherapySessionDTO>>(sessions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving patient sessions");
+                throw;
+            }
+        }
+
+        public async Task<List<TherapySessionDTO>> GetReferralSessionsAsync(int referralId)
+        {
+            try
+            {
+                var sessions = await _context.TherapySessions
+                    .Where(s => s.ReferralId == referralId)
+                    .OrderByDescending(s => s.SessionDate)
+                    .ToListAsync();
+
+                return _mapper.Map<List<TherapySessionDTO>>(sessions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving referral sessions");
+                throw;
+            }
+        }
+
+        public async Task<TherapySessionDTO> UpdateSessionAsync(int sessionId, CreateTherapySessionRequest request)
+        {
+            try
+            {
+                var session = await _context.TherapySessions
+                    .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+                if (session == null)
+                    throw new KeyNotFoundException($"Session {sessionId} not found");
+
+                session.TherapistName = request.TherapistName;
+                session.PainScoreBefore = request.PainScoreBefore;
+                session.PainScoreAfter = request.PainScoreAfter;
+                session.Assessment = request.Assessment;
+                session.Treatment = request.Treatment;
+                session.HomeExercises = request.HomeExercises;
+                session.NextAppointmentDate = request.NextAppointmentDate;
+                session.UpdatedAt = DateTime.UtcNow;
+
+                _context.TherapySessions.Update(session);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Therapy session {sessionId} updated");
+
+                return _mapper.Map<TherapySessionDTO>(session);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating session {sessionId}");
+                throw;
+            }
+        }
+
+        // Therapy Plans
+        public async Task<TherapyPlanDTO> CreatePlanAsync(CreateTherapyPlanRequest request)
+        {
+            try
+            {
+                var plan = new TherapyPlanModel
+                {
+                    ReferralId = request.ReferralId,
+                    PatientExternalId = request.PatientExternalId,
+                    PlanDescription = request.PlanDescription,
+                    TherapyType = request.TherapyType,
+                    PlannedSessions = request.PlannedSessions,
+                    RecommendedFrequency = request.RecommendedFrequency,
+                    ExpectedDuration = request.ExpectedDuration,
+                    TherapyGoals = request.TherapyGoals,
+                    StartDate = DateTime.UtcNow,
+                    Status = "Planned"
+                };
+
+                _context.TherapyPlans.Add(plan);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Therapy plan created: {plan.PlanId}");
+
+                return _mapper.Map<TherapyPlanDTO>(plan);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating therapy plan");
+                throw;
+            }
+        }
+
+        public async Task<TherapyPlanDTO> GetPlanByIdAsync(int planId)
+        {
+            try
+            {
+                var plan = await _context.TherapyPlans
+                    .FirstOrDefaultAsync(p => p.PlanId == planId);
+
+                if (plan == null)
+                    throw new KeyNotFoundException($"Plan {planId} not found");
+
+                return _mapper.Map<TherapyPlanDTO>(plan);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving plan {planId}");
+                throw;
+            }
+        }
+
+        public async Task<List<TherapyPlanDTO>> GetPatientPlansAsync(Guid patientExternalId)
+        {
+            try
+            {
+                var plans = await _context.TherapyPlans
+                    .Where(p => p.PatientExternalId == patientExternalId)
+                    .OrderByDescending(p => p.StartDate)
+                    .ToListAsync();
+
+                return _mapper.Map<List<TherapyPlanDTO>>(plans);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving patient plans");
+                throw;
+            }
+        }
+
+        public async Task<TherapyPlanDTO> UpdatePlanAsync(int planId, CreateTherapyPlanRequest request)
+        {
+            try
+            {
+                var plan = await _context.TherapyPlans
+                    .FirstOrDefaultAsync(p => p.PlanId == planId);
+
+                if (plan == null)
+                    throw new KeyNotFoundException($"Plan {planId} not found");
+
+                plan.PlanDescription = request.PlanDescription;
+                plan.TherapyType = request.TherapyType;
+                plan.PlannedSessions = request.PlannedSessions;
+                plan.RecommendedFrequency = request.RecommendedFrequency;
+                plan.TherapyGoals = request.TherapyGoals;
+                plan.UpdatedAt = DateTime.UtcNow;
+
+                _context.TherapyPlans.Update(plan);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Therapy plan {planId} updated");
+
+                return _mapper.Map<TherapyPlanDTO>(plan);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating plan {planId}");
+                throw;
+            }
+        }
+
+        // Progress Tracking
+        public async Task<PatientProgressDTO> GetPatientProgressAsync(Guid patientExternalId)
+        {
+            try
+            {
+                var referrals = await _context.Referrals
+                    .Where(r => r.PatientExternalId == patientExternalId.ToString())
+                    .ToListAsync();
+
+                var sessions = await _context.TherapySessions
+                    .Where(s => s.PatientExternalId == patientExternalId)
+                    .OrderByDescending(s => s.SessionDate)
+                    .ToListAsync();
+
+                var imagings = await _context.MedicalImagings
+                    .Where(i => i.PatientExternalId == patientExternalId)
+                    .ToListAsync();
+
+                var latestSession = sessions.FirstOrDefault();
+                var painImprovement = sessions.Any() 
+                    ? sessions.Average(s => s.PainScoreBefore - s.PainScoreAfter) 
+                    : 0;
+
+                return new PatientProgressDTO
+                {
+                    PatientExternalId = patientExternalId,
+                    TotalReferrals = referrals.Count,
+                    CompletedReferrals = referrals.Count(r => r.Status == "Completed"),
+                    ActiveReferrals = referrals.Count(r => r.Status != "Completed"),
+                    TotalTherapySessions = sessions.Count,
+                    AveragePainScoreImprovement = painImprovement,
+                    TotalImagingTests = imagings.Count,
+                    LatestPainScoreBefore = latestSession?.PainScoreBefore,
+                    LatestPainScoreAfter = latestSession?.PainScoreAfter,
+                    LastSessionDate = latestSession?.SessionDate,
+                    NextAppointmentDate = latestSession?.NextAppointmentDate
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving patient progress");
+                throw;
+            }
+        }
+    }
+}

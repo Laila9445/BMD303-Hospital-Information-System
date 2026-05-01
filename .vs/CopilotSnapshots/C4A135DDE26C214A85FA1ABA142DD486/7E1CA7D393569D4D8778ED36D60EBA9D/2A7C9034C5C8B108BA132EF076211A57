@@ -1,0 +1,175 @@
+﻿using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Data.DTOs;
+using CLINICSYSTEM.Models;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+
+namespace CLINICSYSTEM.Services
+{
+    /// <summary>
+    /// Service for managing medical imaging (Radiology integration)
+    /// </summary>
+    public interface IImagingService
+    {
+        Task<MedicalImagingDTO> CreateImagingRequestAsync(CreateMedicalImagingRequest request);
+        Task<MedicalImagingDTO> GetImagingByIdAsync(int imagingId);
+        Task<List<MedicalImagingDTO>> GetPatientImagingAsync(Guid patientExternalId);
+        Task<List<MedicalImagingDTO>> GetReferralImagingAsync(int referralId);
+        Task<MedicalImagingDTO> UpdateImagingResultsAsync(int imagingId, UpdateMedicalImagingRequest request);
+        Task<bool> DeleteImagingAsync(int imagingId);
+    }
+
+    public class ImagingService : IImagingService
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly ILogger<ImagingService> _logger;
+        private readonly IExternalPatientIdService _patientIdService;
+
+        public ImagingService(
+            ClinicDbContext context,
+            IMapper mapper,
+            ILogger<ImagingService> logger,
+            IExternalPatientIdService patientIdService)
+        {
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
+            _patientIdService = patientIdService;
+        }
+
+        public async Task<MedicalImagingDTO> CreateImagingRequestAsync(CreateMedicalImagingRequest request)
+        {
+            try
+            {
+                var imaging = new MedicalImagingModel
+                {
+                    PatientExternalId = request.PatientExternalId,
+                    ReferralId = request.ReferralId,
+                    ImagingType = request.ImagingType,
+                    BodyPart = request.BodyPart,
+                    Indication = request.Indication,
+                    Priority = request.Priority,
+                    Status = "Requested",
+                    RequestedAt = DateTime.UtcNow
+                };
+
+                _context.MedicalImagings.Add(imaging);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Imaging request created: {imaging.ImagingId} for patient {request.PatientExternalId}");
+
+                return _mapper.Map<MedicalImagingDTO>(imaging);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating imaging request");
+                throw;
+            }
+        }
+
+        public async Task<MedicalImagingDTO> GetImagingByIdAsync(int imagingId)
+        {
+            try
+            {
+                var imaging = await _context.MedicalImagings.FirstOrDefaultAsync(i => i.ImagingId == imagingId);
+                if (imaging == null)
+                    throw new KeyNotFoundException($"Imaging {imagingId} not found");
+
+                return _mapper.Map<MedicalImagingDTO>(imaging);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving imaging {imagingId}");
+                throw;
+            }
+        }
+
+        public async Task<List<MedicalImagingDTO>> GetPatientImagingAsync(Guid patientExternalId)
+        {
+            try
+            {
+                var imagings = await _context.MedicalImagings
+                    .Where(i => i.PatientExternalId == patientExternalId)
+                    .OrderByDescending(i => i.RequestedAt)
+                    .ToListAsync();
+
+                return _mapper.Map<List<MedicalImagingDTO>>(imagings);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving patient imaging for {patientExternalId}");
+                throw;
+            }
+        }
+
+        public async Task<List<MedicalImagingDTO>> GetReferralImagingAsync(int referralId)
+        {
+            try
+            {
+                var imagings = await _context.MedicalImagings
+                    .Where(i => i.ReferralId == referralId)
+                    .OrderByDescending(i => i.RequestedAt)
+                    .ToListAsync();
+
+                return _mapper.Map<List<MedicalImagingDTO>>(imagings);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving referral imaging for {referralId}");
+                throw;
+            }
+        }
+
+        public async Task<MedicalImagingDTO> UpdateImagingResultsAsync(int imagingId, UpdateMedicalImagingRequest request)
+        {
+            try
+            {
+                var imaging = await _context.MedicalImagings.FirstOrDefaultAsync(i => i.ImagingId == imagingId);
+                if (imaging == null)
+                    throw new KeyNotFoundException($"Imaging {imagingId} not found");
+
+                imaging.StorageUrl = request.StorageUrl;
+                imaging.RadiologyReport = request.RadiologyReport;
+                imaging.Findings = request.Findings;
+                imaging.Recommendations = request.Recommendations;
+                imaging.Status = request.Status;
+                imaging.CompletedAt = DateTime.UtcNow;
+                imaging.UpdatedAt = DateTime.UtcNow;
+
+                _context.MedicalImagings.Update(imaging);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Imaging {imagingId} results updated");
+
+                return _mapper.Map<MedicalImagingDTO>(imaging);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating imaging {imagingId}");
+                throw;
+            }
+        }
+
+        public async Task<bool> DeleteImagingAsync(int imagingId)
+        {
+            try
+            {
+                var imaging = await _context.MedicalImagings.FirstOrDefaultAsync(i => i.ImagingId == imagingId);
+                if (imaging == null)
+                    return false;
+
+                _context.MedicalImagings.Remove(imaging);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Imaging {imagingId} deleted");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting imaging {imagingId}");
+                throw;
+            }
+        }
+    }
+}

@@ -1,0 +1,159 @@
+2026-04-26 05:40:08.742 +03:00 [INF] Starting Clinic Information System API
+2026-04-26 05:40:08.918 +03:00 [INF] User profile is available. Using 'C:\Users\Best By\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-26 05:40:09.143 +03:00 [WRN] The WebRootPath was not found: C:\Users\Best By\OneDrive - Nile University\Desktop\Software Engineering\Clinic(hospital sys)\Clinic(hospital sys)\backend\wwwroot. Static files may be unavailable.
+2026-04-26 05:40:09.196 +03:00 [INF] Now listening on: http://localhost:5056
+2026-04-26 05:40:09.209 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-26 05:40:09.213 +03:00 [INF] Hosting environment: Development
+2026-04-26 05:40:09.216 +03:00 [INF] Content root path: C:\Users\Best By\OneDrive - Nile University\Desktop\Software Engineering\Clinic(hospital sys)\Clinic(hospital sys)\backend
+2026-04-26 05:40:11.162 +03:00 [INF] Executed DbCommand (77ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 05:40:11.551 +03:00 [INF] Executed DbCommand (65ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 05:40:11.569 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 05:40:11.585 +03:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 05:40:11.646 +03:00 [INF] Executed DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+2026-04-26 05:40:11.703 +03:00 [INF] No migrations were applied. The database is already up to date.
+2026-04-26 05:40:11.708 +03:00 [INF] Database migration completed successfully
+2026-04-26 05:40:12.260 +03:00 [INF] Executed DbCommand (53ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 05:40:12.382 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 05:40:12.399 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 05:55:46.783 +03:00 [INF] Application is shutting down...
+2026-04-26 05:56:15.557 +03:00 [INF] Starting Clinic Information System API
+2026-04-26 05:56:15.653 +03:00 [INF] User profile is available. Using 'C:\Users\Best By\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-26 05:56:15.712 +03:00 [WRN] The WebRootPath was not found: C:\Users\Best By\OneDrive - Nile University\Desktop\Software Engineering\Clinic(hospital sys)\Clinic(hospital sys)\backend\wwwroot. Static files may be unavailable.
+2026-04-26 05:56:15.744 +03:00 [INF] Now listening on: http://localhost:5056
+2026-04-26 05:56:15.749 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-26 05:56:15.751 +03:00 [INF] Hosting environment: Development
+2026-04-26 05:56:15.753 +03:00 [INF] Content root path: C:\Users\Best By\OneDrive - Nile University\Desktop\Software Engineering\Clinic(hospital sys)\Clinic(hospital sys)\backend
+2026-04-26 05:56:16.675 +03:00 [INF] Executed DbCommand (29ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 05:56:16.770 +03:00 [INF] Executed DbCommand (67ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 05:56:16.790 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 05:56:16.806 +03:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 05:56:16.883 +03:00 [INF] Executed DbCommand (31ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+2026-04-26 05:56:16.949 +03:00 [INF] No migrations were applied. The database is already up to date.
+2026-04-26 05:56:16.954 +03:00 [INF] Database migration completed successfully
+2026-04-26 05:56:17.364 +03:00 [INF] Executed DbCommand (32ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 05:56:17.433 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 05:56:17.440 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 13:03:47.656 +03:00 [INF] Executed DbCommand (34ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 13:03:47.821 +03:00 [INF] Executed DbCommand (32ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 13:03:47.864 +03:00 [INF] Executed DbCommand (13ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+2026-04-26 13:05:04.111 +03:00 [INF] Executed DbCommand (24ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 13:05:04.233 +03:00 [INF] Executed DbCommand (47ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 13:05:04.240 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 13:05:04.246 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 13:05:04.269 +03:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+2026-04-26 13:05:04.292 +03:00 [INF] Applying migration '20260426100426_AddBillingSystem'.
+2026-04-26 13:05:04.395 +03:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20260426100426_AddBillingSystem', N'8.0.0');
+2026-04-26 13:05:39.172 +03:00 [INF] Starting Clinic Information System API
+2026-04-26 13:05:39.284 +03:00 [INF] User profile is available. Using 'C:\Users\Best By\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-26 13:05:39.359 +03:00 [WRN] The WebRootPath was not found: C:\Users\Best By\OneDrive - Nile University\Desktop\Software Engineering\Clinic(hospital sys)\Clinic(hospital sys)\backend\wwwroot. Static files may be unavailable.
+2026-04-26 13:05:39.393 +03:00 [INF] Now listening on: http://localhost:5056
+2026-04-26 13:05:39.399 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-26 13:05:39.402 +03:00 [INF] Hosting environment: Development
+2026-04-26 13:05:39.405 +03:00 [INF] Content root path: C:\Users\Best By\OneDrive - Nile University\Desktop\Software Engineering\Clinic(hospital sys)\Clinic(hospital sys)\backend
+2026-04-26 13:05:40.908 +03:00 [INF] Executed DbCommand (52ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 13:05:40.965 +03:00 [INF] Executed DbCommand (27ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 13:05:40.975 +03:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-04-26 13:05:40.981 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-04-26 13:05:41.012 +03:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+2026-04-26 13:05:41.053 +03:00 [INF] No migrations were applied. The database is already up to date.
+2026-04-26 13:05:41.057 +03:00 [INF] Database migration completed successfully
+2026-04-26 13:05:41.511 +03:00 [INF] Executed DbCommand (28ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 13:05:41.594 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 13:05:41.602 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2026-04-26 13:14:01.381 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/api/auth/register - null null
+2026-04-26 13:14:01.533 +03:00 [WRN] Failed to determine the https port for redirect.
+2026-04-26 13:14:01.649 +03:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2026-04-26 13:14:01.656 +03:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2026-04-26 13:14:01.666 +03:00 [INF] HTTP GET /api/auth/register responded 405 in 172.3408 ms
+2026-04-26 13:14:01.686 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/api/auth/register - 405 0 null 311.2138ms
+2026-04-26 13:14:13.530 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/api - null null
+2026-04-26 13:14:13.551 +03:00 [INF] HTTP GET /api responded 404 in 7.0107 ms
+2026-04-26 13:14:13.566 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/api - 404 0 null 36.1483ms
+2026-04-26 13:14:13.588 +03:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5056/api, Response status code: 404
+2026-04-26 13:14:21.036 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/swagger - null null
+2026-04-26 13:14:21.058 +03:00 [INF] HTTP GET /swagger responded 301 in 2.1328 ms
+2026-04-26 13:14:21.067 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/swagger - 301 0 null 30.4545ms
+2026-04-26 13:14:21.116 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/swagger/index.html - null null
+2026-04-26 13:14:21.258 +03:00 [INF] HTTP GET /swagger/index.html responded 200 in 130.8280 ms
+2026-04-26 13:14:21.264 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/swagger/index.html - 200 null text/html;charset=utf-8 147.4891ms
+2026-04-26 13:14:21.278 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/swagger/swagger-ui.css - null null
+2026-04-26 13:14:21.279 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/swagger/swagger-ui-bundle.js - null null
+2026-04-26 13:14:21.279 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/swagger/swagger-ui-standalone-preset.js - null null
+2026-04-26 13:14:21.357 +03:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2026-04-26 13:14:21.357 +03:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2026-04-26 13:14:21.368 +03:00 [INF] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 200 in 56.9844 ms
+2026-04-26 13:14:21.370 +03:00 [INF] HTTP GET /swagger/swagger-ui.css responded 200 in 83.3200 ms
+2026-04-26 13:14:21.380 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/swagger/swagger-ui-standalone-preset.js - 200 230280 text/javascript 100.5694ms
+2026-04-26 13:14:21.382 +03:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2026-04-26 13:14:21.386 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/swagger/swagger-ui.css - 200 152034 text/css 107.2688ms
+2026-04-26 13:14:21.399 +03:00 [INF] HTTP GET /swagger/swagger-ui-bundle.js responded 200 in 104.0795 ms
+2026-04-26 13:14:21.412 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/swagger/swagger-ui-bundle.js - 200 1456926 text/javascript 133.2144ms
+2026-04-26 13:14:21.690 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/swagger/v1/swagger.json - null null
+2026-04-26 13:14:21.742 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5056/swagger/favicon-32x32.png - null null
+2026-04-26 13:14:21.758 +03:00 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2026-04-26 13:14:21.768 +03:00 [INF] HTTP GET /swagger/favicon-32x32.png responded 200 in 10.3231 ms
+2026-04-26 13:14:21.778 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/swagger/favicon-32x32.png - 200 628 image/png 36.6062ms
+2026-04-26 13:14:22.198 +03:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 498.0023 ms
+2026-04-26 13:14:22.206 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5056/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 515.6544ms

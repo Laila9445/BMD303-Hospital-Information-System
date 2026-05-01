@@ -1,0 +1,366 @@
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Models;
+using CLINICSYSTEM.Services;
+using CLINICSYSTEM.Services.EventConsumer;
+using CLINICSYSTEM.Middleware;
+using CLINICSYSTEM.Validators;
+using Serilog;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using StackExchange.Redis;
+using MassTransit;
+
+// Configure Serilog with reduced verbosity for faster startup
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File("logs/clinic-api-.txt", rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext()
+    .MinimumLevel.Information()
+    .CreateLogger();
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add Serilog
+builder.Host.UseSerilog();
+
+// Add services
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+// FluentValidation
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddScoped<IValidator<CLINICSYSTEM.Data.DTOs.RegisterRequest>, RegisterRequestValidator>();
+builder.Services.AddScoped<IValidator<CLINICSYSTEM.Data.DTOs.LoginRequest>, LoginRequestValidator>();
+
+// Swagger/OpenAPI
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "Clinic Information System API", 
+        Version = "v1",
+        Description = "ASP.NET Core Web API for Clinic Management System",
+        Contact = new OpenApiContact
+        {
+            Name = "Clinic Support",
+            Email = "support@clinic.com"
+        }
+    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter JWT token with Bearer prefix (e.g., 'Bearer {token}')",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new string[] { }
+        }
+    });
+});
+
+// Database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+?? "Server=(local);Database=ClinicSystemDb;Trusted_Connection=true;TrustServerCertificate=true;";
+builder.Services.AddDbContext<ClinicDbContext>(options =>
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        sqlOptions.CommandTimeout(30);
+        sqlOptions.EnableRetryOnFailure(3);
+    }));
+
+// Identity
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    options.Password.RequiredLength = 6;
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+})
+    .AddEntityFrameworkStores<ClinicDbContext>()
+    .AddDefaultTokenProviders();
+
+// JWT Authentication - OPTIMIZED
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        RequireExpirationTime = true
+    };
+    
+    // Removed extensive event handlers for performance
+});
+
+// Authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("DoctorOnly", policy => policy.RequireRole("Doctor"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("StaffOnly", policy => policy.RequireRole("Staff", "Admin", "Doctor"));
+ });
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+    
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+// Application Services
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IConsultationService, ConsultationService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+builder.Services.AddScoped<IMedicalImageService, MedicalImageService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IReferralService, ReferralService>();
+builder.Services.AddScoped<IPatientPortalService, PatientPortalService>();
+builder.Services.AddScoped<PdfService>();
+
+// External System Integration Services
+builder.Services.AddScoped<IExternalPatientIdService, ExternalPatientIdService>();
+
+// EventPublisher with optional MassTransit
+builder.Services.AddScoped<IEventPublisher>(sp =>
+{
+    var logger = sp.GetRequiredService<ILogger<EventPublisher>>();
+    if (builder.Configuration.GetValue<bool>("MessageBroker:Enabled", false))
+    {
+        var publishEndpoint = sp.GetRequiredService<IPublishEndpoint>();
+        return new EventPublisher(logger, publishEndpoint);
+    }
+    else
+    {
+        return new EventPublisher(logger, null);
+    }
+});
+
+builder.Services.AddScoped<ReferralAcceptedEventConsumer>();
+builder.Services.AddScoped<AppointmentScheduledEventConsumer>();
+builder.Services.AddScoped<SessionCompletedEventConsumer>();
+builder.Services.AddScoped<ImagingCompletedEventConsumer>();
+
+// Redis caching - Non-blocking with AbortOnConnectFail=true for fast failure
+var cacheConnection = builder.Configuration.GetConnectionString("ExternalPatientCache") ?? "localhost:6379";
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var options = ConfigurationOptions.Parse(cacheConnection);
+    options.AbortOnConnectFail = false;
+    options.ConnectTimeout = 2000;
+    options.SyncTimeout = 2000;
+    options.ResponseTimeout = 2000;
+    return StackExchange.Redis.ConnectionMultiplexer.Connect(options);
+});
+
+// MassTransit - Deferred initialization with fast connection timeout
+if (builder.Configuration.GetValue<bool>("MessageBroker:Enabled", true))
+{
+    builder.Services.AddMassTransit(x =>
+    {
+        x.AddConsumer<ReferralAcceptedEventConsumer>();
+        x.AddConsumer<AppointmentScheduledEventConsumer>();
+        x.AddConsumer<SessionCompletedEventConsumer>();
+        x.AddConsumer<ImagingCompletedEventConsumer>();
+
+        x.UsingRabbitMq((context, cfg) =>
+        {
+            var messageBrokerConfig = builder.Configuration.GetSection("MessageBroker");
+            var connectionString = messageBrokerConfig["ConnectionString"] ?? "amqp://guest:guest@localhost:5672/";
+            
+            cfg.Host(connectionString, h =>
+            {
+                h.RequestedConnectionTimeout(TimeSpan.FromSeconds(5));
+            });
+            
+            cfg.ReceiveEndpoint("clinic.referral.accepted", e => e.ConfigureConsumer<ReferralAcceptedEventConsumer>(context));
+            cfg.ReceiveEndpoint("clinic.appointment.scheduled", e => e.ConfigureConsumer<AppointmentScheduledEventConsumer>(context));
+            cfg.ReceiveEndpoint("clinic.session.completed", e => e.ConfigureConsumer<SessionCompletedEventConsumer>(context));
+            cfg.ReceiveEndpoint("clinic.imaging.completed", e => e.ConfigureConsumer<ImagingCompletedEventConsumer>(context));
+        });
+    });
+}
+
+// HttpClient for external services
+builder.Services.AddHttpClient("PhysiotherapyApi", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["ExternalServices:PhysiotherapyApi:BaseUrl"];
+    var apiKey = configuration["ExternalServices:PhysiotherapyApi:ApiKey"];
+    
+    if (!string.IsNullOrEmpty(baseUrl))
+        client.BaseAddress = new Uri(baseUrl);
+    
+    if (!string.IsNullOrEmpty(apiKey))
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(30));
+
+builder.Services.AddHttpClient("PatientPortalApi", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["ExternalServices:PatientPortalApi:BaseUrl"];
+    var apiKey = configuration["ExternalServices:PatientPortalApi:ApiKey"];
+    
+    if (!string.IsNullOrEmpty(baseUrl))
+        client.BaseAddress = new Uri(baseUrl);
+    
+    if (!string.IsNullOrEmpty(apiKey))
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(30));
+
+builder.Services.AddHttpClient("RadiologyApi", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["ExternalServices:RadiologyApi:BaseUrl"];
+    var apiKey = configuration["ExternalServices:RadiologyApi:ApiKey"];
+    
+    if (!string.IsNullOrEmpty(baseUrl))
+        client.BaseAddress = new Uri(baseUrl);
+    
+    if (!string.IsNullOrEmpty(apiKey))
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(30));
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+app.UseExceptionHandler();
+app.UseSerilogRequestLogging(opts =>
+{
+    opts.IncludeQueryInRequestPath = true;
+    opts.EnrichDiagnosticContext = (diag, http) => { };
+});
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseCors("AllowAll");
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+// Database migration and seeding - Deferred to background
+_ = Task.Run(async () =>
+{
+    try
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ClinicDbContext>();
+            
+            // Migration
+            await db.Database.MigrateAsync();
+            Log.Information("Database migration completed successfully");
+            
+            // Seed roles
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var roles = new[] { "Doctor", "Admin", "Staff" };
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                    Log.Information("Created role: {Role}", role);
+                }
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred during database migration/seeding");
+    }
+});
+
+try
+{
+    Log.Information("Starting Clinic Information System API");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

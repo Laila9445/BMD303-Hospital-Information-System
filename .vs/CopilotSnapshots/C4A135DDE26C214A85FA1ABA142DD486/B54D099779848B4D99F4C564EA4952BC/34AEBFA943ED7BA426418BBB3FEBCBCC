@@ -1,0 +1,32 @@
+﻿using CLINICSYSTEM.Events;
+using CLINICSYSTEM.Models;
+
+namespace CLINICSYSTEM.Services
+{
+    /// <summary>
+    /// Publishes events to external systems via message broker
+    /// Used for asynchronous communication between microservices
+    /// </summary>
+    public interface IEventPublisher
+    {
+        /// <summary>
+        /// Publish referral created event to physiotherapy system
+        /// </summary>
+        Task PublishReferralCreatedAsync(ReferralModel referral, DoctorModel doctor, PatientModel patient);
+
+        /// <summary>
+        /// Publish appointment scheduled event
+        /// </summary>
+        Task PublishAppointmentScheduledAsync(AppointmentModel appointment);
+
+        /// <summary>
+        /// Publish consultation completed event
+        /// </summary>
+        Task PublishConsultationCompletedAsync(ConsultationModel consultation);
+
+        /// <summary>
+        /// Publish imaging requested event to radiology system
+        /// </summary>
+        Task PublishImagingRequestedAsync(MedicalImagingModel imaging);
+    }
+}

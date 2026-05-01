@@ -1,0 +1,187 @@
+﻿using MassTransit;
+using CLINICSYSTEM.Events;
+using CLINICSYSTEM.Data;
+
+namespace CLINICSYSTEM.Services.EventConsumer
+{
+    /// <summary>
+    /// MassTransit consumer for ReferralAcceptedEvent from Physiotherapy system
+    /// </summary>
+    public class ReferralAcceptedEventConsumer : IConsumer<ReferralAcceptedEvent>
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IExternalPatientIdService _patientIdService;
+        private readonly ILogger<ReferralAcceptedEventConsumer> _logger;
+
+        public ReferralAcceptedEventConsumer(
+            ClinicDbContext context,
+            IExternalPatientIdService patientIdService,
+            ILogger<ReferralAcceptedEventConsumer> logger)
+        {
+            _context = context;
+            _patientIdService = patientIdService;
+            _logger = logger;
+        }
+
+        public async Task Consume(ConsumeContext<ReferralAcceptedEvent> context)
+        {
+            try
+            {
+                var @event = context.Message;
+                _logger.LogInformation($"Received ReferralAcceptedEvent for patient {@event.PatientExternalId}");
+
+                var referral = await _context.Referrals
+                    .FirstOrDefaultAsync(r => r.PatientExternalId == @event.PatientExternalId.ToString());
+
+                if (referral == null)
+                {
+                    _logger.LogWarning($"Referral not found for patient {@event.PatientExternalId}");
+                    return;
+                }
+
+                referral.Status = "Accepted_Ext";
+                referral.ExternalReferralId = @event.ExternalReferralId?.ToString();
+                referral.ExternalSyncedAt = DateTime.UtcNow;
+                referral.ExternalSyncAttempts = (referral.ExternalSyncAttempts ?? 0) + 1;
+                referral.AcceptedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Referral {referral.ReferralId} accepted by Physiotherapy");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing ReferralAcceptedEvent");
+                throw;
+            }
+        }
+    }
+
+    /// <summary>
+    /// MassTransit consumer for AppointmentScheduledEvent from Physiotherapy system
+    /// </summary>
+    public class AppointmentScheduledEventConsumer : IConsumer<AppointmentScheduledEvent>
+    {
+        private readonly ClinicDbContext _context;
+        private readonly ILogger<AppointmentScheduledEventConsumer> _logger;
+
+        public AppointmentScheduledEventConsumer(
+            ClinicDbContext context,
+            ILogger<AppointmentScheduledEventConsumer> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task Consume(ConsumeContext<AppointmentScheduledEvent> context)
+        {
+            try
+            {
+                var @event = context.Message;
+                _logger.LogInformation($"Received AppointmentScheduledEvent for patient {@event.PatientExternalId}");
+
+                var referral = await _context.Referrals
+                    .FirstOrDefaultAsync(r => r.PatientExternalId == @event.PatientExternalId.ToString());
+
+                if (referral == null) return;
+
+                referral.Status = "Scheduled_Ext";
+                referral.ExternalSyncedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Referral {referral.ReferralId} appointment scheduled");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing AppointmentScheduledEvent");
+                throw;
+            }
+        }
+    }
+
+    /// <summary>
+    /// MassTransit consumer for SessionCompletedEvent from Physiotherapy system
+    /// </summary>
+    public class SessionCompletedEventConsumer : IConsumer<SessionCompletedEvent>
+    {
+        private readonly ClinicDbContext _context;
+        private readonly ILogger<SessionCompletedEventConsumer> _logger;
+
+        public SessionCompletedEventConsumer(
+            ClinicDbContext context,
+            ILogger<SessionCompletedEventConsumer> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task Consume(ConsumeContext<SessionCompletedEvent> context)
+        {
+            try
+            {
+                var @event = context.Message;
+                _logger.LogInformation($"Received SessionCompletedEvent for patient {@event.PatientExternalId}");
+
+                var referral = await _context.Referrals
+                    .FirstOrDefaultAsync(r => r.PatientExternalId == @event.PatientExternalId.ToString());
+
+                if (referral == null) return;
+
+                referral.Status = "InProgress_Ext";
+                referral.ExternalSyncedAt = DateTime.UtcNow;
+                referral.ExternalServiceFeedback = $"Pain Score: Before {@ event.PainScoreBefore}/10 → After {@event.PainScoreAfter}/10";
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Referral {referral.ReferralId} session completed");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing SessionCompletedEvent");
+                throw;
+            }
+        }
+    }
+
+    /// <summary>
+    /// MassTransit consumer for ImagingCompletedEvent from Radiology system
+    /// </summary>
+    public class ImagingCompletedEventConsumer : IConsumer<ImagingCompletedEvent>
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IExternalPatientIdService _patientIdService;
+        private readonly ILogger<ImagingCompletedEventConsumer> _logger;
+
+        public ImagingCompletedEventConsumer(
+            ClinicDbContext context,
+            IExternalPatientIdService patientIdService,
+            ILogger<ImagingCompletedEventConsumer> logger)
+        {
+            _context = context;
+            _patientIdService = patientIdService;
+            _logger = logger;
+        }
+
+        public async Task Consume(ConsumeContext<ImagingCompletedEvent> context)
+        {
+            try
+            {
+                var @event = context.Message;
+                _logger.LogInformation($"Received ImagingCompletedEvent for patient {@event.PatientExternalId}");
+
+                var localPatientId = await _patientIdService.GetLocalPatientIdAsync(@event.PatientExternalId);
+                if (!localPatientId.HasValue)
+                {
+                    _logger.LogWarning($"Patient not found for external ID {@event.PatientExternalId}");
+                    return;
+                }
+
+                _logger.LogInformation($"Imaging {@event.ImagingId} completed. Storage URL: {@event.StorageUrl}");
+                // TODO: Store imaging record with external URL reference
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing ImagingCompletedEvent");
+                throw;
+            }
+        }
+    }
+}

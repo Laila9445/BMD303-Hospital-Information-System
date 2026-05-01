@@ -1,0 +1,169 @@
+﻿using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
+using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Models;
+
+namespace CLINICSYSTEM.Services
+{
+    /// <summary>
+    /// Manages UUID generation and caching for external patient identification
+    /// UUIDs are used as universal patient ID across all connected systems
+    /// </summary>
+    public interface IExternalPatientIdService
+    {
+        /// <summary>
+        /// Generate or retrieve external UUID for patient
+        /// Creates UUID if patient doesn't have one yet
+        /// </summary>
+        Task<Guid> GenerateOrGetExternalIdAsync(int patientId);
+
+        /// <summary>
+        /// Get local patient ID from external UUID
+        /// Checks cache first, then database
+        /// </summary>
+        Task<int?> GetLocalPatientIdAsync(Guid externalId);
+
+        /// <summary>
+        /// Cache patient ID mapping in Redis
+        /// Maps external UUID to local patient ID for fast lookups
+        /// </summary>
+        Task CachePatientMappingAsync(int localId, Guid externalId);
+
+        /// <summary>
+        /// Clear cache for specific patient
+        /// </summary>
+        Task ClearCacheAsync(Guid externalId);
+    }
+
+    public class ExternalPatientIdService : IExternalPatientIdService
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IConnectionMultiplexer _redis;
+        private readonly ILogger<ExternalPatientIdService> _logger;
+        private const string CACHE_PREFIX = "patient:ext-id:";
+        private const int CACHE_TTL_HOURS = 24;
+
+        public ExternalPatientIdService(
+            ClinicDbContext context,
+            IConnectionMultiplexer redis,
+            ILogger<ExternalPatientIdService> logger)
+        {
+            _context = context;
+            _redis = redis;
+            _logger = logger;
+        }
+
+        public async Task<Guid> GenerateOrGetExternalIdAsync(int patientId)
+        {
+            try
+            {
+                // Get patient from database
+                var patient = await _context.Patients
+                    .FirstOrDefaultAsync(p => p.PatientId == patientId);
+
+                if (patient == null)
+                {
+                    _logger.LogError($"Patient {patientId} not found");
+                    throw new InvalidOperationException($"Patient {patientId} not found");
+                }
+
+                // If patient already has external ID, parse and return it
+                if (!string.IsNullOrEmpty(patient.ExternalPatientId) && 
+                    Guid.TryParse(patient.ExternalPatientId, out var existingId))
+                {
+                    _logger.LogDebug($"Patient {patientId} already has external ID: {existingId}");
+                    await CachePatientMappingAsync(patientId, existingId);
+                    return existingId;
+                }
+
+                // Generate new UUID v4
+                var externalId = Guid.NewGuid();
+                patient.ExternalPatientId = externalId.ToString();
+                patient.ExternalIdSyncedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Generated external ID {externalId} for patient {patientId}");
+
+                // Cache the mapping
+                await CachePatientMappingAsync(patientId, externalId);
+
+                return externalId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error generating external ID for patient {patientId}");
+                throw;
+            }
+        }
+
+        public async Task<int?> GetLocalPatientIdAsync(Guid externalId)
+        {
+            try
+            {
+                // Try Redis cache first (fast path)
+                var db = _redis.GetDatabase();
+                var cacheKey = $"{CACHE_PREFIX}{externalId}";
+                var cached = await db.StringGetAsync(cacheKey);
+
+                if (cached.HasValue && int.TryParse(cached.ToString(), out var cachedLocalId))
+                {
+                    _logger.LogDebug($"Cache hit for external ID {externalId} -> local ID {cachedLocalId}");
+                    return cachedLocalId;
+                }
+
+                // Query database (slow path)
+                var patient = await _context.Patients
+                    .FirstOrDefaultAsync(p => p.ExternalPatientId == externalId.ToString());
+
+                if (patient != null)
+                {
+                    _logger.LogDebug($"Database hit for external ID {externalId} -> local ID {patient.PatientId}");
+                    // Cache for future lookups
+                    await CachePatientMappingAsync(patient.PatientId, externalId);
+                    return patient.PatientId;
+                }
+
+                _logger.LogWarning($"Patient not found for external ID {externalId}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving local patient ID for external ID {externalId}");
+                return null;
+            }
+        }
+
+        public async Task CachePatientMappingAsync(int localId, Guid externalId)
+        {
+            try
+            {
+                var db = _redis.GetDatabase();
+                var cacheKey = $"{CACHE_PREFIX}{externalId}";
+                var cacheTtl = TimeSpan.FromHours(CACHE_TTL_HOURS);
+
+                await db.StringSetAsync(cacheKey, localId.ToString(), cacheTtl);
+                _logger.LogDebug($"Cached mapping: {externalId} -> {localId} (TTL: {cacheTtl.TotalHours}h)");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error caching patient mapping for external ID {externalId}");
+                // Don't throw - caching failure shouldn't break the flow
+            }
+        }
+
+        public async Task ClearCacheAsync(Guid externalId)
+        {
+            try
+            {
+                var db = _redis.GetDatabase();
+                var cacheKey = $"{CACHE_PREFIX}{externalId}";
+                await db.KeyDeleteAsync(cacheKey);
+                _logger.LogDebug($"Cleared cache for external ID {externalId}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error clearing cache for external ID {externalId}");
+            }
+        }
+    }
+}

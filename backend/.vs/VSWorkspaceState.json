@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Constants",
+    "\\Controllers",
+    "\\Data",
+    "\\Data\\DTOs",
+    "\\Models"
+  ],
+  "SelectedNode": "\\Controllers\\AppointmentsController.cs",
+  "PreviewInSolutionExplorer": false
+}

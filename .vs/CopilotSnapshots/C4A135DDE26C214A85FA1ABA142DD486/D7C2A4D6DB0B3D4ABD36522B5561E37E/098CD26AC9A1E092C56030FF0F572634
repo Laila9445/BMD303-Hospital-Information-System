@@ -1,0 +1,98 @@
+﻿namespace CLINICSYSTEM.Data.DTOs
+{
+    /// <summary>
+    /// DTO for therapy session data
+    /// </summary>
+    public class TherapySessionDTO
+    {
+        public int SessionId { get; set; }
+        public Guid PatientExternalId { get; set; }
+        public int ReferralId { get; set; }
+        public DateTime SessionDate { get; set; }
+        public string TherapistName { get; set; } = string.Empty;
+        public int PainScoreBefore { get; set; }
+        public int PainScoreAfter { get; set; }
+        public string Assessment { get; set; } = string.Empty;
+        public string Treatment { get; set; } = string.Empty;
+        public string HomeExercises { get; set; } = string.Empty;
+        public string? ProgressNotes { get; set; }
+        public DateTime? NextAppointmentDate { get; set; }
+        public string Status { get; set; } = "Completed";
+        public int? PatientSatisfactionScore { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for creating/updating therapy session
+    /// </summary>
+    public class CreateTherapySessionRequest
+    {
+        public Guid PatientExternalId { get; set; }
+        public int ReferralId { get; set; }
+        public DateTime SessionDate { get; set; }
+        public string TherapistName { get; set; } = string.Empty;
+        public int PainScoreBefore { get; set; }
+        public int PainScoreAfter { get; set; }
+        public string Assessment { get; set; } = string.Empty;
+        public string Treatment { get; set; } = string.Empty;
+        public string HomeExercises { get; set; } = string.Empty;
+        public DateTime? NextAppointmentDate { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for therapy plan data
+    /// </summary>
+    public class TherapyPlanDTO
+    {
+        public int PlanId { get; set; }
+        public int ReferralId { get; set; }
+        public Guid PatientExternalId { get; set; }
+        public string PlanDescription { get; set; } = string.Empty;
+        public string TherapyType { get; set; } = string.Empty;
+        public int PlannedSessions { get; set; }
+        public int CompletedSessions { get; set; }
+        public string RecommendedFrequency { get; set; } = string.Empty;
+        public string TherapyGoals { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime? PlannedEndDate { get; set; }
+        public DateTime? ActualEndDate { get; set; }
+        public string Status { get; set; } = "Planned";
+        public string? AssignedTherapist { get; set; }
+        public bool? GoalsAchieved { get; set; }
+        public int? OutcomeScore { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for creating therapy plan
+    /// </summary>
+    public class CreateTherapyPlanRequest
+    {
+        public int ReferralId { get; set; }
+        public Guid PatientExternalId { get; set; }
+        public string PlanDescription { get; set; } = string.Empty;
+        public string TherapyType { get; set; } = string.Empty;
+        public int PlannedSessions { get; set; }
+        public string RecommendedFrequency { get; set; } = "2x per week";
+        public string ExpectedDuration { get; set; } = string.Empty;
+        public string TherapyGoals { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// DTO for patient progress tracking
+    /// </summary>
+    public class PatientProgressDTO
+    {
+        public Guid PatientExternalId { get; set; }
+        public int TotalReferrals { get; set; }
+        public int CompletedReferrals { get; set; }
+        public int ActiveReferrals { get; set; }
+        public int TotalTherapySessions { get; set; }
+        public double AveragePainScoreImprovement { get; set; }  // Before - After
+        public int TotalImagingTests { get; set; }
+        public int? LatestPainScoreBefore { get; set; }
+        public int? LatestPainScoreAfter { get; set; }
+        public DateTime? LastSessionDate { get; set; }
+        public DateTime? NextAppointmentDate { get; set; }
+    }
+}

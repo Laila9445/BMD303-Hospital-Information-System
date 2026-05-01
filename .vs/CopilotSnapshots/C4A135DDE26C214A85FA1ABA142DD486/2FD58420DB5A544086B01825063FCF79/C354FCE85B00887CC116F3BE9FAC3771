@@ -1,0 +1,16 @@
+﻿namespace CLINICSYSTEM.Models
+{
+    public class NurseModel
+    {
+        public int NurseId { get; set; }
+        public int UserId { get; set; }
+        public string Department { get; set; } = string.Empty;
+        public string? LicenseNumber { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+        // Navigation properties
+        public UserModel? User { get; set; }
+        public ICollection<PatientCareTaskModel>? CareTasks { get; set; }
+    }
+}

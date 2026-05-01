@@ -1,0 +1,121 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CLINICSYSTEM.Models
+{
+    /// <summary>
+    /// Represents medical imaging (X-ray, MRI, CT, Ultrasound, etc.)
+    /// Links to Radiology system integration
+    /// </summary>
+    [Table("MedicalImaging")]
+    public class MedicalImagingModel
+    {
+        [Key]
+        public int ImagingId { get; set; }
+
+        /// <summary>
+        /// Patient UUID for integration with external systems
+        /// </summary>
+        [Required]
+        public Guid PatientExternalId { get; set; }
+
+        /// <summary>
+        /// Link to local referral (if imaging was ordered as referral)
+        /// </summary>
+        public int? ReferralId { get; set; }
+        public ReferralModel? Referral { get; set; }
+
+        /// <summary>
+        /// Type of imaging: X-ray, MRI, CT, Ultrasound, DEXA, etc.
+        /// </summary>
+        [Required]
+        [StringLength(50)]
+        public string ImagingType { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Body part examined: Head, Knee, Spine, etc.
+        /// </summary>
+        [Required]
+        [StringLength(100)]
+        public string BodyPart { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Clinical indication for imaging
+        /// </summary>
+        [StringLength(500)]
+        public string Indication { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Priority: Low, Normal, High, Urgent
+        /// </summary>
+        [StringLength(20)]
+        public string Priority { get; set; } = "Normal";
+
+        /// <summary>
+        /// External imaging ID from Radiology system
+        /// </summary>
+        [StringLength(100)]
+        public string? ExternalImagingId { get; set; }
+
+        /// <summary>
+        /// Storage URL (S3, Azure Blob, etc.)
+        /// Points to actual image files in cloud
+        /// </summary>
+        [StringLength(500)]
+        public string? StorageUrl { get; set; }
+
+        /// <summary>
+        /// DICOM file reference or metadata
+        /// </summary>
+        [StringLength(1000)]
+        public string? DicomReference { get; set; }
+
+        /// <summary>
+        /// Radiologist report/findings
+        /// </summary>
+        [StringLength(5000)]
+        public string? RadiologyReport { get; set; }
+
+        /// <summary>
+        /// Any abnormalities or findings
+        /// </summary>
+        [StringLength(1000)]
+        public string? Findings { get; set; }
+
+        /// <summary>
+        /// Recommendations from radiologist
+        /// </summary>
+        [StringLength(1000)]
+        public string? Recommendations { get; set; }
+
+        /// <summary>
+        /// Status: Requested, InProgress, Completed, Failed
+        /// </summary>
+        [StringLength(50)]
+        public string Status { get; set; } = "Requested";
+
+        /// <summary>
+        /// Date imaging was requested
+        /// </summary>
+        public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Date imaging was performed
+        /// </summary>
+        public DateTime? PerformedAt { get; set; }
+
+        /// <summary>
+        /// Date imaging report was completed
+        /// </summary>
+        public DateTime? CompletedAt { get; set; }
+
+        /// <summary>
+        /// Radiologist or imaging center name
+        /// </summary>
+        [StringLength(200)]
+        public string? PerformedBy { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
+}

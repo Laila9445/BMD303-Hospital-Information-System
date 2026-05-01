@@ -1,0 +1,140 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CLINICSYSTEM.Models
+{
+    /// <summary>
+    /// Represents a therapy session from Physiotherapy system
+    /// Tracks treatment progress and outcomes
+    /// </summary>
+    [Table("TherapySessions")]
+    public class TherapySessionModel
+    {
+        [Key]
+        public int SessionId { get; set; }
+
+        /// <summary>
+        /// Patient UUID for integration with external systems
+        /// </summary>
+        [Required]
+        public Guid PatientExternalId { get; set; }
+
+        /// <summary>
+        /// Link to referral that started this therapy
+        /// </summary>
+        [Required]
+        public int ReferralId { get; set; }
+        public ReferralModel Referral { get; set; } = null!;
+
+        /// <summary>
+        /// Date and time of therapy session
+        /// </summary>
+        [Required]
+        public DateTime SessionDate { get; set; }
+
+        /// <summary>
+        /// Therapist who conducted session
+        /// </summary>
+        [Required]
+        [StringLength(200)]
+        public string TherapistName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Pain score before therapy (0-10 scale)
+        /// </summary>
+        [Range(0, 10)]
+        public int PainScoreBefore { get; set; }
+
+        /// <summary>
+        /// Pain score after therapy (0-10 scale)
+        /// </summary>
+        [Range(0, 10)]
+        public int PainScoreAfter { get; set; }
+
+        /// <summary>
+        /// Range of motion or other functional metrics before
+        /// </summary>
+        [StringLength(500)]
+        public string? FunctionalAssessmentBefore { get; set; }
+
+        /// <summary>
+        /// Range of motion or other functional metrics after
+        /// </summary>
+        [StringLength(500)]
+        public string? FunctionalAssessmentAfter { get; set; }
+
+        /// <summary>
+        /// Clinical assessment/findings
+        /// </summary>
+        [StringLength(2000)]
+        public string Assessment { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Treatment provided during session
+        /// </summary>
+        [StringLength(2000)]
+        public string Treatment { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Home exercises prescribed
+        /// </summary>
+        [StringLength(2000)]
+        public string HomeExercises { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Frequency of home exercises (e.g., 3x daily)
+        /// </summary>
+        [StringLength(200)]
+        public string? ExerciseFrequency { get; set; }
+
+        /// <summary>
+        /// Progress notes on patient condition
+        /// </summary>
+        [StringLength(1000)]
+        public string? ProgressNotes { get; set; }
+
+        /// <summary>
+        /// Any complications or adverse reactions
+        /// </summary>
+        [StringLength(1000)]
+        public string? Complications { get; set; }
+
+        /// <summary>
+        /// Next planned appointment date
+        /// </summary>
+        public DateTime? NextAppointmentDate { get; set; }
+
+        /// <summary>
+        /// Overall session status: Completed, Cancelled, NoShow
+        /// </summary>
+        [StringLength(50)]
+        public string Status { get; set; } = "Completed";
+
+        /// <summary>
+        /// External session ID from Physiotherapy system
+        /// </summary>
+        [StringLength(100)]
+        public string? ExternalSessionId { get; set; }
+
+        /// <summary>
+        /// Therapy plan this session belongs to
+        /// </summary>
+        public int? TherapyPlanId { get; set; }
+        public TherapyPlanModel? TherapyPlan { get; set; }
+
+        /// <summary>
+        /// Patient satisfaction score for this session (1-5)
+        /// </summary>
+        [Range(1, 5)]
+        public int? PatientSatisfactionScore { get; set; }
+
+        /// <summary>
+        /// Patient feedback/comments
+        /// </summary>
+        [StringLength(1000)]
+        public string? PatientFeedback { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
+}

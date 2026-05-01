@@ -1,0 +1,197 @@
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using CLINICSYSTEM.Models;
+
+namespace CLINICSYSTEM.Data
+{
+    public class ClinicDbContext : IdentityDbContext
+    {
+        public ClinicDbContext(DbContextOptions<ClinicDbContext> options) : base(options)
+        {
+        }
+
+        public new DbSet<UserModel> Users { get; set; }
+        
+        /// <summary>
+        /// Minimal patient reference table - full data in Patient Portal service
+        /// </summary>
+        public DbSet<PatientModel> Patients { get; set; }
+        
+        public DbSet<DoctorModel> Doctors { get; set; }
+        public DbSet<NurseModel> Nurses { get; set; }
+        public DbSet<PatientCareTaskModel> PatientCareTasks { get; set; }
+        public DbSet<AppointmentModel> Appointments { get; set; }
+        public DbSet<TimeSlotModel> TimeSlots { get; set; }
+        public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
+        public DbSet<ConsultationModel> Consultations { get; set; }
+        public DbSet<PrescriptionModel> Prescriptions { get; set; }
+        public DbSet<MedicalRecordModel> MedicalRecords { get; set; }
+        public DbSet<MedicalImageModel> MedicalImages { get; set; }
+        public DbSet<NotificationModel> Notifications { get; set; }
+        public DbSet<ReferralModel> Referrals { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure primary keys explicitly
+            modelBuilder.Entity<UserModel>()
+                .HasKey(u => u.UserId);
+                
+            modelBuilder.Entity<PatientModel>()
+                .HasKey(p => p.PatientId);
+                
+            modelBuilder.Entity<DoctorModel>()
+                .HasKey(d => d.DoctorId);
+                
+            modelBuilder.Entity<AppointmentModel>()
+                .HasKey(a => a.AppointmentId);
+                
+            modelBuilder.Entity<TimeSlotModel>()
+                .HasKey(ts => ts.TimeSlotId);
+                
+            modelBuilder.Entity<DoctorSchedule>()
+                .HasKey(ds => ds.ScheduleId);
+                
+            modelBuilder.Entity<ConsultationModel>()
+                .HasKey(c => c.ConsultationId);
+                
+            modelBuilder.Entity<PrescriptionModel>()
+                .HasKey(p => p.PrescriptionId);
+                
+            modelBuilder.Entity<MedicalRecordModel>()
+                .HasKey(mr => mr.RecordId);
+                
+            modelBuilder.Entity<MedicalImageModel>()
+                .HasKey(mi => mi.ImageId);
+                
+            modelBuilder.Entity<NotificationModel>()
+                .HasKey(n => n.NotificationId);
+
+            modelBuilder.Entity<ReferralModel>()
+                .HasKey(r => r.ReferralId);
+
+            // User relationships - Only Doctor profiles managed internally
+            modelBuilder.Entity<DoctorModel>()
+                .HasOne(d => d.User)
+                .WithOne(u => u.DoctorProfile)
+                .HasForeignKey<DoctorModel>(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Patient relationships (minimal - for backward compatibility)
+            modelBuilder.Entity<AppointmentModel>()
+                .HasOne(a => a.Patient)
+                .WithMany(p => p.Appointments)
+                .HasForeignKey(a => a.PatientId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false); // Optional - use PatientExternalId instead
+
+            modelBuilder.Entity<MedicalRecordModel>()
+                .HasOne(mr => mr.Patient)
+                .WithMany(p => p.MedicalRecords)
+                .HasForeignKey(mr => mr.PatientId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            modelBuilder.Entity<MedicalImageModel>()
+                .HasOne(mi => mi.Patient)
+                .WithMany(p => p.MedicalImages)
+                .HasForeignKey(mi => mi.PatientId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            // Doctor relationships
+            modelBuilder.Entity<AppointmentModel>()
+                .HasOne(a => a.Doctor)
+                .WithMany(d => d.Appointments)
+                .HasForeignKey(a => a.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DoctorSchedule>()
+                .HasOne(ds => ds.Doctor)
+                .WithMany(d => d.Schedules)
+                .HasForeignKey(ds => ds.DoctorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Referral relationships
+            modelBuilder.Entity<ReferralModel>()
+                .HasOne(r => r.Doctor)
+                .WithMany()
+                .HasForeignKey(r => r.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Consultation relationships
+            modelBuilder.Entity<ConsultationModel>()
+                .HasOne(c => c.Appointment)
+                .WithOne(a => a.Consultation)
+                .HasForeignKey<ConsultationModel>(c => c.AppointmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PrescriptionModel>()
+                .HasOne(p => p.Consultation)
+                .WithMany(c => c.Prescriptions)
+                .HasForeignKey(p => p.ConsultationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // TimeSlot relationships
+            modelBuilder.Entity<TimeSlotModel>()
+                .HasOne(ts => ts.Schedule)
+                .WithMany(ds => ds.TimeSlots)
+                .HasForeignKey(ts => ts.ScheduleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AppointmentModel>()
+                .HasOne(a => a.TimeSlot)
+                .WithMany(ts => ts.Appointments)
+                .HasForeignKey(a => a.TimeSlotId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Consultation - MedicalRecord
+            modelBuilder.Entity<MedicalRecordModel>()
+                .HasOne(mr => mr.Consultation)
+                .WithMany(c => c.MedicalRecords)
+                .HasForeignKey(mr => mr.ConsultationId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Consultation - MedicalImage
+            modelBuilder.Entity<MedicalImageModel>()
+                .HasOne(mi => mi.Consultation)
+                .WithMany()
+                .HasForeignKey(mi => mi.ConsultationId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Indexes
+            modelBuilder.Entity<UserModel>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            // Patient external ID index for cross-service lookups
+            modelBuilder.Entity<PatientModel>()
+                .HasIndex(p => p.ExternalPatientId)
+                .IsUnique();
+
+            modelBuilder.Entity<AppointmentModel>()
+                .HasIndex(a => new { a.DoctorId, a.PatientId });
+            
+            // Index for external patient ID in appointments
+            modelBuilder.Entity<AppointmentModel>()
+                .HasIndex(a => a.PatientExternalId);
+
+            modelBuilder.Entity<TimeSlotModel>()
+                .HasIndex(ts => new { ts.ScheduleId, ts.SlotDate });
+
+            modelBuilder.Entity<DoctorSchedule>()
+                .HasIndex(ds => new { ds.DoctorId, ds.DayOfWeek });
+
+            // Referral indexes for external services
+            modelBuilder.Entity<ReferralModel>()
+                .HasIndex(r => r.PatientExternalId);
+
+            modelBuilder.Entity<ReferralModel>()
+                .HasIndex(r => new { r.DoctorId, r.Status });
+
+            modelBuilder.Entity<ReferralModel>()
+                .HasIndex(r => r.ExternalReferralId);
+        }
+    }
+}

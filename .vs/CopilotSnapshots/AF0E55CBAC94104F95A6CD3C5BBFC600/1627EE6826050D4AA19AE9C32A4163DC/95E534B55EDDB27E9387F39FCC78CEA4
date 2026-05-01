@@ -1,0 +1,122 @@
+﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=DESKTOP-UERNKOD;Database=ClinicSystemDb;Integrated Security=true;TrustServerCertificate=true;",
+    "ExternalPatientCache": "localhost:6379"
+  },
+
+  "JwtSettings": {
+    "SecretKey": "YourSuperSecretKeyThatIsAtLeast32CharactersLong!!",
+    "ExpirationMinutes": 120,
+    "Issuer": "ClinicAPI",
+    "Audience": "ClinicApp",
+    "AllowedSystemClaims": [
+      "orthopedic",
+      "physiotherapy",
+      "radiology"
+    ]
+  },
+
+  "ExternalServices": {
+    "PhysiotherapyApi": {
+      "BaseUrl": "http://localhost:8000",
+      "ApiKey": "physiotherapy-system-key",
+      "TimeoutSeconds": 30,
+      "RetryAttempts": 3,
+      "RetryDelayMs": 1000
+    },
+    "RadiologyApi": {
+      "BaseUrl": "https://radiology-cloud.example.com",
+      "ApiKey": "radiology-api-key",
+      "TimeoutSeconds": 60,
+      "RetryAttempts": 5,
+      "RetryDelayMs": 2000
+    },
+    "PatientPortalApi": {
+      "BaseUrl": "https://localhost:5003",
+      "ApiKey": "your-patient-portal-api-key-here",
+      "TimeoutSeconds": 30
+    }
+  },
+
+  "MessageBroker": {
+    "Enabled": false,
+    "Provider": "RabbitMQ",
+    "ConnectionString": "amqp://guest:guest@localhost:5672/",
+    "Exchanges": {
+      "OrthopedicEvents": "clinic.orthopedic.events",
+      "PhysiotherapyEvents": "clinic.physiotherapy.events",
+      "RadiologyEvents": "clinic.radiology.events"
+    },
+    "Queues": {
+      "ReferralCreated": "clinic.referral.created",
+      "ReferralAccepted": "clinic.referral.accepted",
+      "AppointmentScheduled": "clinic.appointment.scheduled",
+      "SessionCompleted": "clinic.session.completed",
+      "ImagingRequested": "clinic.imaging.requested",
+      "ImagingCompleted": "clinic.imaging.completed",
+      "DeadLetterQueue": "clinic.dlq"
+    }
+  },
+
+  "Resilience": {
+    "CircuitBreaker": {
+      "FailureThreshold": 50,
+      "SuccessThreshold": 10,
+      "TimeoutSeconds": 30
+    },
+    "Retry": {
+      "MaxAttempts": 4,
+      "InitialDelayMs": 100,
+      "BackoffMultiplier": 2.0
+    }
+  },
+
+  "ExternalPatientIds": {
+    "Enabled": true,
+    "Version": "1.0",
+    "CacheTTLHours": 24,
+    "SyncInterval": "*/5 * * * *"
+  },
+
+  "EmailSettings": {
+    "FromEmail": "noreply@clinic.com",
+    "FromName": "Dr. Ahmed Nabil Clinic",
+    "SmtpHost": "smtp.gmail.com",
+    "SmtpPort": "587",
+    "SmtpUser": "your-email@gmail.com",
+    "SmtpPassword": "your-app-password"
+  },
+
+  "SmsSettings": {
+    "Enabled": false,
+    "Provider": "Mock",
+    "FromPhoneNumber": "+20 1XX XXX XXXX",
+    "Twilio": {
+      "AccountSid": "your-twilio-account-sid",
+      "AuthToken": "your-twilio-auth-token",
+      "FromPhoneNumber": "+20XXXXXXXXXX"
+    },
+    "Nexmo": {
+      "ApiKey": "your-nexmo-api-key",
+      "ApiSecret": "your-nexmo-api-secret",
+      "FromName": "Clinic"
+    },
+    "CustomApi": {
+      "ApiUrl": "https://your-sms-provider.com/send",
+      "ApiKey": "your-api-key"
+    }
+  },
+
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "CLINICSYSTEM.Services.EventPublisher": "Warning",
+      "CLINICSYSTEM.Services.ExternalIntegration": "Warning",
+      "MassTransit": "Warning",
+      "Microsoft.EntityFrameworkCore": "Warning"
+    }
+  },
+
+  "AllowedHosts": "*"
+}

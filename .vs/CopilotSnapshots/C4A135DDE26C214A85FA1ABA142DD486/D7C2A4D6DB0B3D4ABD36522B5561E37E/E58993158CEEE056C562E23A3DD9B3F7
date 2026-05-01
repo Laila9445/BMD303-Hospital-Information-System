@@ -1,0 +1,173 @@
+﻿namespace CLINICSYSTEM.Data.DTOs
+{
+    /// <summary>
+    /// Complete unified patient timeline
+    /// Aggregates data from all modules (visits, referrals, imaging, therapy, etc.)
+    /// </summary>
+    public class PatientTimelineDTO
+    {
+        public Guid PatientExternalId { get; set; }
+        public int LocalPatientId { get; set; }
+        public string PatientName { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set; }
+        
+        // Summary statistics
+        public int TotalVisits { get; set; }
+        public int TotalReferrals { get; set; }
+        public int TotalImagingTests { get; set; }
+        public int TotalTherapySessions { get; set; }
+        public int ActiveReferrals { get; set; }
+
+        // Pain score tracking
+        public int? LatestPainScoreBefore { get; set; }
+        public int? LatestPainScoreAfter { get; set; }
+        public double AveragePainImprovement { get; set; }
+        public List<PainScoreTrendDTO> PainScoreTrend { get; set; } = new();
+
+        // Upcoming appointments
+        public DateTime? NextAppointmentDate { get; set; }
+        public string? NextAppointmentType { get; set; }  // Therapy, Follow-up, etc.
+
+        // Timeline events (chronological)
+        public List<TimelineEventDTO> TimelineEvents { get; set; } = new();
+
+        // Detailed module data
+        public List<ReferralSummaryDTO> Referrals { get; set; } = new();
+        public List<VisitSummaryDTO> Visits { get; set; } = new();
+        public List<ImagingTimelineDTO> ImagingTests { get; set; } = new();
+        public List<TherapySessionTimelineDTO> TherapySessions { get; set; } = new();
+        public List<PrescriptionSummaryDTO> ActivePrescriptions { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Unified timeline event (any action on patient)
+    /// </summary>
+    public class TimelineEventDTO
+    {
+        public DateTime EventDate { get; set; }
+        public string EventType { get; set; } = string.Empty;  // "Visit", "Referral", "Imaging", "Therapy", "Prescription"
+        public string EventTitle { get; set; } = string.Empty;
+        public string? EventDescription { get; set; }
+        public string Status { get; set; } = string.Empty;     // "Pending", "Completed", "InProgress"
+        public int? RelatedId { get; set; }                    // ID of related record
+        public string? ActionableBy { get; set; }              // Who should act: "Doctor", "Patient", "Radiology", "Physiotherapy"
+    }
+
+    /// <summary>
+    /// Pain score progress tracking
+    /// </summary>
+    public class PainScoreTrendDTO
+    {
+        public DateTime SessionDate { get; set; }
+        public int PainBefore { get; set; }
+        public int PainAfter { get; set; }
+        public int Improvement => PainBefore - PainAfter;
+        public string TherapyType { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Referral summary in timeline
+    /// </summary>
+    public class ReferralSummaryDTO
+    {
+        public int ReferralId { get; set; }
+        public string ReferralType { get; set; } = string.Empty;      // "Physiotherapy", "Radiology"
+        public string Diagnosis { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public string Priority { get; set; } = string.Empty;
+        public string? ExternalSystemStatus { get; set; }             // "Accepted", "InProgress", "Completed"
+        public int? LinkedImagingCount { get; set; }
+        public int? LinkedTherapySessionCount { get; set; }
+    }
+
+    /// <summary>
+    /// Visit/Encounter summary in timeline
+    /// </summary>
+    public class VisitSummaryDTO
+    {
+        public int ConsultationId { get; set; }
+        public DateTime VisitDate { get; set; }
+        public string DoctorName { get; set; } = string.Empty;
+        public string Reason { get; set; } = string.Empty;
+        public string? Diagnosis { get; set; }
+        public string? Treatment { get; set; }
+        public int? LinkedReferralCount { get; set; }                 // How many referrals from this visit
+    }
+
+    /// <summary>
+    /// Imaging event in timeline
+    /// </summary>
+    public class ImagingTimelineDTO
+    {
+        public int ImagingId { get; set; }
+        public string ImagingType { get; set; } = string.Empty;       // X-ray, MRI, CT
+        public string BodyPart { get; set; } = string.Empty;
+        public DateTime RequestedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string? Findings { get; set; }
+        public string? StorageUrl { get; set; }
+    }
+
+    /// <summary>
+    /// Therapy session in timeline
+    /// </summary>
+    public class TherapySessionTimelineDTO
+    {
+        public int SessionId { get; set; }
+        public DateTime SessionDate { get; set; }
+        public string TherapistName { get; set; } = string.Empty;
+        public int PainBefore { get; set; }
+        public int PainAfter { get; set; }
+        public string Treatment { get; set; } = string.Empty;
+        public DateTime? NextAppointmentDate { get; set; }
+        public string? Status { get; set; }
+    }
+
+    /// <summary>
+    /// Active prescription in timeline
+    /// </summary>
+    public class PrescriptionSummaryDTO
+    {
+        public int PrescriptionId { get; set; }
+        public string Medication { get; set; } = string.Empty;
+        public string Dosage { get; set; } = string.Empty;
+        public string Frequency { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    /// <summary>
+    /// Request for patient timeline
+    /// </summary>
+    public class GetPatientTimelineRequest
+    {
+        /// <summary>
+        /// Patient's external UUID
+        /// </summary>
+        public Guid PatientExternalId { get; set; }
+
+        /// <summary>
+        /// Include detailed events (default: true)
+        /// </summary>
+        public bool IncludeDetailedEvents { get; set; } = true;
+
+        /// <summary>
+        /// Date range start (optional)
+        /// </summary>
+        public DateTime? FromDate { get; set; }
+
+        /// <summary>
+        /// Date range end (optional)
+        /// </summary>
+        public DateTime? ToDate { get; set; }
+
+        /// <summary>
+        /// Include inactive/old records (default: false - only active)
+        /// </summary>
+        public bool IncludeInactiveRecords { get; set; } = false;
+    }
+}

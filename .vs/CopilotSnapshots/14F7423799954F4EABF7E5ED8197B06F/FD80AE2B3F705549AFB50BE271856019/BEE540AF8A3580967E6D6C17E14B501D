@@ -1,0 +1,23 @@
+﻿namespace CLINICSYSTEM.Enums;
+
+/// <summary>
+/// Represents user roles in the clinic system
+/// The system supports three primary roles: Patient, Doctor and Nurse
+/// </summary>
+public enum UserRole
+{
+    /// <summary>
+    /// Patient user who can book appointments and view their records
+    /// </summary>
+    Patient = 0,
+
+    /// <summary>
+    /// Doctor who can manage appointments and consultations
+    /// </summary>
+    Doctor = 1,
+
+    /// <summary>
+    /// Nurse who can assist doctors, manage patient vitals, and handle basic care tasks
+    /// </summary>
+    Nurse = 2
+}

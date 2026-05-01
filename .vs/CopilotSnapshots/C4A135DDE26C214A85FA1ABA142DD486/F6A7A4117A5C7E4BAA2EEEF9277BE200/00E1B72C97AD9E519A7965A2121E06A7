@@ -1,0 +1,215 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Services;
+using Microsoft.EntityFrameworkCore;
+
+namespace CLINICSYSTEM.Controllers
+{
+    /// <summary>
+    /// Integration status tracking endpoints
+    /// Provides visibility into referral sync status across external systems
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class IntegrationStatusController : ControllerBase
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IExternalPatientIdService _patientIdService;
+        private readonly ILogger<IntegrationStatusController> _logger;
+
+        public IntegrationStatusController(
+            ClinicDbContext context,
+            IExternalPatientIdService patientIdService,
+            ILogger<IntegrationStatusController> logger)
+        {
+            _context = context;
+            _patientIdService = patientIdService;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Get referral sync status and external system information
+        /// </summary>
+        [HttpGet("referral/{referralId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetReferralStatus(int referralId)
+        {
+            try
+            {
+                var referral = await _context.Referrals
+                    .FirstOrDefaultAsync(r => r.ReferralId == referralId);
+
+                if (referral == null)
+                    return NotFound(new { message = $"Referral {referralId} not found" });
+
+                return Ok(new
+                {
+                    referralId = referral.ReferralId,
+                    patientExternalId = referral.PatientExternalId,
+                    status = referral.Status,
+                    externalReferralId = referral.ExternalReferralId,
+                    externalServiceUrl = referral.ExternalServiceUrl,
+                    lastSyncedAt = referral.ExternalSyncedAt,
+                    syncAttempts = referral.ExternalSyncAttempts ?? 0,
+                    diagnosis = referral.Diagnosis,
+                    priority = referral.Priority,
+                    referralType = referral.ReferralType,
+                    createdAt = referral.CreatedAt,
+                    sentAt = referral.SentAt,
+                    acceptedAt = referral.AcceptedAt,
+                    completedAt = referral.CompletedAt,
+                    feedback = referral.ExternalServiceFeedback
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving referral status for {referralId}");
+                return StatusCode(500, new { message = "Error retrieving referral status" });
+            }
+        }
+
+        /// <summary>
+        /// Get all referrals for a patient (by external UUID)
+        /// </summary>
+        [HttpGet("patient/{patientExternalId}/referrals")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPatientReferrals(Guid patientExternalId)
+        {
+            try
+            {
+                var referrals = await _context.Referrals
+                    .Where(r => r.PatientExternalId == patientExternalId.ToString())
+                    .Select(r => new
+                    {
+                        r.ReferralId,
+                        r.PatientExternalId,
+                        r.Status,
+                        r.ReferralType,
+                        r.Diagnosis,
+                        r.Priority,
+                        r.ExternalReferralId,
+                        r.ExternalSyncedAt,
+                        r.CreatedAt,
+                        r.CompletedAt
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    patientExternalId = patientExternalId,
+                    totalReferrals = referrals.Count,
+                    referrals = referrals
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving referrals for patient {patientExternalId}");
+                return StatusCode(500, new { message = "Error retrieving patient referrals" });
+            }
+        }
+
+        /// <summary>
+        /// Get synchronization statistics and health
+        /// </summary>
+        [HttpGet("health")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetHealthStatus()
+        {
+            try
+            {
+                var totalReferrals = await _context.Referrals.CountAsync();
+                var acceptedExtReferrals = await _context.Referrals
+                    .CountAsync(r => r.Status.Contains("Accepted_Ext") || r.Status.Contains("Scheduled_Ext"));
+                var pendingSyncReferrals = await _context.Referrals
+                    .CountAsync(r => r.Status == "Pending" || r.Status == "Pending_ExtSync");
+                var failedSyncReferrals = await _context.Referrals
+                    .CountAsync(r => r.Status == "Failed_Ext");
+
+                var avgSyncTime = await _context.Referrals
+                    .Where(r => r.ExternalSyncedAt.HasValue && r.CreatedAt != DateTime.MinValue)
+                    .Select(r => EF.Functions.DateDiffMillisecond(r.CreatedAt, r.ExternalSyncedAt))
+                    .AverageAsync() ?? 0;
+
+                return Ok(new
+                {
+                    status = "healthy",
+                    timestamp = DateTime.UtcNow,
+                    integration = new
+                    {
+                        system = "Orthopedic-Physiotherapy-Radiology",
+                        version = "1.0",
+                        connectedSystems = new[] { "physiotherapy", "radiology" }
+                    },
+                    statistics = new
+                    {
+                        totalReferrals = totalReferrals,
+                        acceptedByExternalSystem = acceptedExtReferrals,
+                        pendingSynchronization = pendingSyncReferrals,
+                        failedSynchronization = failedSyncReferrals,
+                        averageSyncTimeMs = Math.Round(avgSyncTime, 2)
+                    },
+                    messaging = new
+                    {
+                        provider = "RabbitMQ",
+                        exchanges = new[] { "clinic.orthopedic.events", "clinic.physiotherapy.events", "clinic.radiology.events" },
+                        status = "configured"
+                    },
+                    caching = new
+                    {
+                        provider = "Redis",
+                        patientIdMappings = "enabled",
+                        status = "configured"
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving health status");
+                return StatusCode(500, new { message = "Error retrieving system status" });
+            }
+        }
+
+        /// <summary>
+        /// Retry synchronization for failed referrals
+        /// </summary>
+        [HttpPost("referral/{referralId}/retry-sync")]
+        [Authorize(Roles = "Admin,Doctor")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RetrySynchronization(int referralId)
+        {
+            try
+            {
+                var referral = await _context.Referrals.FindAsync(referralId);
+                if (referral == null)
+                    return NotFound(new { message = $"Referral {referralId} not found" });
+
+                // Reset sync status to retry
+                referral.Status = "Pending_ExtSync";
+                referral.ExternalSyncAttempts = (referral.ExternalSyncAttempts ?? 0) + 1;
+                referral.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Retrying synchronization for referral {referralId}");
+
+                return Ok(new
+                {
+                    message = "Synchronization retry initiated",
+                    referralId = referralId,
+                    status = referral.Status,
+                    syncAttempts = referral.ExternalSyncAttempts
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrying sync for referral {referralId}");
+                return StatusCode(500, new { message = "Error initiating retry" });
+            }
+        }
+    }
+}

@@ -1,0 +1,206 @@
+using CLINICSYSTEM.Repositories;
+using CLINICSYSTEM.Services;
+using CLINICSYSTEM.Services.EventConsumer;
+using CLINICSYSTEM.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using StackExchange.Redis;
+using MassTransit;
+using Polly;
+
+namespace CLINICSYSTEM.Extensions;
+
+/// <summary>
+/// Extension methods for IServiceCollection
+/// </summary>
+public static class ServiceCollectionExtensions
+{
+    /// <summary>
+    /// Add repository pattern dependencies
+    /// </summary>
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add FluentValidation validators
+    /// </summary>
+    public static IServiceCollection AddValidators(this IServiceCollection services)
+    {
+        services.AddFluentValidationAutoValidation();
+        services.AddFluentValidationClientsideAdapters();
+        
+        // Register all validators from the assembly
+        services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
+        
+        // Explicitly register the RegisterRequest validator
+        services.AddScoped<IValidator<CLINICSYSTEM.Data.DTOs.RegisterRequest>, RegisterRequestValidator>();
+        services.AddScoped<IValidator<CLINICSYSTEM.Data.DTOs.LoginRequest>, LoginRequestValidator>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add application services
+    /// </summary>
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        // Existing services
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IDoctorService, DoctorService>();
+        services.AddScoped<IAppointmentService, AppointmentService>();
+        services.AddScoped<IConsultationService, ConsultationService>();
+        services.AddScoped<IPrescriptionService, PrescriptionService>();
+        services.AddScoped<IMedicalImageService, MedicalImageService>();
+        services.AddScoped<INotificationService, INotificationService>();
+        services.AddScoped<IReferralService, ReferralService>();
+        services.AddScoped<PdfService>();
+
+        // New services for integration modules
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ISmsService, SmsService>();
+        services.AddScoped<IFileStorageService, FileStorageService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        // Integration services
+        services.AddScoped<IImagingService, ImagingService>();
+        services.AddScoped<ITherapyService, TherapyService>();
+        services.AddScoped<IPatientTimelineService, PatientTimelineService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add external system integration services (Orthopedic-Physiotherapy-Radiology)
+    /// </summary>
+    public static IServiceCollection AddExternalSystemIntegration(this IServiceCollection services, IConfiguration configuration)
+    {
+        // External Patient ID Service
+        services.AddScoped<IExternalPatientIdService, ExternalPatientIdService>();
+
+        // Event Publisher
+        services.AddScoped<IEventPublisher, EventPublisher>();
+
+        // Event Consumers
+        services.AddScoped<ReferralAcceptedEventConsumer>();
+        services.AddScoped<AppointmentScheduledEventConsumer>();
+        services.AddScoped<SessionCompletedEventConsumer>();
+        services.AddScoped<ImagingCompletedEventConsumer>();
+
+        // Redis caching
+        var redisConnection = configuration.GetConnectionString("ExternalPatientCache") ?? "localhost:6379";
+        services.AddSingleton<IConnectionMultiplexer>(
+            StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnection)
+        );
+
+        // MassTransit RabbitMQ
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<ReferralAcceptedEventConsumer>();
+            x.AddConsumer<AppointmentScheduledEventConsumer>();
+            x.AddConsumer<SessionCompletedEventConsumer>();
+            x.AddConsumer<ImagingCompletedEventConsumer>();
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                var messageBrokerConfig = configuration.GetSection("MessageBroker");
+                var connectionString = messageBrokerConfig["ConnectionString"] ?? "amqp://guest:guest@localhost:5672/";
+                
+                cfg.Host(connectionString);
+                
+                cfg.ReceiveEndpoint("clinic.referral.accepted", e => 
+                    e.ConfigureConsumer<ReferralAcceptedEventConsumer>(context));
+                cfg.ReceiveEndpoint("clinic.appointment.scheduled", e => 
+                    e.ConfigureConsumer<AppointmentScheduledEventConsumer>(context));
+                cfg.ReceiveEndpoint("clinic.session.completed", e => 
+                    e.ConfigureConsumer<SessionCompletedEventConsumer>(context));
+                cfg.ReceiveEndpoint("clinic.imaging.completed", e => 
+                    e.ConfigureConsumer<ImagingCompletedEventConsumer>(context));
+            });
+        });
+
+        // Resilience policies - commented out as AddPolicyHandler extension is not available
+        // For production, add Polly.Extensions.Http NuGet package and uncomment below
+        // services.AddHttpClient("ExternalServices")
+        //     .AddPolicyHandler(Services.Resilience.ResiliencePolicies.GetCombinedPolicy(configuration));
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add JWT authentication
+    /// </summary>
+    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtSettings = configuration.GetSection("JwtSettings");
+        var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidAudience = jwtSettings["Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add AutoMapper configuration
+    /// </summary>
+    public static IServiceCollection AddAutoMapperConfiguration(this IServiceCollection services)
+    {
+        services.AddAutoMapper(typeof(Program).Assembly);
+        return services;
+    }
+
+    /// <summary>
+    /// Add CORS policy
+    /// </summary>
+    public static IServiceCollection AddCorsPolicy(this IServiceCollection services, string policyName = "AllowAll")
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy(policyName, builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add caching services
+    /// </summary>
+    public static IServiceCollection AddCachingServices(this IServiceCollection services)
+    {
+        services.AddMemoryCache();
+        services.AddResponseCaching();
+
+        return services;
+    }
+}

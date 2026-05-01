@@ -1,0 +1,290 @@
+{
+	"info": {
+		"_postman_id": "clinic-system-test-collection-fixed",
+		"name": "Clinic Management System - Fixed API Testing",
+		"description": "Fixed API testing collection for the Clinic Management System with Arabic names and Egyptian data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register Patient - Ahmed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient_token', jsonData.token);",
+									"    pm.environment.set('patient_user_id', jsonData.user.userId);",
+									"    pm.environment.set('patient_email', jsonData.user.email);",
+									"    console.log('Patient token saved:', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ahmed.mohamed@gmail.com\",\n  \"password\": \"AhmedPass123!\",\n  \"firstName\": \"Ahmed\",\n  \"lastName\": \"Mohamed\",\n  \"phoneNumber\": \"01012345678\",\n  \"role\": \"Patient\",\n  \"gender\": \"Male\",\n  \"dateOfBirth\": \"15/3/1995\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register Doctor - Dr. Omar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor_token', jsonData.token);",
+									"    pm.environment.set('doctor_user_id', jsonData.user.userId);",
+									"    pm.environment.set('doctor_email', jsonData.user.email);",
+									"    console.log('Doctor token saved:', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.omar.ibrahim@clinic.com\",\n  \"password\": \"DrOmarPass123!\",\n  \"firstName\": \"Omar\",\n  \"lastName\": \"Ibrahim\",\n  \"phoneNumber\": \"01223456789\",\n  \"role\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login Patient - Ahmed (FIXED)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('current_token', jsonData.token);",
+									"    pm.environment.set('current_user_id', jsonData.user.userId);",
+									"    pm.environment.set('current_user_role', jsonData.user.role);",
+									"    console.log('Current user token saved:', jsonData.token);",
+									"    console.log('Current user role:', jsonData.user.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ahmed.mohamed@gmail.com\",\n  \"password\": \"AhmedPass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login Doctor - Dr. Omar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('current_token', jsonData.token);",
+									"    pm.environment.set('current_user_id', jsonData.user.userId);",
+									"    pm.environment.set('current_user_role', jsonData.user.role);",
+									"    console.log('Current user token saved:', jsonData.token);",
+									"    console.log('Current user role:', jsonData.user.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.omar.ibrahim@clinic.com\",\n  \"password\": \"DrOmarPass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Profile (Test Auth)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Debug Authorization",
+			"item": [
+				{
+					"name": "Test Token Debug",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log('Current token:', pm.environment.get('current_token'));",
+									"console.log('Current user ID:', pm.environment.get('current_user_id'));",
+									"console.log('Current user role:', pm.environment.get('current_user_role'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global pre-request script",
+					"console.log('Request URL:', pm.request.url.toString());",
+					"console.log('Using token:', pm.environment.get('current_token') ? 'Token exists' : 'No token');"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"console.log('Response status:', pm.response.code);",
+					"if (pm.response.code !== 200) {",
+					"    console.log('Response body:', pm.response.text());",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://localhost:7157",
+			"type": "string"
+		}
+	]
+}

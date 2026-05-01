@@ -1,0 +1,218 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\timeslotmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\timeslotmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\prescriptionmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\prescriptionmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\patientmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\patientmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\notificationmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\notificationmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\medicalrecordmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\medicalrecordmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\medicalimagemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\medicalimagemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\doctorschedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\doctorschedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\doctormodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\doctormodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\consultationmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\consultationmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|c:\\users\\op\\source\\repos\\clinicsystem\\models\\appointmentsmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAA8BA04-EA84-47B8-72DA-680B427D33D4}|CLINICSYSTEM.csproj|solutionrelative:models\\appointmentsmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 100,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 12,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "NotificationModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\NotificationModel.cs",
+              "RelativeDocumentMoniker": "Models\\NotificationModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\NotificationModel.cs",
+              "RelativeToolTip": "Models\\NotificationModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T21:09:34.859Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "MedicalImageModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\MedicalImageModel.cs",
+              "RelativeDocumentMoniker": "Models\\MedicalImageModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\MedicalImageModel.cs",
+              "RelativeToolTip": "Models\\MedicalImageModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T21:09:04.693Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "MedicalRecordModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\MedicalRecordModel.cs",
+              "RelativeDocumentMoniker": "Models\\MedicalRecordModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\MedicalRecordModel.cs",
+              "RelativeToolTip": "Models\\MedicalRecordModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T21:08:26.228Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PrescriptionModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\PrescriptionModel.cs",
+              "RelativeDocumentMoniker": "Models\\PrescriptionModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\PrescriptionModel.cs",
+              "RelativeToolTip": "Models\\PrescriptionModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T21:08:00.164Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ConsultationModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\ConsultationModel.cs",
+              "RelativeDocumentMoniker": "Models\\ConsultationModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\ConsultationModel.cs",
+              "RelativeToolTip": "Models\\ConsultationModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T21:01:31.141Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AppointmentsModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\AppointmentsModel.cs",
+              "RelativeDocumentMoniker": "Models\\AppointmentsModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\AppointmentsModel.cs",
+              "RelativeToolTip": "Models\\AppointmentsModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T20:35:41.968Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TimeSlotModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\TimeSlotModel.cs",
+              "RelativeDocumentMoniker": "Models\\TimeSlotModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\TimeSlotModel.cs",
+              "RelativeToolTip": "Models\\TimeSlotModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T20:34:35.588Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "DoctorSchedule.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\DoctorSchedule.cs",
+              "RelativeDocumentMoniker": "Models\\DoctorSchedule.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\DoctorSchedule.cs",
+              "RelativeToolTip": "Models\\DoctorSchedule.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T20:31:57.243Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "DoctorModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\DoctorModel.cs",
+              "RelativeDocumentMoniker": "Models\\DoctorModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\DoctorModel.cs",
+              "RelativeToolTip": "Models\\DoctorModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T19:17:09.39Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PatientModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\PatientModel.cs",
+              "RelativeDocumentMoniker": "Models\\PatientModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\PatientModel.cs",
+              "RelativeToolTip": "Models\\PatientModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T18:59:56.519Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UserModel.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\UserModel.cs",
+              "RelativeDocumentMoniker": "Models\\UserModel.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Models\\UserModel.cs",
+              "RelativeToolTip": "Models\\UserModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T18:50:55.386Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\OP\\source\\repos\\ClinicSystem\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-30T18:47:06.143Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

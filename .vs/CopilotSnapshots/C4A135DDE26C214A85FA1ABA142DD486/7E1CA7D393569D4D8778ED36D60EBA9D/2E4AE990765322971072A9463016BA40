@@ -1,0 +1,221 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using CLINICSYSTEM.Data.DTOs;
+using CLINICSYSTEM.Services;
+
+namespace CLINICSYSTEM.Controllers
+{
+    /// <summary>
+    /// Physiotherapy integration endpoints
+    /// Handles therapy sessions and plans
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class TherapyController : ControllerBase
+    {
+        private readonly ITherapyService _therapyService;
+        private readonly ILogger<TherapyController> _logger;
+
+        public TherapyController(
+            ITherapyService therapyService,
+            ILogger<TherapyController> logger)
+        {
+            _therapyService = therapyService;
+            _logger = logger;
+        }
+
+        // Therapy Sessions
+        /// <summary>
+        /// Create therapy session (called by Physiotherapy system)
+        /// </summary>
+        [HttpPost("sessions")]
+        [ProducesResponseType(typeof(TherapySessionDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]  // Physiotherapy system calls this
+        public async Task<IActionResult> CreateSession([FromBody] CreateTherapySessionRequest request)
+        {
+            try
+            {
+                var session = await _therapyService.CreateSessionAsync(request);
+                return CreatedAtAction(nameof(GetSession), new { id = session.SessionId }, session);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating therapy session");
+                return StatusCode(500, new { message = "Error creating session" });
+            }
+        }
+
+        /// <summary>
+        /// Get therapy session by ID
+        /// </summary>
+        [HttpGet("sessions/{id}")]
+        [ProducesResponseType(typeof(TherapySessionDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetSession(int id)
+        {
+            try
+            {
+                var session = await _therapyService.GetSessionByIdAsync(id);
+                return Ok(session);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving session {id}");
+                return StatusCode(500, new { message = "Error retrieving session" });
+            }
+        }
+
+        /// <summary>
+        /// Get all sessions for a patient
+        /// </summary>
+        [HttpGet("patient/{patientExternalId}/sessions")]
+        [ProducesResponseType(typeof(List<TherapySessionDTO>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPatientSessions(Guid patientExternalId)
+        {
+            try
+            {
+                var sessions = await _therapyService.GetPatientSessionsAsync(patientExternalId);
+                return Ok(sessions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving patient sessions");
+                return StatusCode(500, new { message = "Error retrieving sessions" });
+            }
+        }
+
+        /// <summary>
+        /// Get sessions for a referral
+        /// </summary>
+        [HttpGet("referral/{referralId}/sessions")]
+        [ProducesResponseType(typeof(List<TherapySessionDTO>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetReferralSessions(int referralId)
+        {
+            try
+            {
+                var sessions = await _therapyService.GetReferralSessionsAsync(referralId);
+                return Ok(sessions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving referral sessions");
+                return StatusCode(500, new { message = "Error retrieving sessions" });
+            }
+        }
+
+        /// <summary>
+        /// Update therapy session
+        /// </summary>
+        [HttpPut("sessions/{id}")]
+        [ProducesResponseType(typeof(TherapySessionDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateSession(int id, [FromBody] CreateTherapySessionRequest request)
+        {
+            try
+            {
+                var session = await _therapyService.UpdateSessionAsync(id, request);
+                return Ok(session);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating session {id}");
+                return StatusCode(500, new { message = "Error updating session" });
+            }
+        }
+
+        // Therapy Plans
+        /// <summary>
+        /// Create therapy plan (called by Physiotherapy system)
+        /// </summary>
+        [HttpPost("plans")]
+        [ProducesResponseType(typeof(TherapyPlanDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]  // Physiotherapy system calls this
+        public async Task<IActionResult> CreatePlan([FromBody] CreateTherapyPlanRequest request)
+        {
+            try
+            {
+                var plan = await _therapyService.CreatePlanAsync(request);
+                return CreatedAtAction(nameof(GetPlan), new { id = plan.PlanId }, plan);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating therapy plan");
+                return StatusCode(500, new { message = "Error creating plan" });
+            }
+        }
+
+        /// <summary>
+        /// Get therapy plan by ID
+        /// </summary>
+        [HttpGet("plans/{id}")]
+        [ProducesResponseType(typeof(TherapyPlanDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPlan(int id)
+        {
+            try
+            {
+                var plan = await _therapyService.GetPlanByIdAsync(id);
+                return Ok(plan);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving plan {id}");
+                return StatusCode(500, new { message = "Error retrieving plan" });
+            }
+        }
+
+        /// <summary>
+        /// Get all therapy plans for a patient
+        /// </summary>
+        [HttpGet("patient/{patientExternalId}/plans")]
+        [ProducesResponseType(typeof(List<TherapyPlanDTO>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPatientPlans(Guid patientExternalId)
+        {
+            try
+            {
+                var plans = await _therapyService.GetPatientPlansAsync(patientExternalId);
+                return Ok(plans);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving patient plans");
+                return StatusCode(500, new { message = "Error retrieving plans" });
+            }
+        }
+
+        // Progress Tracking
+        /// <summary>
+        /// Get patient progress metrics
+        /// </summary>
+        [HttpGet("patient/{patientExternalId}/progress")]
+        [ProducesResponseType(typeof(PatientProgressDTO), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPatientProgress(Guid patientExternalId)
+        {
+            try
+            {
+                var progress = await _therapyService.GetPatientProgressAsync(patientExternalId);
+                return Ok(progress);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving patient progress");
+                return StatusCode(500, new { message = "Error retrieving progress" });
+            }
+        }
+    }
+}

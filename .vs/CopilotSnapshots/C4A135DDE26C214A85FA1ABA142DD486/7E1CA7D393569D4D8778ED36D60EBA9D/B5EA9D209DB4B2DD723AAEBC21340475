@@ -1,0 +1,21 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
+{
+    public class PatientCareTaskModel
+    {
+        [Key]
+        public int TaskId { get; set; }
+        public int NurseId { get; set; }
+        public string PatientExternalId { get; set; } = string.Empty;
+        public string TaskType { get; set; } = string.Empty; // Vitals, Medication, Dressing, Observation, etc.
+        public string Status { get; set; } = "Pending"; // Pending, InProgress, Completed
+        public string? Notes { get; set; }
+        public DateTime ScheduledAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? CompletedAt { get; set; }
+
+        // Navigation properties
+        public NurseModel? Nurse { get; set; }
+    }
+}

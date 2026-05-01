@@ -1,0 +1,90 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace CLINICSYSTEM.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddExternalSystemIntegrationFields : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            // Add columns to Patients table
+            migrationBuilder.AddColumn<DateTime>(
+                name: "ExternalIdSyncedAt",
+                table: "Patients",
+                type: "TEXT",
+                nullable: true);
+
+            // Add columns to Referrals table for external system sync tracking
+            migrationBuilder.AddColumn<DateTime>(
+                name: "ExternalSyncedAt",
+                table: "Referrals",
+                type: "TEXT",
+                nullable: true);
+
+            migrationBuilder.AddColumn<int>(
+                name: "ExternalSyncAttempts",
+                table: "Referrals",
+                type: "INTEGER",
+                nullable: true);
+
+            // Create index for faster external patient ID lookups
+            migrationBuilder.CreateIndex(
+                name: "IX_Patients_ExternalPatientId",
+                table: "Patients",
+                column: "ExternalPatientId");
+
+            // Create index for referral sync status queries
+            migrationBuilder.CreateIndex(
+                name: "IX_Referrals_PatientExternalId_Status",
+                table: "Referrals",
+                columns: new[] { "PatientExternalId", "Status" });
+
+            // Create index for external referral ID lookups
+            migrationBuilder.CreateIndex(
+                name: "IX_Referrals_ExternalReferralId",
+                table: "Referrals",
+                column: "ExternalReferralId");
+
+            // Create index for sync retry queries
+            migrationBuilder.CreateIndex(
+                name: "IX_Referrals_Status_ExternalSyncedAt",
+                table: "Referrals",
+                columns: new[] { "Status", "ExternalSyncedAt" });
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropIndex(
+                name: "IX_Patients_ExternalPatientId",
+                table: "Patients");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Referrals_PatientExternalId_Status",
+                table: "Referrals");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Referrals_ExternalReferralId",
+                table: "Referrals");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Referrals_Status_ExternalSyncedAt",
+                table: "Referrals");
+
+            migrationBuilder.DropColumn(
+                name: "ExternalIdSyncedAt",
+                table: "Patients");
+
+            migrationBuilder.DropColumn(
+                name: "ExternalSyncedAt",
+                table: "Referrals");
+
+            migrationBuilder.DropColumn(
+                name: "ExternalSyncAttempts",
+                table: "Referrals");
+        }
+    }
+}

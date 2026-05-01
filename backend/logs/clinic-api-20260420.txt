@@ -1,0 +1,48 @@
+2026-04-20 16:30:27.946 +02:00 [INF] Executed DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-04-20 16:30:28.049 +02:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-04-20 16:30:28.082 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-04-20 16:30:28.125 +02:00 [INF] Applying migration '20260420143005_AddNurseAndPatientCareTaskModels'.
+2026-04-20 16:30:28.350 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DROP INDEX "IX_Patients_UserId";
+2026-04-20 16:30:28.378 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Patients" RENAME COLUMN "Gender" TO "FullName";
+2026-04-20 16:30:28.392 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Patients" RENAME COLUMN "EmergencyContact" TO "PhoneNumber";
+2026-04-20 16:30:28.409 +02:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "Patients" RENAME COLUMN "DateOfBirth" TO "ExternalPatientId";
+2026-04-20 16:30:28.419 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "MedicalRecords" ADD "PatientExternalId" TEXT NULL;
+2026-04-20 16:30:28.427 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "MedicalImages" ADD "ExternalRadiologyId" TEXT NULL;
+2026-04-20 16:30:28.434 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "MedicalImages" ADD "PatientExternalId" TEXT NULL;
+2026-04-20 16:30:28.440 +02:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Nurses" (
+    "NurseId" INTEGER NOT NULL CONSTRAINT "PK_Nurses" PRIMARY KEY AUTOINCREMENT,
+    "UserId" INTEGER NOT NULL,
+    "Department" TEXT NOT NULL,
+    "LicenseNumber" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NOT NULL,
+    CONSTRAINT "FK_Nurses_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("UserId") ON DELETE CASCADE
+);
+2026-04-20 16:30:28.446 +02:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "PatientCareTasks" (
+    "TaskId" INTEGER NOT NULL CONSTRAINT "PK_PatientCareTasks" PRIMARY KEY AUTOINCREMENT,
+    "NurseId" INTEGER NOT NULL,
+    "PatientExternalId" TEXT NOT NULL,
+    "TaskType" TEXT NOT NULL,
+    "Status" TEXT NOT NULL,
+    "Notes" TEXT NULL,
+    "ScheduledAt" TEXT NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "CompletedAt" TEXT NULL,
+    CONSTRAINT "FK_PatientCareTasks_Nurses_NurseId" FOREIGN KEY ("NurseId") REFERENCES "Nurses" ("NurseId") ON DELETE RESTRICT
+);
+2026-04-20 16:30:28.453 +02:00 [ERR] Failed executing DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_Patients_ExternalPatientId" ON "Patients" ("ExternalPatientId");

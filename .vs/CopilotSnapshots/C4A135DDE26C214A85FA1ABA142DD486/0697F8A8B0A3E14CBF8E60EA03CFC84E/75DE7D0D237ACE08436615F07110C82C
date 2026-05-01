@@ -1,0 +1,95 @@
+﻿using Polly;
+using Polly.CircuitBreaker;
+
+namespace CLINICSYSTEM.Services.Resilience
+{
+    /// <summary>
+    /// Defines resilience policies for external service calls
+    /// Uses Polly for retry logic, circuit breaker, and timeout handling
+    /// </summary>
+    public static class ResiliencePolicies
+    {
+        /// <summary>
+        /// Circuit Breaker Policy
+        /// Stops sending requests if failure rate is too high
+        /// Prevents cascading failures and gives external service time to recover
+        /// </summary>
+        public static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(IConfiguration config)
+        {
+            var settings = config.GetSection("Resilience:CircuitBreaker");
+            var failureThreshold = int.Parse(settings["FailureThreshold"] ?? "50");
+            var timeoutSeconds = int.Parse(settings["TimeoutSeconds"] ?? "30");
+
+            return Policy
+                .Handle<HttpRequestException>()
+                .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+                .CircuitBreakerAsync<HttpResponseMessage>(
+                    handledEventsAllowedBeforeBreaking: failureThreshold,
+                    durationOfBreak: TimeSpan.FromSeconds(timeoutSeconds),
+                    onBreak: (outcome, timespan, context) =>
+                    {
+                        // Log when circuit opens
+                        Console.WriteLine($"Circuit breaker OPENED for {timespan.TotalSeconds}s due to failures");
+                    },
+                    onReset: (context) =>
+                    {
+                        // Log when circuit closes
+                        Console.WriteLine("Circuit breaker CLOSED - service recovered");
+                    }
+                );
+        }
+
+        /// <summary>
+        /// Retry Policy with Exponential Backoff
+        /// Retries failed requests with increasing delays
+        /// Handles transient failures (network blips, temporary unavailability)
+        /// </summary>
+        public static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(IConfiguration config)
+        {
+            var settings = config.GetSection("Resilience:Retry");
+            var maxAttempts = int.Parse(settings["MaxAttempts"] ?? "4");
+            var initialDelayMs = int.Parse(settings["InitialDelayMs"] ?? "100");
+            var backoffMultiplier = double.Parse(settings["BackoffMultiplier"] ?? "2.0");
+
+            return Policy
+                .Handle<HttpRequestException>()
+                .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+                .WaitAndRetryAsync<HttpResponseMessage>(
+                    retryCount: maxAttempts,
+                    sleepDurationProvider: retryAttempt =>
+                    {
+                        var delayMs = initialDelayMs * Math.Pow(backoffMultiplier, retryAttempt - 1);
+                        return TimeSpan.FromMilliseconds(delayMs);
+                    },
+                    onRetry: (outcome, timespan, retryCount, context) =>
+                    {
+                        // Log retry attempt
+                        Console.WriteLine($"Retry attempt {retryCount} after {timespan.TotalMilliseconds}ms delay");
+                    }
+                );
+        }
+
+        /// <summary>
+        /// Combined Policy: Wrap both retry and circuit breaker
+        /// Retry is inner layer (tries first), circuit breaker is outer (stops if too many failures)
+        /// </summary>
+        public static IAsyncPolicy<HttpResponseMessage> GetCombinedPolicy(IConfiguration config)
+        {
+            return Policy.WrapAsync(
+                GetRetryPolicy(config),
+                GetCircuitBreakerPolicy(config)
+            );
+        }
+
+        /// <summary>
+        /// Timeout Policy
+        /// Prevents hanging requests by timing out after specified duration
+        /// </summary>
+        public static IAsyncPolicy<HttpResponseMessage> GetTimeoutPolicy(int timeoutSeconds)
+        {
+            return Policy.TimeoutAsync<HttpResponseMessage>(
+                TimeSpan.FromSeconds(timeoutSeconds)
+            );
+        }
+    }
+}

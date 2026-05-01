@@ -1,0 +1,126 @@
+﻿using MassTransit;
+using CLINICSYSTEM.Events;
+using CLINICSYSTEM.Models;
+
+namespace CLINICSYSTEM.Services
+{
+    /// <summary>
+    /// Publishes events to external systems via MassTransit/RabbitMQ
+    /// Handles asynchronous communication with physiotherapy and radiology systems
+    /// </summary>
+    public class EventPublisher : IEventPublisher
+    {
+        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ILogger<EventPublisher> _logger;
+
+        public EventPublisher(IPublishEndpoint publishEndpoint, ILogger<EventPublisher> logger)
+        {
+            _publishEndpoint = publishEndpoint;
+            _logger = logger;
+        }
+
+        public async Task PublishReferralCreatedAsync(ReferralModel referral, DoctorModel doctor, PatientModel patient)
+        {
+            try
+            {
+                var @event = new ReferralCreatedEvent
+                {
+                    ReferralId = referral.ReferralId,
+                    DoctorId = doctor.UserId,
+                    DoctorName = doctor.User?.Email ?? "Unknown",
+                    PatientExternalId = Guid.TryParse(referral.PatientExternalId, out var id) ? id : Guid.Empty,
+                    PatientName = patient.FullName ?? "Unknown",
+                    PatientPhone = patient.PhoneNumber ?? string.Empty,
+                    ReferralType = referral.ReferralType,
+                    Diagnosis = referral.Diagnosis,
+                    Reason = referral.Reason,
+                    Priority = referral.Priority,
+                    Notes = referral.DoctorNotes
+                };
+
+                await _publishEndpoint.Publish(@event);
+                _logger.LogInformation("Published ReferralCreatedEvent for referral {ReferralId}", referral.ReferralId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to publish ReferralCreatedEvent for referral {ReferralId}", referral.ReferralId);
+                throw;
+            }
+        }
+
+        public async Task PublishAppointmentScheduledAsync(AppointmentModel appointment)
+        {
+            try
+            {
+                var appointmentDate = appointment.TimeSlot?.SlotDate ?? DateTime.UtcNow;
+                var appointmentTime = appointment.TimeSlot?.StartTime ?? TimeSpan.Zero;
+                
+                var @event = new AppointmentScheduledEvent
+                {
+                    AppointmentDate = appointmentDate,
+                    AppointmentTime = appointmentTime,
+                    PatientExternalId = Guid.TryParse(appointment.PatientExternalId, out var id) ? id : Guid.Empty,
+                    TherapistName = appointment.Doctor?.User?.Email ?? "Unknown",
+                    Location = "Clinic"
+                };
+
+                await _publishEndpoint.Publish(@event);
+                _logger.LogInformation("Published AppointmentScheduledEvent for appointment {AppointmentId}", appointment.AppointmentId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to publish AppointmentScheduledEvent for appointment {AppointmentId}", appointment.AppointmentId);
+                throw;
+            }
+        }
+
+        public async Task PublishConsultationCompletedAsync(ConsultationModel consultation)
+        {
+            try
+            {
+                var @event = new SessionCompletedEvent
+                {
+                    EventId = Guid.NewGuid(),
+                    Timestamp = DateTime.UtcNow,
+                    SourceSystem = "orthopedic",
+                    PatientExternalId = Guid.TryParse(consultation.Appointment?.Patient?.ExternalPatientId, out var id) ? id : Guid.Empty,
+                    PainScoreBefore = 0,
+                    PainScoreAfter = 0,
+                    Assessment = consultation.Diagnosis ?? string.Empty,
+                    Treatment = consultation.Notes ?? string.Empty,
+                    NextAppointmentDate = null
+                };
+
+                await _publishEndpoint.Publish(@event);
+                _logger.LogInformation("Published SessionCompletedEvent for consultation {ConsultationId}", consultation.ConsultationId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to publish SessionCompletedEvent for consultation {ConsultationId}", consultation.ConsultationId);
+                throw;
+            }
+        }
+
+        public async Task PublishImagingRequestedAsync(MedicalImagingModel imaging)
+        {
+            try
+            {
+                var @event = new ImagingCompletedEvent
+                {
+                    ImagingId = imaging.ImagingId.ToString(),
+                    PatientExternalId = imaging.PatientExternalId,
+                    StorageUrl = imaging.StorageUrl ?? string.Empty,
+                    CompletionDate = imaging.CompletedAt ?? DateTime.UtcNow
+                };
+
+                await _publishEndpoint.Publish(@event);
+                _logger.LogInformation("Published ImagingCompletedEvent for imaging {ImagingId}", imaging.ImagingId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to publish ImagingCompletedEvent for imaging {ImagingId}", imaging.ImagingId);
+                throw;
+            }
+        }
+    }
+}

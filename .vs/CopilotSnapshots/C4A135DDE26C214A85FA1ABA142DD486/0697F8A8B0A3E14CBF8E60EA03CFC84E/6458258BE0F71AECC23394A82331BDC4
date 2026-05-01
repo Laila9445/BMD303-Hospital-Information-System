@@ -1,0 +1,49 @@
+﻿namespace CLINICSYSTEM.Data.DTOs
+{
+    /// <summary>
+    /// DTO for medical imaging data
+    /// </summary>
+    public class MedicalImagingDTO
+    {
+        public int ImagingId { get; set; }
+        public Guid PatientExternalId { get; set; }
+        public int? ReferralId { get; set; }
+        public string ImagingType { get; set; } = string.Empty;
+        public string BodyPart { get; set; } = string.Empty;
+        public string Indication { get; set; } = string.Empty;
+        public string Priority { get; set; } = "Normal";
+        public string? StorageUrl { get; set; }
+        public string? RadiologyReport { get; set; }
+        public string? Findings { get; set; }
+        public string? Recommendations { get; set; }
+        public string Status { get; set; } = "Requested";
+        public DateTime RequestedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public string? PerformedBy { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for creating imaging request
+    /// </summary>
+    public class CreateMedicalImagingRequest
+    {
+        public Guid PatientExternalId { get; set; }
+        public int? ReferralId { get; set; }
+        public string ImagingType { get; set; } = string.Empty;
+        public string BodyPart { get; set; } = string.Empty;
+        public string Indication { get; set; } = string.Empty;
+        public string Priority { get; set; } = "Normal";
+    }
+
+    /// <summary>
+    /// DTO for updating imaging after radiology completes
+    /// </summary>
+    public class UpdateMedicalImagingRequest
+    {
+        public string? StorageUrl { get; set; }
+        public string? RadiologyReport { get; set; }
+        public string? Findings { get; set; }
+        public string? Recommendations { get; set; }
+        public string Status { get; set; } = "Completed";
+    }
+}

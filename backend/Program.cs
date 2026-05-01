@@ -1,0 +1,264 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Models;
+using CLINICSYSTEM.Services;
+using CLINICSYSTEM.Middleware;
+using CLINICSYSTEM.Validators;
+using Serilog;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+
+// Configure Serilog with MINIMAL verbosity for fastest startup
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj}")
+    .WriteTo.File("logs/clinic-api-.txt", rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext()
+    .MinimumLevel.Fatal()  // CRITICAL: Only log fatal errors during startup
+    .CreateLogger();
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add Serilog
+builder.Host.UseSerilog();
+
+// Add minimal services - LEAN approach
+builder.Services.AddControllers(options =>
+{
+    options.SuppressAsyncSuffixInActionNames = false;
+});
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
+builder.Services.AddProblemDetails();
+
+// FluentValidation - MINIMAL registration (remove assembly scan)
+builder.Services.AddFluentValidationAutoValidation();
+// REMOVED: AddFluentValidationClientsideAdapters() - not needed in development
+// Explicitly register ONLY required validators (no assembly scanning)
+builder.Services.AddScoped<IValidator<CLINICSYSTEM.Data.DTOs.RegisterRequest>, RegisterRequestValidator>();
+builder.Services.AddScoped<IValidator<CLINICSYSTEM.Data.DTOs.LoginRequest>, LoginRequestValidator>();
+
+// Swagger/OpenAPI - Load only when accessed
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "Clinic Information System API", 
+        Version = "v1",
+        Description = "ASP.NET Core Web API for Clinic Management System",
+        Contact = new OpenApiContact
+        {
+            Name = "Clinic Support",
+            Email = "support@clinic.com"
+        }
+    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter JWT token with Bearer prefix (e.g., 'Bearer {token}')",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new string[] { }
+        }
+    });
+});
+
+// Database - SqlServer only (REMOVED SQLite)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+?? "Server=(local);Database=ClinicSystemDb;Trusted_Connection=true;TrustServerCertificate=true;";
+builder.Services.AddDbContext<ClinicDbContext>(options =>
+{
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        sqlOptions.CommandTimeout(30);
+        sqlOptions.EnableRetryOnFailure(3);
+    });
+});
+
+// Identity - Minimal configuration
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    options.Password.RequiredLength = 6;
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.User.RequireUniqueEmail = true;
+})
+    .AddEntityFrameworkStores<ClinicDbContext>()
+    .AddDefaultTokenProviders();
+
+// JWT Authentication - OPTIMIZED
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        RequireExpirationTime = true
+    };
+});
+
+// Authorization - Basic policies only
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("DoctorOnly", policy => policy.RequireRole("Doctor"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("StaffOnly", policy => policy.RequireRole("Staff", "Admin", "Doctor"));
+});
+
+// CORS - Fixed policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+    
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+// Application Services - CORE only
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IConsultationService, ConsultationService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+builder.Services.AddScoped<IMedicalImageService, MedicalImageService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<PdfService>();
+
+// AutoMapper - EXPLICIT mapping (no assembly scanning reflection)
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+var app = builder.Build();
+
+// Configure middleware pipeline
+// Use our global exception middleware so all errors are returned as the standard JSON envelope
+app.UseMiddleware<GlobalExceptionHandler>();
+
+// MINIMAL request logging - only in Debug
+if (!app.Environment.IsProduction())
+{
+    app.UseSerilogRequestLogging(opts =>
+    {
+        opts.IncludeQueryInRequestPath = true;
+        opts.EnrichDiagnosticContext = (diag, http) => { };
+    });
+}
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseCors("AllowAll");
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+// Database migration - Background task with FAST startup
+_ = Task.Run(async () =>
+{
+    await Task.Delay(1000); // Minimal delay - server starts immediately
+    try
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ClinicDbContext>();
+            
+            // Migration with timeout
+            using (var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(60)))
+            {
+                await db.Database.MigrateAsync(cts.Token);
+                Log.Information("Database migration completed successfully");
+            }
+            
+            // Seed roles
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var roles = new[] { "Doctor", "Admin", "Staff" };
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                    Log.Information("Created role: {Role}", role);
+                }
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during database migration/seeding");
+    }
+});
+
+try
+{
+    Log.Information("Starting Clinic Information System API");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

@@ -1,0 +1,817 @@
+﻿# 🏥 INTEGRATION IMPLEMENTATION ROADMAP
+## Orthopedic System → Physiotherapy + Radiology Connection
+
+---
+
+## PHASE 1: FOUNDATION SETUP (Week 1-2)
+
+### Step 1.1: Update `appsettings.json` Configuration
+
+**Add these sections to support external system integration:**
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=ClinicSystemDb_Dev.db",
+    "ExternalPatientCache": "localhost:6379"  // Redis for patient mappings
+  },
+  
+  "JwtSettings": {
+    // ... existing ...
+    "AllowedSystemClaims": ["orthopedic", "physiotherapy", "radiology"]
+  },
+
+  "ExternalServices": {
+    "PhysiotherapyApi": {
+      "BaseUrl": "http://localhost:8000",  // FastAPI port
+      "ApiKey": "physiotherapy-system-key",
+      "TimeoutSeconds": 30,
+      "RetryAttempts": 3,
+      "RetryDelayMs": 1000
+    },
+    "RadiologyApi": {
+      "BaseUrl": "https://radiology-cloud.example.com",
+      "ApiKey": "radiology-api-key",
+      "TimeoutSeconds": 60,
+      "RetryAttempts": 5,
+      "RetryDelayMs": 2000
+    },
+    "PatientPortalApi": {
+      "BaseUrl": "https://localhost:5003",
+      "ApiKey": "your-patient-portal-api-key-here",
+      "TimeoutSeconds": 30
+    }
+  },
+
+  "MessageBroker": {
+    "Provider": "RabbitMQ",  // or "AzureServiceBus"
+    "ConnectionString": "amqp://guest:guest@localhost:5672/",
+    "Exchanges": {
+      "OrthopedicEvents": "clinic.orthopedic.events",
+      "PhysiotherapyEvents": "clinic.physiotherapy.events",
+      "RadiologyEvents": "clinic.radiology.events"
+    },
+    "Queues": {
+      "ReferralCreated": "clinic.referral.created",
+      "ReferralAccepted": "clinic.referral.accepted",
+      "AppointmentScheduled": "clinic.appointment.scheduled",
+      "SessionCompleted": "clinic.session.completed",
+      "ImagingRequested": "clinic.imaging.requested",
+      "ImagingCompleted": "clinic.imaging.completed",
+      "DeadLetterQueue": "clinic.dlq"
+    }
+  },
+
+  "Resilience": {
+    "CircuitBreaker": {
+      "FailureThreshold": 50,  // % of failures before opening
+      "SuccessThreshold": 10,  // consecutive successes to close
+      "TimeoutSeconds": 30     // how long to wait before half-open
+    },
+    "Retry": {
+      "MaxAttempts": 4,
+      "InitialDelayMs": 100,
+      "BackoffMultiplier": 2.0
+    }
+  },
+
+  "ExternalPatientIds": {
+    "Enabled": true,
+    "Version": "1.0",           // UUID v4
+    "CacheTTLHours": 24,
+    "SyncInterval": "*/5 * * * *"  // Every 5 minutes
+  },
+
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "CLINICSYSTEM.Services.EventPublisher": "Debug",
+      "CLINICSYSTEM.Services.ExternalIntegration": "Debug"
+    }
+  },
+
+  "AllowedHosts": "*"
+}
+```
+
+---
+
+### Step 1.2: Add NuGet Packages
+
+**Install these packages via Package Manager:**
+
+```powershell
+# Event messaging
+dotnet add package MassTransit
+dotnet add package MassTransit.RabbitMQ
+# OR for Azure Service Bus
+dotnet add package MassTransit.AzureServiceBus
+
+# Resilience patterns
+dotnet add package Polly
+dotnet add package Polly.CircuitBreaker
+dotnet add package Polly.Retry
+
+# HTTP client
+dotnet add package Microsoft.Extensions.Http.Polly
+
+# Caching
+dotnet add package StackExchange.Redis
+
+# UUID generation
+dotnet add package System.ComponentModel.Composition
+
+# Event sourcing / outbox pattern
+dotnet add package EFCore.Events
+```
+
+---
+
+### Step 1.3: Create Shared Event Schema
+
+**File: `backend\Events\SharedEvents.cs`**
+
+These events will be published to RabbitMQ and consumed by Physiotherapy and Radiology:
+
+```csharp
+namespace CLINICSYSTEM.Events
+{
+    // Base event interface
+    public interface IClinicEvent
+    {
+        Guid EventId { get; }
+        DateTime Timestamp { get; }
+        string SourceSystem { get; }  // "orthopedic", "physiotherapy"
+    }
+
+    // REFERRAL EVENTS
+    public class ReferralCreatedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string SourceSystem { get; set; } = "orthopedic";
+
+        public int ReferralId { get; set; }
+        public Guid PatientExternalId { get; set; }  // UUID - KEY!
+        public string PatientName { get; set; }
+        public string PatientPhone { get; set; }
+        public int DoctorId { get; set; }
+        public string DoctorName { get; set; }
+        public string ReferralType { get; set; }    // e.g., "Physiotherapy", "Radiology"
+        public string Diagnosis { get; set; }
+        public string Reason { get; set; }
+        public string Priority { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class ReferralAcceptedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string SourceSystem { get; set; } = "physiotherapy";
+
+        public int RemoteReferralId { get; set; }
+        public Guid PatientExternalId { get; set; }
+        public string Status { get; set; }
+        public string? ExternalReferralId { get; set; }
+    }
+
+    // APPOINTMENT EVENTS
+    public class AppointmentScheduledEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string SourceSystem { get; set; } = "physiotherapy";
+
+        public Guid PatientExternalId { get; set; }
+        public DateTime AppointmentDate { get; set; }
+        public TimeSpan AppointmentTime { get; set; }
+        public string TherapistName { get; set; }
+        public string Location { get; set; }
+    }
+
+    // SESSION EVENTS
+    public class SessionCompletedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string SourceSystem { get; set; } = "physiotherapy";
+
+        public Guid PatientExternalId { get; set; }
+        public int PainScoreBefore { get; set; }
+        public int PainScoreAfter { get; set; }
+        public string Assessment { get; set; }
+        public string Treatment { get; set; }
+        public DateTime? NextAppointmentDate { get; set; }
+    }
+
+    // IMAGING EVENTS
+    public class ImagingRequestedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string SourceSystem { get; set; } = "orthopedic";
+
+        public Guid PatientExternalId { get; set; }
+        public string ImagingType { get; set; }      // X-ray, MRI, CT, etc.
+        public string BodyPart { get; set; }
+        public string Indication { get; set; }
+        public string Priority { get; set; }
+    }
+
+    public class ImagingCompletedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string SourceSystem { get; set; } = "radiology";
+
+        public Guid PatientExternalId { get; set; }
+        public string ImagingId { get; set; }
+        public string StorageUrl { get; set; }       // S3, Azure Blob, etc.
+        public DateTime CompletionDate { get; set; }
+    }
+}
+```
+
+---
+
+## PHASE 2: CORE INFRASTRUCTURE (Week 2-3)
+
+### Step 2.1: External Patient ID Service
+
+**File: `backend\Services\ExternalPatientIdService.cs`**
+
+```csharp
+namespace CLINICSYSTEM.Services
+{
+    public interface IExternalPatientIdService
+    {
+        // Generate UUID for patient
+        Task<Guid> GenerateOrGetExternalIdAsync(int patientId);
+        
+        // Get patient by external ID
+        Task<int?> GetLocalPatientIdAsync(Guid externalId);
+        
+        // Cache patient mappings
+        Task CachePatientMappingAsync(int localId, Guid externalId);
+    }
+
+    public class ExternalPatientIdService : IExternalPatientIdService
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IConnectionMultiplexer _redis;
+        private readonly ILogger<ExternalPatientIdService> _logger;
+
+        public ExternalPatientIdService(
+            ClinicDbContext context,
+            IConnectionMultiplexer redis,
+            ILogger<ExternalPatientIdService> logger)
+        {
+            _context = context;
+            _redis = redis;
+            _logger = logger;
+        }
+
+        public async Task<Guid> GenerateOrGetExternalIdAsync(int patientId)
+        {
+            // Check if patient already has external ID
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(p => p.PatientId == patientId);
+
+            if (patient == null)
+                throw new InvalidOperationException($"Patient {patientId} not found");
+
+            // If already has external ID, return it
+            if (!string.IsNullOrEmpty(patient.ExternalPatientId))
+                return Guid.Parse(patient.ExternalPatientId);
+
+            // Generate new UUID v4
+            var externalId = Guid.NewGuid();
+            patient.ExternalPatientId = externalId.ToString();
+            
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"Generated external ID {externalId} for patient {patientId}");
+
+            // Cache it
+            await CachePatientMappingAsync(patientId, externalId);
+            return externalId;
+        }
+
+        public async Task<int?> GetLocalPatientIdAsync(Guid externalId)
+        {
+            // Try cache first (Redis)
+            var db = _redis.GetDatabase();
+            var cached = await db.StringGetAsync($"patient:ext-id:{externalId}");
+            
+            if (cached.HasValue && int.TryParse(cached.ToString(), out var localId))
+                return localId;
+
+            // Query database
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(p => p.ExternalPatientId == externalId.ToString());
+
+            if (patient != null)
+            {
+                await CachePatientMappingAsync(patient.PatientId, externalId);
+                return patient.PatientId;
+            }
+
+            return null;
+        }
+
+        public async Task CachePatientMappingAsync(int localId, Guid externalId)
+        {
+            var db = _redis.GetDatabase();
+            await db.StringSetAsync(
+                $"patient:ext-id:{externalId}",
+                localId.ToString(),
+                TimeSpan.FromHours(24)
+            );
+        }
+    }
+}
+```
+
+---
+
+### Step 2.2: Event Publisher Service
+
+**File: `backend\Services\EventPublisher\IEventPublisher.cs`**
+
+```csharp
+namespace CLINICSYSTEM.Services.EventPublisher
+{
+    public interface IEventPublisher
+    {
+        Task PublishReferralCreatedAsync(ReferralModel referral);
+        Task PublishAppointmentUpdateAsync(AppointmentModel appointment);
+        Task PublishSessionNoteAsync(ConsultationModel consultation);
+        Task PublishImagingRequestAsync(string imagingType, string bodyPart, Guid patientExternalId);
+    }
+}
+```
+
+---
+
+### Step 2.3: Event Consumer Service
+
+**File: `backend\Services\EventConsumer\ReferralEventConsumer.cs`**
+
+```csharp
+namespace CLINICSYSTEM.Services.EventConsumer
+{
+    public interface IReferralEventConsumer
+    {
+        Task HandleReferralAcceptedAsync(ReferralAcceptedEvent @event);
+        Task HandleAppointmentScheduledAsync(AppointmentScheduledEvent @event);
+        Task HandleSessionCompletedAsync(SessionCompletedEvent @event);
+        Task HandleImagingCompletedAsync(ImagingCompletedEvent @event);
+    }
+
+    public class ReferralEventConsumer : IReferralEventConsumer
+    {
+        private readonly ClinicDbContext _context;
+        private readonly IExternalPatientIdService _patientIdService;
+        private readonly ILogger<ReferralEventConsumer> _logger;
+
+        public async Task HandleReferralAcceptedAsync(ReferralAcceptedEvent @event)
+        {
+            try
+            {
+                // Find referral by external patient ID
+                var localPatientId = await _patientIdService.GetLocalPatientIdAsync(@event.PatientExternalId);
+                if (!localPatientId.HasValue)
+                {
+                    _logger.LogWarning($"Patient not found for external ID {@event.PatientExternalId}");
+                    return;
+                }
+
+                // Update referral status
+                var referral = await _context.Referrals
+                    .FirstOrDefaultAsync(r => r.PatientExternalId == @event.PatientExternalId.ToString());
+
+                if (referral != null)
+                {
+                    referral.Status = "Accepted_Ext";
+                    referral.ExternalReferralId = @event.ExternalReferralId;
+                    referral.UpdatedAt = DateTime.UtcNow;
+                    
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Referral {referral.ReferralId} accepted by Physiotherapy");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling ReferralAcceptedEvent");
+                throw;
+            }
+        }
+
+        // ... other handlers ...
+    }
+}
+```
+
+---
+
+### Step 2.4: Resilience Policies (Polly)
+
+**File: `backend\Services\Resilience\ResiliencePolicies.cs`**
+
+```csharp
+namespace CLINICSYSTEM.Services.Resilience
+{
+    public static class ResiliencePolicies
+    {
+        // Circuit Breaker: Stop requesting if too many failures
+        public static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(IConfiguration config)
+        {
+            var settings = config.GetSection("Resilience:CircuitBreaker");
+            var failureThreshold = int.Parse(settings["FailureThreshold"] ?? "50");
+            var timeoutSeconds = int.Parse(settings["TimeoutSeconds"] ?? "30");
+
+            return Policy
+                .Handle<HttpRequestException>()
+                .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+                .CircuitBreakerAsync<HttpResponseMessage>(
+                    handledEventsAllowedBeforeBreaking: failureThreshold,
+                    durationOfBreak: TimeSpan.FromSeconds(timeoutSeconds),
+                    onBreak: (outcome, timespan) =>
+                    {
+                        // Log circuit opened
+                    },
+                    onReset: () =>
+                    {
+                        // Log circuit closed
+                    }
+                );
+        }
+
+        // Retry: Try again with exponential backoff
+        public static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(IConfiguration config)
+        {
+            var settings = config.GetSection("Resilience:Retry");
+            var maxAttempts = int.Parse(settings["MaxAttempts"] ?? "4");
+            var initialDelayMs = int.Parse(settings["InitialDelayMs"] ?? "100");
+            var backoffMultiplier = double.Parse(settings["BackoffMultiplier"] ?? "2.0");
+
+            return Policy
+                .Handle<HttpRequestException>()
+                .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+                .WaitAndRetryAsync<HttpResponseMessage>(
+                    retryCount: maxAttempts,
+                    sleepDurationProvider: retryAttempt =>
+                        TimeSpan.FromMilliseconds(
+                            initialDelayMs * Math.Pow(backoffMultiplier, retryAttempt - 1)
+                        )
+                );
+        }
+
+        // Combine both policies
+        public static IAsyncPolicy<HttpResponseMessage> GetCombinedPolicy(IConfiguration config)
+        {
+            return Policy.WrapAsync(
+                GetRetryPolicy(config),
+                GetCircuitBreakerPolicy(config)
+            );
+        }
+    }
+}
+```
+
+---
+
+## PHASE 3: UPDATE EXISTING SERVICES (Week 3-4)
+
+### Step 3.1: Update ReferralsController
+
+**Add to `backend\Controllers\ReferralsController.cs`:**
+
+```csharp
+[Authorize(Roles = "Doctor")]
+[HttpPost]
+[ProducesResponseType(typeof(ReferralDTO), StatusCodes.Status200OK)]
+public async Task<IActionResult> CreateReferral([FromBody] CreateReferralRequest request)
+{
+    try
+    {
+        // Generate external patient ID
+        var externalPatientId = await _externalPatientIdService
+            .GenerateOrGetExternalIdAsync(request.PatientExternalId);
+
+        // Create referral with external ID
+        var referral = await _referralService.CreateReferralAsync(request);
+        referral.PatientExternalId = externalPatientId.ToString();
+
+        // Publish event to message broker
+        await _eventPublisher.PublishReferralCreatedAsync(referral);
+
+        _logger.LogInformation(
+            $"Referral created and published. External ID: {externalPatientId}");
+
+        return Ok(new { 
+            message = "Referral created successfully",
+            externalPatientId = externalPatientId,
+            status = "Pending_ExtSync"
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error creating referral");
+        return StatusCode(500, new { message = "An error occurred while creating referral" });
+    }
+}
+```
+
+---
+
+### Step 3.2: Update Patient Model
+
+**Modify `backend\Models\PatientModel.cs`:**
+
+```csharp
+public class PatientModel
+{
+    public int PatientId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string ExternalPatientId { get; set; } = string.Empty;  // ← ADD THIS
+    
+    // ... rest of properties ...
+    
+    // Track when external ID was synced
+    public DateTime? ExternalIdSyncedAt { get; set; }
+}
+```
+
+---
+
+### Step 3.3: Add to Referral Model
+
+**Ensure `backend\Models\ReferralModel.cs` has:**
+
+```csharp
+public class ReferralModel
+{
+    // ... existing properties ...
+    
+    public string PatientExternalId { get; set; } = string.Empty;  // ← UUID
+    public string? ExternalReferralId { get; set; }                 // ← Remote system ID
+    public string Status { get; set; } = "Pending";                 // ← Track sync status
+    
+    // Tracking fields
+    public DateTime? ExternalSyncedAt { get; set; }
+    public int? ExternalSyncAttempts { get; set; }
+}
+```
+
+---
+
+## PHASE 4: DATABASE MIGRATIONS (Week 4)
+
+### Step 4.1: Create Migration
+
+**In Package Manager Console:**
+
+```powershell
+Add-Migration AddExternalSystemIntegrationFields
+Update-Database
+```
+
+---
+
+## PHASE 5: CONFIGURATION UPDATES (Week 1)
+
+### Step 5.1: Update `Program.cs`
+
+**Add to service registration:**
+
+```csharp
+// External System Integration
+builder.Services.AddScoped<IExternalPatientIdService, ExternalPatientIdService>();
+builder.Services.AddScoped<IEventPublisher, RabbitMqEventPublisher>();
+builder.Services.AddScoped<IReferralEventConsumer, ReferralEventConsumer>();
+
+// Redis for caching
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("ExternalPatientCache")));
+
+// Resilience policies
+builder.Services.AddHttpClient("ExternalServices")
+    .AddPolicyHandler(ResiliencePolicies.GetCombinedPolicy(builder.Configuration));
+
+// Event message publisher (RabbitMQ)
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration["MessageBroker:ConnectionString"]);
+        cfg.ConfigureEndpoints(context);
+    });
+});
+```
+
+---
+
+## PHASE 6: NEW CONTROLLERS (Week 4-5)
+
+### Step 6.1: Create External Integration Controller
+
+**File: `backend\Controllers\ExternalIntegrationController.cs`**
+
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class ExternalIntegrationController : ControllerBase
+{
+    private readonly IReferralEventConsumer _eventConsumer;
+    private readonly ILogger<ExternalIntegrationController> _logger;
+
+    // POST endpoint for Physiotherapy to call back
+    [HttpPost("referral/accepted")]
+    public async Task<IActionResult> ReferralAccepted([FromBody] ReferralAcceptedEvent @event)
+    {
+        try
+        {
+            await _eventConsumer.HandleReferralAcceptedAsync(@event);
+            return Ok(new { message = "Event processed successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing ReferralAcceptedEvent");
+            return StatusCode(500, new { message = "Error processing event" });
+        }
+    }
+
+    [HttpPost("appointment/scheduled")]
+    public async Task<IActionResult> AppointmentScheduled([FromBody] AppointmentScheduledEvent @event)
+    {
+        // Similar handling
+    }
+
+    [HttpPost("session/completed")]
+    public async Task<IActionResult> SessionCompleted([FromBody] SessionCompletedEvent @event)
+    {
+        // Similar handling
+    }
+
+    [HttpPost("imaging/completed")]
+    public async Task<IActionResult> ImagingCompleted([FromBody] ImagingCompletedEvent @event)
+    {
+        // Similar handling
+    }
+}
+```
+
+---
+
+## PHASE 7: STATUS TRACKING (Week 5)
+
+### Step 7.1: Add Status Endpoint
+
+**File: `backend\Controllers\IntegrationStatusController.cs`**
+
+```csharp
+[ApiController]
+[Route("api/integration/status")]
+[Authorize]
+public class IntegrationStatusController : ControllerBase
+{
+    [HttpGet("referral/{referralId}")]
+    public async Task<IActionResult> GetReferralStatus(int referralId)
+    {
+        // Return referral with status, external ID, sync timestamp, etc.
+        return Ok(new {
+            referralId,
+            status = "Accepted_Ext",
+            externalReferralId = "physio-ref-123",
+            externalPatientId = "uuid-xxx",
+            lastSyncedAt = DateTime.UtcNow,
+            syncAttempts = 1
+        });
+    }
+
+    [HttpGet("patient/{patientExternalId}/referrals")]
+    public async Task<IActionResult> GetPatientReferrals(Guid patientExternalId)
+    {
+        // Get all referrals for a patient across systems
+    }
+
+    [HttpGet("health")]
+    public async Task<IActionResult> GetHealthStatus()
+    {
+        // Check connectivity to Physiotherapy, Radiology, RabbitMQ, Redis
+        return Ok(new {
+            physiotherapy = "✓ Connected",
+            radiology = "✓ Connected",
+            rabbitmq = "✓ Connected",
+            redis = "✓ Connected",
+            timestamp = DateTime.UtcNow
+        });
+    }
+}
+```
+
+---
+
+## IMPLEMENTATION CHECKLIST
+
+### Week 1-2: Foundation
+- [ ] Update `appsettings.json` with external services config
+- [ ] Install NuGet packages
+- [ ] Create shared event schema (`SharedEvents.cs`)
+- [ ] Create ExternalPatientIdService
+- [ ] Setup Redis connection
+
+### Week 2-3: Core Infrastructure
+- [ ] Create EventPublisher service
+- [ ] Create EventConsumer service
+- [ ] Setup Resilience policies (Polly)
+- [ ] Create event message handlers
+- [ ] Add DI configuration in Program.cs
+
+### Week 3-4: Integration Updates
+- [ ] Update ReferralsController to publish events
+- [ ] Update PatientModel with ExternalPatientId
+- [ ] Update ReferralModel with external tracking fields
+- [ ] Create database migration
+- [ ] Test locally with mock services
+
+### Week 4-5: New Controllers
+- [ ] Create ExternalIntegrationController
+- [ ] Create IntegrationStatusController
+- [ ] Add webhook endpoints for external systems
+- [ ] Add monitoring/logging
+
+### Week 5-6: Testing & Documentation
+- [ ] Create integration tests
+- [ ] Test end-to-end workflow
+- [ ] Document API for Physiotherapy team
+- [ ] Create Postman collection
+- [ ] Setup monitoring & alerting
+
+---
+
+## LOCAL DEVELOPMENT SETUP
+
+**Docker Compose for local testing:**
+
+```yaml
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  redis:
+    image: redis:7.0
+    ports:
+      - "6379:6379"
+
+  physiotherapy:
+    image: physio-api:latest
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      ORTHOPEDIC_WEBHOOK: http://orthopedic:5001/api/external-integration
+
+  radiology:
+    image: radiology-api:latest
+    ports:
+      - "8001:8001"
+    depends_on:
+      - rabbitmq
+```
+
+**Start with:**
+```bash
+docker-compose up -d
+```
+
+---
+
+## NEXT STEPS
+
+1. **Review** this plan with your team
+2. **Clarify** answers to 6 questions (see earlier document)
+3. **I will generate** complete code for each phase
+4. **Test** locally with Docker Compose setup
+5. **Deploy** to staging environment
+6. **Go live** with monitoring
+
+---
+
+**Ready to start Phase 1 implementation? Let me know which phase you'd like me to code first!**
+
+My name is GitHub Copilot.

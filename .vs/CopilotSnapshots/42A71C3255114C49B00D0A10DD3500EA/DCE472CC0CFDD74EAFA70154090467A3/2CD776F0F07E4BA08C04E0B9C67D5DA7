@@ -1,0 +1,365 @@
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Models;
+using CLINICSYSTEM.Services;
+using CLINICSYSTEM.Services.EventConsumer;
+using CLINICSYSTEM.Middleware;
+using CLINICSYSTEM.Validators;
+using Serilog;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using StackExchange.Redis;
+using MassTransit;
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/clinic-api-.txt", rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add Serilog
+builder.Host.UseSerilog();
+
+// Add services
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+// FluentValidation
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddScoped<IValidator<CLINICSYSTEM.Data.DTOs.RegisterRequest>, RegisterRequestValidator>();
+builder.Services.AddScoped<IValidator<CLINICSYSTEM.Data.DTOs.LoginRequest>, LoginRequestValidator>();
+
+// Swagger/OpenAPI
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "Clinic Information System API", 
+        Version = "v1",
+        Description = "ASP.NET Core Web API for Clinic Management System",
+        Contact = new OpenApiContact
+        {
+            Name = "Clinic Support",
+            Email = "support@clinic.com"
+        }
+    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter JWT token with Bearer prefix (e.g., 'Bearer {token}')",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new string[] { }
+        }
+    });
+});
+
+// Database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+?? "Server=(local);Database=ClinicSystemDb;Trusted_Connection=true;TrustServerCertificate=true;";
+builder.Services.AddDbContext<ClinicDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Identity
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ClinicDbContext>()
+    .AddDefaultTokenProviders();
+
+// JWT Authentication - FIXED CONFIGURATION
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; // Allow HTTP in development
+    options.SaveToken = true;
+    
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        RequireExpirationTime = true
+    };
+    
+    // Add event handlers for debugging
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Log.Warning("JWT Authentication failed: {Message}", context.Exception.Message);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Log.Information("JWT Token validated successfully for user: {User}", 
+                context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value);
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            Log.Warning("JWT Challenge triggered: {Error}", context.Error);
+            return Task.CompletedTask;
+        }
+    };
+});
+
+// Authorization - Updated for clinic staff roles
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("DoctorOnly", policy => policy.RequireRole("Doctor"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("StaffOnly", policy => policy.RequireRole("Staff", "Admin", "Doctor"));
+});
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+    
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+// Application Services - Direct registration (Patient service removed - managed by Patient Portal)
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IConsultationService, ConsultationService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+builder.Services.AddScoped<IMedicalImageService, MedicalImageService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IReferralService, ReferralService>();
+builder.Services.AddScoped<IPatientPortalService, PatientPortalService>(); // External service integration
+builder.Services.AddScoped<PdfService>();
+
+// External System Integration Services
+builder.Services.AddScoped<IExternalPatientIdService, ExternalPatientIdService>();
+builder.Services.AddScoped<IEventPublisher, EventPublisher>();
+builder.Services.AddScoped<ReferralAcceptedEventConsumer>();
+builder.Services.AddScoped<AppointmentScheduledEventConsumer>();
+builder.Services.AddScoped<SessionCompletedEventConsumer>();
+builder.Services.AddScoped<ImagingCompletedEventConsumer>();
+
+// Redis caching for external patient ID mappings
+try
+{
+    var cacheConnection = builder.Configuration.GetConnectionString("ExternalPatientCache") ?? "localhost:6379";
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        StackExchange.Redis.ConnectionMultiplexer.Connect(
+            new ConfigurationOptions { EndPoints = { cacheConnection }, AbortOnConnectFail = false }
+        ));
+}
+catch (Exception ex)
+{
+    Log.Warning("Redis cache connection failed: {Message}. Continuing without cache.", ex.Message);
+    // Continue without Redis - not critical for migrations or basic operation
+}
+
+// MassTransit for event pub/sub via RabbitMQ
+try
+{
+    builder.Services.AddMassTransit(x =>
+    {
+        x.AddConsumer<ReferralAcceptedEventConsumer>();
+        x.AddConsumer<AppointmentScheduledEventConsumer>();
+        x.AddConsumer<SessionCompletedEventConsumer>();
+        x.AddConsumer<ImagingCompletedEventConsumer>();
+
+        x.UsingRabbitMq((context, cfg) =>
+        {
+            var messageBrokerConfig = builder.Configuration.GetSection("MessageBroker");
+            var connectionString = messageBrokerConfig["ConnectionString"] ?? "amqp://guest:guest@localhost:5672/";
+            
+            cfg.Host(connectionString);
+            
+            // Configure endpoints for consumers
+            cfg.ReceiveEndpoint("clinic.referral.accepted", e => e.ConfigureConsumer<ReferralAcceptedEventConsumer>(context));
+            cfg.ReceiveEndpoint("clinic.appointment.scheduled", e => e.ConfigureConsumer<AppointmentScheduledEventConsumer>(context));
+            cfg.ReceiveEndpoint("clinic.session.completed", e => e.ConfigureConsumer<SessionCompletedEventConsumer>(context));
+            cfg.ReceiveEndpoint("clinic.imaging.completed", e => e.ConfigureConsumer<ImagingCompletedEventConsumer>(context));
+        });
+    });
+}
+catch (Exception ex)
+{
+    Log.Warning("MassTransit/RabbitMQ configuration failed: {Message}. Event publishing will be unavailable.", ex.Message);
+    // Continue without event bus - events will fail gracefully at runtime
+}
+
+// HttpClient for external services integration (Microservices Architecture)
+builder.Services.AddHttpClient("PhysiotherapyApi", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["ExternalServices:PhysiotherapyApi:BaseUrl"];
+    var apiKey = configuration["ExternalServices:PhysiotherapyApi:ApiKey"];
+    
+    if (!string.IsNullOrEmpty(baseUrl))
+    {
+        client.BaseAddress = new Uri(baseUrl);
+    }
+    
+    if (!string.IsNullOrEmpty(apiKey))
+    {
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    }
+    
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddHttpClient("PatientPortalApi", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["ExternalServices:PatientPortalApi:BaseUrl"];
+    var apiKey = configuration["ExternalServices:PatientPortalApi:ApiKey"];
+    
+    if (!string.IsNullOrEmpty(baseUrl))
+    {
+        client.BaseAddress = new Uri(baseUrl);
+    }
+    
+    if (!string.IsNullOrEmpty(apiKey))
+    {
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    }
+    
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddHttpClient("RadiologyApi", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["ExternalServices:RadiologyApi:BaseUrl"];
+    var apiKey = configuration["ExternalServices:RadiologyApi:ApiKey"];
+    
+    if (!string.IsNullOrEmpty(baseUrl))
+    {
+        client.BaseAddress = new Uri(baseUrl);
+    }
+    
+    if (!string.IsNullOrEmpty(apiKey))
+    {
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    }
+    
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+app.UseExceptionHandler();
+app.UseSerilogRequestLogging();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseCors("AllowAll");
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+// Database migration and seeding
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ClinicDbContext>();
+    try
+    {
+        db.Database.Migrate();
+        Log.Information("Database migration completed successfully");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred during database migration");
+    }
+    
+    // Seed roles - Updated for clinic system
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var roles = new[] { "Doctor", "Admin", "Staff" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+            Log.Information("Created role: {Role}", role);
+        }
+    }
+}
+
+try
+{
+    Log.Information("Starting Clinic Information System API");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

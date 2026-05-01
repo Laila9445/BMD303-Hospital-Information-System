@@ -1,0 +1,1546 @@
+﻿{
+	"info": {
+		"_postman_id": "clinic-system-enhanced",
+		"name": "Clinic System - Enhanced ",
+		"description": "Enhanced collection with Arabic names translated to English - Egyptian phone numbers - Comprehensive GET testing - Port 7298",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication & User Registration",
+			"item": [
+				{
+					"name": "1.1 Register Patient - Mohamed Abdel Rahman",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient1_token', jsonData.token);",
+									"    pm.environment.set('patient1_user_id', jsonData.user.userId);",
+									"    pm.environment.set('current_token', jsonData.token);",
+									"    pm.environment.set('current_user_id', jsonData.user.userId);",
+									"    pm.environment.set('current_role', jsonData.user.role);",
+									"    console.log('✅ Mohamed registered - UserID:', jsonData.user.userId);",
+									"    pm.test('Registration successful', () => {",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"        pm.expect(jsonData.token).to.not.be.undefined;",
+									"        pm.expect(jsonData.user.role).to.equal('Patient');",
+									"    });",
+									"} else {",
+									"    console.log('❌ Registration failed:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"mohamed.abdelrahman@gmail.com\",\n  \"password\": \"Mohamed@123\",\n  \"firstName\": \"Mohamed\",\n  \"lastName\": \"Abdel Rahman\",\n  \"phoneNumber\": \"01012345678\",\n  \"role\": \"Patient\",\n  \"gender\": \"Male\",\n  \"dateOfBirth\": \"1990-05-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.2 Get Mohamed Profile (Extract PatientId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient1_id', jsonData.patientId);",
+									"    console.log('✅ Mohamed PatientID:', jsonData.patientId);",
+									"    console.log('📋 Profile Data:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Profile contains required fields', () => {",
+									"        pm.expect(jsonData).to.have.property('firstName');",
+									"        pm.expect(jsonData).to.have.property('lastName');",
+									"        pm.expect(jsonData).to.have.property('email');",
+									"        pm.expect(jsonData).to.have.property('phoneNumber');",
+									"        pm.expect(jsonData).to.have.property('patientId');",
+									"    });",
+									"} else {",
+									"    console.log('❌ Profile retrieval failed:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/profile",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "profile" ]
+						}
+					}
+				},
+				{
+					"name": "1.3 Register Patient - Fatima El Zahra",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient2_token', jsonData.token);",
+									"    pm.environment.set('patient2_user_id', jsonData.user.userId);",
+									"    console.log('✅ Fatima registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"fatima.elzahra@yahoo.com\",\n  \"password\": \"Fatima@123\",\n  \"firstName\": \"Fatima\",\n  \"lastName\": \"El Zahra\",\n  \"phoneNumber\": \"01156789012\",\n  \"role\": \"Patient\",\n  \"gender\": \"Female\",\n  \"dateOfBirth\": \"1988-07-22\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.4 Get Fatima Profile (Extract PatientId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient2_id', jsonData.patientId);",
+									"    console.log('✅ Fatima PatientID:', jsonData.patientId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient2_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/profile",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "profile" ]
+						}
+					}
+				},
+				{
+					"name": "1.5 Register Patient - Ahmad El Sayed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient3_token', jsonData.token);",
+									"    pm.environment.set('patient3_user_id', jsonData.user.userId);",
+									"    console.log('✅ Ahmad registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ahmad.elsayed@gmail.com\",\n  \"password\": \"Ahmad@123\",\n  \"firstName\": \"Ahmad\",\n  \"lastName\": \"El Sayed\",\n  \"phoneNumber\": \"01223456789\",\n  \"role\": \"Patient\",\n  \"gender\": \"Male\",\n  \"dateOfBirth\": \"1995-03-10\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.6 Register Patient - Khadija Ibrahim",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient4_token', jsonData.token);",
+									"    pm.environment.set('patient4_user_id', jsonData.user.userId);",
+									"    console.log('✅ Khadija registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"khadija.ibrahim@hotmail.com\",\n  \"password\": \"Khadija@123\",\n  \"firstName\": \"Khadija\",\n  \"lastName\": \"Ibrahim\",\n  \"phoneNumber\": \"01098765432\",\n  \"role\": \"Patient\",\n  \"gender\": \"Female\",\n  \"dateOfBirth\": \"1992-11-08\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.7 Register Patient - Hassan Ali",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient5_token', jsonData.token);",
+									"    pm.environment.set('patient5_user_id', jsonData.user.userId);",
+									"    console.log('✅ Hassan registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"hassan.ali@gmail.com\",\n  \"password\": \"Hassan@123\",\n  \"firstName\": \"Hassan\",\n  \"lastName\": \"Ali\",\n  \"phoneNumber\": \"01145678901\",\n  \"role\": \"Patient\",\n  \"gender\": \"Male\",\n  \"dateOfBirth\": \"1985-09-25\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.8 Register Patient - Zeinab Mostafa",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient6_token', jsonData.token);",
+									"    pm.environment.set('patient6_user_id', jsonData.user.userId);",
+									"    console.log('✅ Zeinab registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"zeinab.mostafa@gmail.com\",\n  \"password\": \"Zeinab@123\",\n  \"firstName\": \"Zeinab\",\n  \"lastName\": \"Mostafa\",\n  \"phoneNumber\": \"01267890123\",\n  \"role\": \"Patient\",\n  \"gender\": \"Female\",\n  \"dateOfBirth\": \"1998-02-14\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.9 Register Patient - Youssef Mahmoud",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient7_token', jsonData.token);",
+									"    pm.environment.set('patient7_user_id', jsonData.user.userId);",
+									"    console.log('✅ Youssef registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"youssef.mahmoud@gmail.com\",\n  \"password\": \"Youssef@123\",\n  \"firstName\": \"Youssef\",\n  \"lastName\": \"Mahmoud\",\n  \"phoneNumber\": \"01134567890\",\n  \"role\": \"Patient\",\n  \"gender\": \"Male\",\n  \"dateOfBirth\": \"1987-06-30\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.10 Register Patient - Mariam Ahmed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient8_token', jsonData.token);",
+									"    pm.environment.set('patient8_user_id', jsonData.user.userId);",
+									"    console.log('✅ Mariam registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"mariam.ahmed@yahoo.com\",\n  \"password\": \"Mariam@123\",\n  \"firstName\": \"Mariam\",\n  \"lastName\": \"Ahmed\",\n  \"phoneNumber\": \"01089012345\",\n  \"role\": \"Patient\",\n  \"gender\": \"Female\",\n  \"dateOfBirth\": \"1993-12-18\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.11 Register Patient - Khalid El Masry",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient9_token', jsonData.token);",
+									"    pm.environment.set('patient9_user_id', jsonData.user.userId);",
+									"    console.log('✅ Khalid registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"khalid.elmasry@gmail.com\",\n  \"password\": \"Khalid@123\",\n  \"firstName\": \"Khalid\",\n  \"lastName\": \"El Masry\",\n  \"phoneNumber\": \"01156781234\",\n  \"role\": \"Patient\",\n  \"gender\": \"Male\",\n  \"dateOfBirth\": \"1991-04-05\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.12 Register Patient - Yasmin Farouk",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient10_token', jsonData.token);",
+									"    pm.environment.set('patient10_user_id', jsonData.user.userId);",
+									"    console.log('✅ Yasmin registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"yasmin.farouk@gmail.com\",\n  \"password\": \"Yasmin@123\",\n  \"firstName\": \"Yasmin\",\n  \"lastName\": \"Farouk\",\n  \"phoneNumber\": \"01223456712\",\n  \"role\": \"Patient\",\n  \"gender\": \"Female\",\n  \"dateOfBirth\": \"1996-08-21\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.13 Register Doctor - Dr Ahmed El Shazly",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor1_token', jsonData.token);",
+									"    pm.environment.set('doctor1_user_id', jsonData.user.userId);",
+									"    console.log('✅ Dr Ahmed registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.ahmed.elshazly@clinic.com\",\n  \"password\": \"DrAhmed@123\",\n  \"firstName\": \"Ahmed\",\n  \"lastName\": \"El Shazly\",\n  \"phoneNumber\": \"01012345601\",\n  \"role\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.14 Get Dr Ahmed Profile (Extract DoctorId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor1_id', jsonData.doctorId);",
+									"    pm.environment.set('doctor_id', jsonData.doctorId);",
+									"    console.log('✅ Dr Ahmed DoctorID:', jsonData.doctorId);",
+									"    console.log('📋 Doctor Profile:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Doctor profile has required fields', () => {",
+									"        pm.expect(jsonData).to.have.property('doctorId');",
+									"        pm.expect(jsonData).to.have.property('firstName');",
+									"        pm.expect(jsonData).to.have.property('lastName');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor1_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/doctors/profile",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "doctors", "profile" ]
+						}
+					}
+				},
+				{
+					"name": "1.15 Register Doctor - Dr Mona El Sharkawy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor2_token', jsonData.token);",
+									"    pm.environment.set('doctor2_user_id', jsonData.user.userId);",
+									"    console.log('✅ Dr Mona registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.mona.elsharkawy@clinic.com\",\n  \"password\": \"DrMona@123\",\n  \"firstName\": \"Mona\",\n  \"lastName\": \"El Sharkawy\",\n  \"phoneNumber\": \"01156789002\",\n  \"role\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.16 Register Doctor - Dr Mahmoud Farid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor3_token', jsonData.token);",
+									"    pm.environment.set('doctor3_user_id', jsonData.user.userId);",
+									"    console.log('✅ Dr Mahmoud registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.mahmoud.farid@clinic.com\",\n  \"password\": \"DrMahmoud@123\",\n  \"firstName\": \"Mahmoud\",\n  \"lastName\": \"Farid\",\n  \"phoneNumber\": \"01223456703\",\n  \"role\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.17 Register Doctor - Dr Amira El Wakeel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor4_token', jsonData.token);",
+									"    pm.environment.set('doctor4_user_id', jsonData.user.userId);",
+									"    console.log('✅ Dr Amira registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.amira.elwakeel@clinic.com\",\n  \"password\": \"DrAmira@123\",\n  \"firstName\": \"Amira\",\n  \"lastName\": \"El Wakeel\",\n  \"phoneNumber\": \"01098765404\",\n  \"role\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.18 Register Doctor - Dr Tarek Mansour",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor5_token', jsonData.token);",
+									"    pm.environment.set('doctor5_user_id', jsonData.user.userId);",
+									"    console.log('✅ Dr Tarek registered - UserID:', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.tarek.mansour@clinic.com\",\n  \"password\": \"DrTarek@123\",\n  \"firstName\": \"Tarek\",\n  \"lastName\": \"Mansour\",\n  \"phoneNumber\": \"01145678905\",\n  \"role\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "register" ]
+						}
+					}
+				},
+				{
+					"name": "1.19 Login as Mohamed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('current_token', jsonData.token);",
+									"    pm.environment.set('current_user_id', jsonData.user.userId);",
+									"    pm.environment.set('current_role', jsonData.user.role);",
+									"    console.log('✅ Logged in as Mohamed');",
+									"    console.log('🔑 Login Response:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Login successful', () => {",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"        pm.expect(jsonData.token).to.not.be.undefined;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"mohamed.abdelrahman@gmail.com\",\n  \"password\": \"Mohamed@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "login" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Doctor Schedule Setup",
+			"item": [
+				{
+					"name": "2.1 Switch to Dr Ahmed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('current_token', jsonData.token);",
+									"    pm.environment.set('current_user_id', jsonData.user.userId);",
+									"    pm.environment.set('current_role', jsonData.user.role);",
+									"    console.log('✅ Switched to Dr Ahmed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.ahmed.elshazly@clinic.com\",\n  \"password\": \"DrAhmed@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "login" ]
+						}
+					}
+				},
+				{
+					"name": "2.2 Create Schedule - Sunday",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Schedule created successfully', () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"console.log('📅 Sunday schedule created');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dayOfWeek\": \"Sunday\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDurationMinutes\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/doctors/schedule",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "doctors", "schedule" ]
+						}
+					}
+				},
+				{
+					"name": "2.3 Create Schedule - Monday",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dayOfWeek\": \"Monday\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDurationMinutes\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/doctors/schedule",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "doctors", "schedule" ]
+						}
+					}
+				},
+				{
+					"name": "2.4 Create Schedule - Tuesday",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dayOfWeek\": \"Tuesday\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDurationMinutes\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/doctors/schedule",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "doctors", "schedule" ]
+						}
+					}
+				},
+				{
+					"name": "2.5 Create Schedule - Wednesday",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dayOfWeek\": \"Wednesday\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDurationMinutes\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/doctors/schedule",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "doctors", "schedule" ]
+						}
+					}
+				},
+				{
+					"name": "2.6 Create Schedule - Thursday",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dayOfWeek\": \"Thursday\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDurationMinutes\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/doctors/schedule",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "doctors", "schedule" ]
+						}
+					}
+				},
+				{
+					"name": "2.7 Get Doctor Schedule",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('📅 Doctor Schedules:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Schedule array is returned', () => {",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"    if (jsonData.length > 0) {",
+									"        pm.test('Schedule has required fields', () => {",
+									"            pm.expect(jsonData[0]).to.have.property('scheduleId');",
+									"            pm.expect(jsonData[0]).to.have.property('dayOfWeek');",
+									"            pm.expect(jsonData[0]).to.have.property('startTime');",
+									"            pm.expect(jsonData[0]).to.have.property('endTime');",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/doctors/schedule",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "doctors", "schedule" ]
+						}
+					}
+				},
+				{
+					"name": "2.8 Switch Back to Mohamed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('current_token', jsonData.token);",
+									"    pm.environment.set('current_user_id', jsonData.user.userId);",
+									"    pm.environment.set('current_role', jsonData.user.role);",
+									"    console.log('✅ Switched back to Mohamed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"mohamed.abdelrahman@gmail.com\",\n  \"password\": \"Mohamed@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "login" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Profile Management & GET Tests",
+			"item": [
+				{
+					"name": "3.1 Update Mohamed Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Profile update successful', () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"console.log('✅ Profile updated successfully');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Mohamed\",\n  \"lastName\": \"Abdel Rahman\",\n  \"phoneNumber\": \"01012345678\",\n  \"gender\": \"Male\",\n  \"address\": \"15 شارع التحرير، المعادي، القاهرة، مصر - 15 Tahrir Street, Maadi, Cairo, Egypt\",\n  \"emergencyContact\": \"01198765432\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/profile",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "profile" ]
+						}
+					}
+				},
+				{
+					"name": "3.2 Get Updated Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('📋 Updated Profile:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Profile updated successfully', () => {",
+									"        pm.expect(jsonData.address).to.include('Tahrir Street');",
+									"        pm.expect(jsonData.emergencyContact).to.equal('01198765432');",
+									"        pm.expect(jsonData.firstName).to.equal('Mohamed');",
+									"        pm.expect(jsonData.lastName).to.equal('Abdel Rahman');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/profile",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "profile" ]
+						}
+					}
+				},
+				{
+					"name": "3.3 Update Medical History",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"allergies\": \"حساسية من البنسلين والسلفا - Penicillin and Sulfa allergy\",\n  \"chronicConditions\": \"ضغط دم مرتفع، سكر نوع 2 - Hypertension, Type 2 Diabetes\",\n  \"currentMedications\": \"كونكور 5 مجم، جلوكوفاج 500 مجم - Concor 5mg, Glucophage 500mg daily\",\n  \"surgicalHistory\": \"عملية الزائدة الدودية 2015، عملية المرارة 2020 - Appendectomy 2015, Cholecystectomy 2020\",\n  \"familyHistory\": \"تاريخ عائلي لمرض السكري وأمراض القلب - Family history of diabetes and heart disease\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/medical-history",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "medical-history" ]
+						}
+					}
+				},
+				{
+					"name": "3.4 Get Medical History",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('🏥 Medical History:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Medical history contains data', () => {",
+									"        pm.expect(jsonData).to.have.property('allergies');",
+									"        pm.expect(jsonData).to.have.property('chronicConditions');",
+									"        pm.expect(jsonData).to.have.property('currentMedications');",
+									"    });",
+									"    if (jsonData.allergies) {",
+									"        pm.test('Allergies field populated', () => {",
+									"            pm.expect(jsonData.allergies).to.include('Penicillin');",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/medical-history",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "medical-history" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Comprehensive GET API Tests",
+			"item": [
+				{
+					"name": "4.1 Get All Doctors List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('👨‍⚕️ All Doctors:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Doctors list is array', () => {",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"    if (jsonData.length > 0) {",
+									"        pm.test('Doctor has required fields', () => {",
+									"            pm.expect(jsonData[0]).to.have.property('doctorId');",
+									"            pm.expect(jsonData[0]).to.have.property('firstName');",
+									"            pm.expect(jsonData[0]).to.have.property('lastName');",
+									"            pm.expect(jsonData[0]).to.have.property('specialization');",
+									"            pm.expect(jsonData[0]).to.have.property('email');",
+									"        });",
+									"        pm.test('Doctor names are correct', () => {",
+									"            var foundAhmed = jsonData.some(doctor => doctor.firstName === 'Ahmed');",
+									"            pm.expect(foundAhmed).to.be.true;",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/doctors",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "doctors" ]
+						}
+					}
+				},
+				{
+					"name": "4.2 Get Available Time Slots",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('⏰ Available Slots:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Slots array returned', () => {",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"    if (jsonData.length > 0) {",
+									"        pm.environment.set('time_slot_id', jsonData[0].timeSlotId);",
+									"        console.log('✅ Time Slot ID:', jsonData[0].timeSlotId);",
+									"        pm.test('Slot has required fields', () => {",
+									"            pm.expect(jsonData[0]).to.have.property('timeSlotId');",
+									"            pm.expect(jsonData[0]).to.have.property('startTime');",
+									"            pm.expect(jsonData[0]).to.have.property('endTime');",
+									"            pm.expect(jsonData[0]).to.have.property('slotDate');",
+									"        });",
+									"        pm.test('Slot status is available', () => {",
+									"            pm.expect(jsonData[0].status).to.equal('Available');",
+									"        });",
+									"    } else {",
+									"        console.log('⚠️ No available slots found');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/appointments/available-slots?doctorId={{doctor_id}}&startDate=2025-12-21&endDate=2025-12-28",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "appointments", "available-slots" ],
+							"query": [
+								{
+									"key": "doctorId",
+									"value": "{{doctor_id}}"
+								},
+								{
+									"key": "startDate",
+									"value": "2025-12-21"
+								},
+								{
+									"key": "endDate",
+									"value": "2025-12-28"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "4.3 Get Patient Appointments (Initial - Empty)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('📅 Patient Appointments (Initial):', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Appointments array returned', () => {",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"    pm.test('Initially no appointments', () => {",
+									"        pm.expect(jsonData.length).to.equal(0);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/appointments",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "appointments" ]
+						}
+					}
+				},
+				{
+					"name": "4.4 Get Patient Prescriptions (Initial - Empty)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('💊 Patient Prescriptions (Initial):', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Prescriptions array returned', () => {",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"    pm.test('Initially no prescriptions', () => {",
+									"        pm.expect(jsonData.length).to.equal(0);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/prescriptions",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "prescriptions" ]
+						}
+					}
+				},
+				{
+					"name": "4.5 Get Patient Medical Images (Initial - Empty)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('🖼️ Medical Images (Initial):', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Images array returned', () => {",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"    pm.test('Initially no medical images', () => {",
+									"        pm.expect(jsonData.length).to.equal(0);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/medical-images",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "medical-images" ]
+						}
+					}
+				},
+				{
+					"name": "4.6 Get Patient Consultation History (Initial - Empty)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log('🩺 Consultation History Response Code:', pm.response.code);",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('🩺 Consultation History (Initial):', JSON.stringify(jsonData, null, 2));",
+									"} else {",
+									"    console.log('⚠️ Consultation history endpoint response:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/consultation-history",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "patients", "consultation-history" ]
+						}
+					}
+				},
+				{
+					"name": "4.7 Get All Notifications",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('🔔 All Notifications:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Notifications array returned', () => {",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"} else {",
+									"    console.log('⚠️ Notifications endpoint response:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "notifications" ]
+						}
+					}
+				},
+				{
+					"name": "4.8 Get Unread Notifications",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('🔔 Unread Notifications:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Unread notifications array returned', () => {",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"} else {",
+									"    console.log('⚠️ Unread notifications endpoint response:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/unread",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "notifications", "unread" ]
+						}
+					}
+				},
+				{
+					"name": "4.9 Test Auth Profile Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('👤 Auth Profile:', JSON.stringify(jsonData, null, 2));",
+									"    pm.test('Auth profile contains user info', () => {",
+									"        pm.expect(jsonData).to.have.property('userId');",
+									"        pm.expect(jsonData).to.have.property('email');",
+									"        pm.expect(jsonData).to.have.property('role');",
+									"    });",
+									"    pm.test('User role is Patient', () => {",
+									"        pm.expect(jsonData.role).to.equal('Patient');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "auth", "profile" ]
+						}
+					}
+				},
+				{
+					"name": "4.10 Test 404 Endpoint (Should Fail)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Non-existent endpoint returns 404', () => {",
+									"    pm.expect(pm.response.code).to.equal(404);",
+									"});",
+									"console.log('✅ 404 endpoint test passed');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/nonexistent-endpoint",
+							"host": [ "{{base_url}}" ],
+							"path": [ "api", "nonexistent-endpoint" ]
+						}
+					}
+				}
+			]
+		}

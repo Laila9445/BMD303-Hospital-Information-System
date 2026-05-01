@@ -1,0 +1,157 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text.Json;
+using System.Threading.Tasks;
+using FluentValidation; // for ValidationException from FluentValidation
+using CLINICSYSTEM.Exceptions;
+
+namespace CLINICSYSTEM.Middleware
+{
+    /// <summary>
+    /// Global exception handling middleware producing a standard JSON error envelope.
+    /// Register with app.UseMiddleware<GlobalExceptionHandler>();
+    /// </summary>
+    public class GlobalExceptionHandler
+    {
+        private readonly RequestDelegate _next;
+        private readonly ILogger<GlobalExceptionHandler> _logger;
+        private readonly IHostEnvironment _env;
+
+        public GlobalExceptionHandler(RequestDelegate next, ILogger<GlobalExceptionHandler> logger, IHostEnvironment env)
+        {
+            _next = next ?? throw new ArgumentNullException(nameof(next));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _env = env ?? throw new ArgumentNullException(nameof(env));
+        }
+
+        public async Task InvokeAsync(HttpContext httpContext)
+        {
+            try
+            {
+                await _next(httpContext);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unhandled exception occurred: {Message}", ex.Message);
+                await HandleExceptionAsync(httpContext, ex);
+            }
+        }
+
+        private async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
+        {
+            var statusCode = MapToStatusCode(exception);
+            var machineCode = MapToMachineCode(exception);
+
+            // extract field errors for FluentValidation.ValidationException or custom ValidationFailedException
+            Dictionary<string, string[]>? fieldErrors = null;
+            if (exception is ValidationFailedException vfe)
+            {
+                fieldErrors = vfe.Errors;
+            }
+            else if (exception is ValidationException fvEx)
+            {
+                var dict = new Dictionary<string, List<string>>();
+                foreach (var err in fvEx.Errors)
+                {
+                    if (string.IsNullOrEmpty(err.PropertyName)) continue;
+                    if (!dict.TryGetValue(err.PropertyName, out var list))
+                    {
+                        list = new List<string>();
+                        dict[err.PropertyName] = list;
+                    }
+                    list.Add(err.ErrorMessage);
+                }
+
+                fieldErrors = new Dictionary<string, string[]>();
+                foreach (var kv in dict)
+                    fieldErrors[kv.Key] = kv.Value.ToArray();
+            }
+
+            var response = new ErrorEnvelope
+            {
+                Status = (int)statusCode,
+                Code = machineCode,
+                Message = statusCode == HttpStatusCode.InternalServerError
+                    ? "An error occurred while processing your request."
+                    : exception.Message,
+                Details = _env.IsDevelopment() ? exception.StackTrace : null,
+                FieldErrors = fieldErrors
+            };
+
+            httpContext.Response.StatusCode = (int)statusCode;
+            httpContext.Response.ContentType = "application/json";
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = false
+            };
+
+            await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+        }
+
+        private static HttpStatusCode MapToStatusCode(Exception ex) =>
+            ex switch
+            {
+                BusinessException be => (HttpStatusCode)be.StatusCode,
+                ArgumentNullException => HttpStatusCode.BadRequest,
+                ArgumentException => HttpStatusCode.BadRequest,
+                UnauthorizedAccessException => HttpStatusCode.Unauthorized,
+                KeyNotFoundException => HttpStatusCode.NotFound,
+                InvalidOperationException => HttpStatusCode.Conflict,
+                ValidationFailedException => (HttpStatusCode)422,
+                ValidationException => (HttpStatusCode)422,
+                _ => HttpStatusCode.InternalServerError
+            };
+
+        private static string MapToMachineCode(Exception ex) =>
+            ex switch
+            {
+                BusinessException be => be.MachineCode,
+                ArgumentNullException => "ERR_BAD_REQUEST_MISSING_FIELD",
+                ArgumentException => "ERR_BAD_REQUEST",
+                UnauthorizedAccessException => "ERR_UNAUTHORIZED",
+                KeyNotFoundException => "ERR_NOT_FOUND",
+                InvalidOperationException => "ERR_CONFLICT",
+                ValidationFailedException => "ERR_VALIDATION",
+                ValidationException => "ERR_VALIDATION",
+                _ => "ERR_INTERNAL_SERVER"
+            };
+    }
+
+    /// <summary>
+    /// Standard JSON envelope for errors returned to clients.
+    /// </summary>
+    public class ErrorEnvelope
+    {
+        public int Status { get; set; }
+        public string Code { get; set; } = "ERR_INTERNAL_SERVER";
+        public string Message { get; set; } = string.Empty;
+        public string? Details { get; set; }
+
+        /// <summary>
+        /// Optional field-level validation details keyed by field name.
+        /// Use when returning FluentValidation style failures.
+        /// </summary>
+        public Dictionary<string, string[]>? FieldErrors { get; set; }
+    }
+
+    /// <summary>
+    /// Lightweight validation exception wrapper for middleware to expose structured field errors.
+    /// If you use FluentValidation or similar, populate this type when throwing validation failures.
+    /// </summary>
+    public class ValidationFailedException : Exception
+    {
+        public Dictionary<string, string[]> Errors { get; }
+
+        public ValidationFailedException(Dictionary<string, string[]> errors)
+            : base("Validation failed")
+        {
+            Errors = errors ?? new Dictionary<string, string[]>();
+        }
+    }
+}

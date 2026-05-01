@@ -1,0 +1,63 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
+{
+    
+    public class ReferralModel
+    {
+        [Key]
+        public int ReferralId { get; set; }
+        
+      
+        [Required]
+        public string PatientExternalId { get; set; } = string.Empty;
+        
+        
+        [Required]
+        public int DoctorId { get; set; }
+        
+        
+        [Required]
+        public string ReferralType { get; set; } = string.Empty;
+        
+        
+        [Required]
+        public string Reason { get; set; } = string.Empty;
+        
+       
+        [Required]
+        public string Diagnosis { get; set; } = string.Empty;
+     
+        public string RecommendedTreatment { get; set; } = string.Empty;
+        
+        
+        public string Priority { get; set; } = "Normal";
+        
+        
+        public string Status { get; set; } = "Pending";
+        
+        
+        public string? ExternalReferralId { get; set; }
+        
+        
+        public string? ExternalServiceUrl { get; set; }
+        
+        
+        public string? DoctorNotes { get; set; }
+        
+        
+        public string? ExternalServiceFeedback { get; set; }
+        
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? SentAt { get; set; }
+        public DateTime? AcceptedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // External system synchronization tracking
+        public DateTime? ExternalSyncedAt { get; set; }
+        public int? ExternalSyncAttempts { get; set; }
+
+        public DoctorModel? Doctor { get; set; }
+    }
+}

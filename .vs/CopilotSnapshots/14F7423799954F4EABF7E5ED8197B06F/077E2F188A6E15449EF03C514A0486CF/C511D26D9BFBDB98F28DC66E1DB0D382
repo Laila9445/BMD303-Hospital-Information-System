@@ -1,0 +1,78 @@
+﻿using MassTransit;
+
+namespace CLINICSYSTEM.Controllers
+{
+    /// <summary>
+    /// Mock ConsumeContext for testing event consumers without MassTransit broker
+    /// Allows direct webhook processing
+    /// </summary>
+    internal class MockConsumeContext<T> : ConsumeContext<T> where T : class
+    {
+        private readonly T _message;
+
+        public MockConsumeContext(T message)
+        {
+            _message = message;
+        }
+
+        public T Message => _message;
+
+        public Guid CorrelationId => Guid.NewGuid();
+        public Guid? RequestId => null;
+        public Guid? InitiatorId => null;
+        public Guid? ConversationId => Guid.NewGuid();
+        public Guid MessageId => Guid.NewGuid();
+
+        public DateTime? ExpirationTime => null;
+        public Uri ResponseAddress => null;
+        public Uri FaultAddress => null;
+        public DateTime SentTime => DateTime.UtcNow;
+
+        public IDictionary<string, object> Headers => new Dictionary<string, object>();
+        public IEnumerable<string> SupportedMessageTypes => new[] { typeof(T).Name };
+
+        public bool TryGetPayload<TPayload>(out TPayload payload) where TPayload : class
+        {
+            if (typeof(TPayload) == typeof(T))
+            {
+                payload = _message as TPayload;
+                return payload != null;
+            }
+
+            payload = null;
+            return false;
+        }
+
+        public bool HasPayloadType(Type payloadType)
+        {
+            return payloadType == typeof(T);
+        }
+
+        public T GetPayload<T>(T defaultValue = null) where T : class
+        {
+            return TryGetPayload(out T payload) ? payload : defaultValue;
+        }
+
+        public void AddConsumeTask(Task task)
+        {
+        }
+
+        public Task NotifyConsumed(TimeSpan duration, string consumerType)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task NotifyFaulted(TimeSpan duration, string consumerType, Exception exception)
+        {
+            return Task.CompletedTask;
+        }
+
+        public IPublishEndpoint PublishEndpoint => null;
+        public ISendEndpointProvider SendEndpointProvider => null;
+        public IReceiveEndpoint ReceiveEndpoint => null;
+        public IHostConfiguration HostConfiguration => null;
+        public ISerializerCollection Serializers => null;
+        public IMessageDeserializer Deserializer => null;
+        public MessagesconsumeContextContinuation Continuation => null;
+    }
+}

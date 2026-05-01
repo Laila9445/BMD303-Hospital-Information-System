@@ -1,0 +1,167 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CLINICSYSTEM.Models
+{
+    /// <summary>
+    /// Represents a therapy treatment plan
+    /// Tracks prescribed vs. completed therapy sessions
+    /// </summary>
+    [Table("TherapyPlans")]
+    public class TherapyPlanModel
+    {
+        [Key]
+        public int PlanId { get; set; }
+
+        /// <summary>
+        /// Link to referral that initiated this therapy plan
+        /// </summary>
+        [Required]
+        public int ReferralId { get; set; }
+        public ReferralModel Referral { get; set; } = null!;
+
+        /// <summary>
+        /// Patient UUID for integration with external systems
+        /// </summary>
+        [Required]
+        public Guid PatientExternalId { get; set; }
+
+        /// <summary>
+        /// Detailed description of therapy plan
+        /// </summary>
+        [Required]
+        [StringLength(2000)]
+        public string PlanDescription { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Primary therapy type/diagnosis being treated
+        /// </summary>
+        [Required]
+        [StringLength(500)]
+        public string TherapyType { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Number of sessions prescribed
+        /// </summary>
+        [Required]
+        public int PlannedSessions { get; set; }
+
+        /// <summary>
+        /// Number of sessions completed
+        /// </summary>
+        public int CompletedSessions { get; set; } = 0;
+
+        /// <summary>
+        /// Recommended frequency (e.g., 2x per week)
+        /// </summary>
+        [StringLength(200)]
+        public string RecommendedFrequency { get; set; } = "2x per week";
+
+        /// <summary>
+        /// Expected duration of therapy (e.g., 6 weeks)
+        /// </summary>
+        [StringLength(200)]
+        public string ExpectedDuration { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Goals of therapy
+        /// </summary>
+        [StringLength(1000)]
+        public string TherapyGoals { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Any contraindications or precautions
+        /// </summary>
+        [StringLength(1000)]
+        public string? Precautions { get; set; }
+
+        /// <summary>
+        /// Recommended equipment or modalities
+        /// </summary>
+        [StringLength(500)]
+        public string? EquipmentNeeded { get; set; }
+
+        /// <summary>
+        /// Plan start date
+        /// </summary>
+        [Required]
+        public DateTime StartDate { get; set; }
+
+        /// <summary>
+        /// Planned end date
+        /// </summary>
+        public DateTime? PlannedEndDate { get; set; }
+
+        /// <summary>
+        /// Actual end date (when plan completed)
+        /// </summary>
+        public DateTime? ActualEndDate { get; set; }
+
+        /// <summary>
+        /// Status: Planned, InProgress, Completed, OnHold, Cancelled
+        /// </summary>
+        [StringLength(50)]
+        public string Status { get; set; } = "Planned";
+
+        /// <summary>
+        /// Therapist assigned to this plan
+        /// </summary>
+        [StringLength(200)]
+        public string? AssignedTherapist { get; set; }
+
+        /// <summary>
+        /// Therapy facility/clinic name
+        /// </summary>
+        [StringLength(200)]
+        public string? TherapyFacility { get; set; }
+
+        /// <summary>
+        /// Overall therapy outcomes/effectiveness
+        /// </summary>
+        [StringLength(1000)]
+        public string? Outcomes { get; set; }
+
+        /// <summary>
+        /// Plan assessment at completion
+        /// </summary>
+        [StringLength(1000)]
+        public string? FinalAssessment { get; set; }
+
+        /// <summary>
+        /// Whether therapy goals were achieved
+        /// </summary>
+        public bool? GoalsAchieved { get; set; }
+
+        /// <summary>
+        /// Patient adherence score (1-5)
+        /// </summary>
+        [Range(1, 5)]
+        public int? AdherenceScore { get; set; }
+
+        /// <summary>
+        /// Outcome score (1-5) for improvement
+        /// </summary>
+        [Range(1, 5)]
+        public int? OutcomeScore { get; set; }
+
+        /// <summary>
+        /// Notes for follow-up or next steps
+        /// </summary>
+        [StringLength(1000)]
+        public string? FollowUpNotes { get; set; }
+
+        /// <summary>
+        /// Linked sessions from this plan
+        /// </summary>
+        public ICollection<TherapySessionModel> Sessions { get; set; } = new List<TherapySessionModel>();
+
+        /// <summary>
+        /// External plan ID from Physiotherapy system
+        /// </summary>
+        [StringLength(100)]
+        public string? ExternalPlanId { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
+}

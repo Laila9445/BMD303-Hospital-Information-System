@@ -1,0 +1,1773 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ReferralsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\ReferralsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\Class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\Class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ReferralService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\ReferralService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\ReferralDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Data\\DTOs\\ReferralDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\MedicalImagesController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\MedicalImagesController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Middleware\\GlobalExceptionHandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Middleware\\GlobalExceptionHandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ImagingController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\ImagingController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ExternalIntegrationController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\ExternalIntegrationController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\Billing_Backend\\Controllers\\BillingController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\EventPublisher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\EventPublisher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\appsettings.Development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\appsettings.Development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\TherapyDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Data\\DTOs\\TherapyDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\ImagingDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Data\\DTOs\\ImagingDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\PatientTimelineController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\PatientTimelineController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\TherapyService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\TherapyService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\IntegrationStatusController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\IntegrationStatusController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Extensions\\ServiceCollectionExtensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Extensions\\ServiceCollectionExtensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ExternalPatientIdService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\ExternalPatientIdService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\EventConsumer\\MassTransitEventConsumers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\EventConsumer\\MassTransitEventConsumers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\DoctorSchedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\DoctorSchedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\DoctorModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\DoctorModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_ROADMAP.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\ClinicSystemDb_Dev.db||{25834150-CD7E-11D0-92DF-00A0C9138C45}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\ClinicSystemDb_Dev.db||{25834150-CD7E-11D0-92DF-00A0C9138C45}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\ClinicSystem.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\ClinicSystem.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260309203555_AddReferralSystemAndExternalPatientSupport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Enums\\UserRole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Enums\\UserRole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Validators\\RegisterRequestValidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Validators\\RegisterRequestValidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\PatientCareTaskModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\PatientCareTaskModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\NurseModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\NurseModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\UserModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\UserModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\ClinicDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Data\\ClinicDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\AuthDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Data\\DTOs\\AuthDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\NurseDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Data\\DTOs\\NurseDTOs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Mappings\\MappingProfile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Mappings\\MappingProfile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\DoctorService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\DoctorService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ConsultationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\ConsultationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\NURSE_IMPLEMENTATION.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\CONFIG_INTEGRATION_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\COMPLETE_INTEGRATION_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Events\\SharedEvents.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Events\\SharedEvents.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\Resilience\\ResiliencePolicies.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\Resilience\\ResiliencePolicies.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_ARCHITECTURE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\PatientModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\PatientModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\ReferralModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\ReferralModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260320_AddExternalSystemIntegrationFields.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Controllers\\MockConsumeContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1094484421\\INTEGRATION_ARCHITECTURE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_COVERAGE_ANALYSIS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\MedicalImagingModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\MedicalImagingModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\TherapySessionModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\TherapySessionModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\TherapyPlanModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Models\\TherapyPlanModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\PatientTimelineDTO.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Data\\DTOs\\PatientTimelineDTO.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ImagingService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\ImagingService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\PatientTimelineService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\PatientTimelineService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\TherapyController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\TherapyController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLINICSYSTEM.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\CLINICSYSTEM.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\IEventPublisher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\IEventPublisher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\BUILD_COMPLETE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Exceptions\\BusinessException.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Exceptions\\BusinessException.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BACKEND_IMPLEMENTATION_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\BACKEND_IMPLEMENTATION_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\API_ENDPOINT_VERIFICATION_REPORT.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\API_ENDPOINT_VERIFICATION_REPORT.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_COMPLETE_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\IMPLEMENTATION_COMPLETE_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST_FINAL.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MASTER_CHECKLIST_FINAL.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\WORK_COMPLETED_TODAY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\WORK_COMPLETED_TODAY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\DOCUMENTATION_COMPLETE_INDEX.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\DOCUMENTATION_COMPLETE_INDEX.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_INSTRUCTIONS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\FINAL_INSTRUCTIONS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\README_TODAY_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\README_TODAY_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\NEW_DOCUMENTATION_TODAY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\NEW_DOCUMENTATION_TODAY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLEANUP_AND_COMPLETION_PLAN.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\CLEANUP_AND_COMPLETION_PLAN.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\MockConsumeContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\MockConsumeContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_COVERAGE_ANALYSIS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\INTEGRATION_COVERAGE_ANALYSIS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ARCHITECTURE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\INTEGRATION_ARCHITECTURE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\COMPLETE_INTEGRATION_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\COMPLETE_INTEGRATION_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CONFIG_INTEGRATION_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\CONFIG_INTEGRATION_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ROADMAP.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\INTEGRATION_ROADMAP.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\NURSE_IMPLEMENTATION.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\NURSE_IMPLEMENTATION.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BUILD_COMPLETE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\BUILD_COMPLETE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MASTER_CHECKLIST.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_ROADMAP.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\IMPLEMENTATION_ROADMAP.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLEANUP_COMPLETE_PHASE1.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\CLEANUP_COMPLETE_PHASE1.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\PHASE1_CLEANUP_COMPLETE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\PHASE1_CLEANUP_COMPLETE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\501926384\\MockConsumeContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_COVERAGE_ANALYSIS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ARCHITECTURE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\COMPLETE_INTEGRATION_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\CONFIG_INTEGRATION_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ROADMAP.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\NURSE_IMPLEMENTATION.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\BUILD_COMPLETE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\MASTER_CHECKLIST.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\IMPLEMENTATION_ROADMAP.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\APPROACH_KEEP_INTEGRATIONS_COMPLETE_ENDPOINTS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\APPROACH_KEEP_INTEGRATIONS_COMPLETE_ENDPOINTS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_APPROACH_C3_COMPLETE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\FINAL_APPROACH_C3_COMPLETE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ANALYSIS_AND_PLAN.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\INTEGRATION_ANALYSIS_AND_PLAN.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\COMPLETE_BACKEND_INTEGRATION_CHECKLIST.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\COMPLETE_BACKEND_INTEGRATION_CHECKLIST.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_ACTION_PLAN_READY_TO_IMPLEMENT.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\FINAL_ACTION_PLAN_READY_TO_IMPLEMENT.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BACKEND_INTEGRATION_STATUS_REPORT.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\BACKEND_INTEGRATION_STATUS_REPORT.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\README_IMPLEMENTATION_START_HERE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\README_IMPLEMENTATION_START_HERE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_COMPLETE_FINAL_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\IMPLEMENTATION_COMPLETE_FINAL_SUMMARY.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\DOCUMENTATION_INDEX.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\DOCUMENTATION_INDEX.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\EXECUTIVE_SUMMARY_FINAL.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\EXECUTIVE_SUMMARY_FINAL.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\QUICK_REFERENCE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\QUICK_REFERENCE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MISSING_6_PERCENT_EXPLAINED.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MISSING_6_PERCENT_EXPLAINED.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\PatientPortalService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Services\\PatientPortalService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 105,
+              "Title": "PatientPortalService.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\PatientPortalService.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\PatientPortalService.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\PatientPortalService.cs",
+              "RelativeToolTip": "backend\\Services\\PatientPortalService.cs",
+              "ViewState": "AgIAANAAAAAAAAAAAABhwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T14:28:05.512Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\Class1.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\Class1.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\Class1.cs",
+              "RelativeToolTip": "backend\\Models\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T14:15:10.332Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ReferralService.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ReferralService.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\ReferralService.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ReferralService.cs",
+              "RelativeToolTip": "backend\\Services\\ReferralService.cs",
+              "ViewState": "AgIAAPgAAAAAAAAAAAAAAC4AAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T13:04:16.914Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ReferralDTOs.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\ReferralDTOs.cs",
+              "RelativeDocumentMoniker": "backend\\Data\\DTOs\\ReferralDTOs.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\ReferralDTOs.cs",
+              "RelativeToolTip": "backend\\Data\\DTOs\\ReferralDTOs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T13:04:00.787Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ReferralsController.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ReferralsController.cs",
+              "RelativeDocumentMoniker": "backend\\Controllers\\ReferralsController.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ReferralsController.cs",
+              "RelativeToolTip": "backend\\Controllers\\ReferralsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAGK1wEIBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:02:16.279Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 104,
+              "Title": "MISSING_6_PERCENT_EXPLAINED.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MISSING_6_PERCENT_EXPLAINED.md",
+              "RelativeDocumentMoniker": "backend\\MISSING_6_PERCENT_EXPLAINED.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MISSING_6_PERCENT_EXPLAINED.md",
+              "RelativeToolTip": "backend\\MISSING_6_PERCENT_EXPLAINED.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:58:57.731Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 103,
+              "Title": "QUICK_REFERENCE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\QUICK_REFERENCE.md",
+              "RelativeDocumentMoniker": "backend\\QUICK_REFERENCE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\QUICK_REFERENCE.md",
+              "RelativeToolTip": "backend\\QUICK_REFERENCE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:40:03.363Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 102,
+              "Title": "EXECUTIVE_SUMMARY_FINAL.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\EXECUTIVE_SUMMARY_FINAL.md",
+              "RelativeDocumentMoniker": "backend\\EXECUTIVE_SUMMARY_FINAL.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\EXECUTIVE_SUMMARY_FINAL.md",
+              "RelativeToolTip": "backend\\EXECUTIVE_SUMMARY_FINAL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADkBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:39:47.678Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 101,
+              "Title": "DOCUMENTATION_INDEX.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\DOCUMENTATION_INDEX.md",
+              "RelativeDocumentMoniker": "backend\\DOCUMENTATION_INDEX.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\DOCUMENTATION_INDEX.md",
+              "RelativeToolTip": "backend\\DOCUMENTATION_INDEX.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:39:10.906Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 100,
+              "Title": "IMPLEMENTATION_COMPLETE_FINAL_SUMMARY.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_COMPLETE_FINAL_SUMMARY.md",
+              "RelativeDocumentMoniker": "backend\\IMPLEMENTATION_COMPLETE_FINAL_SUMMARY.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_COMPLETE_FINAL_SUMMARY.md",
+              "RelativeToolTip": "backend\\IMPLEMENTATION_COMPLETE_FINAL_SUMMARY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJIBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:38:43.858Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 99,
+              "Title": "README_IMPLEMENTATION_START_HERE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\README_IMPLEMENTATION_START_HERE.md",
+              "RelativeDocumentMoniker": "backend\\README_IMPLEMENTATION_START_HERE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\README_IMPLEMENTATION_START_HERE.md",
+              "RelativeToolTip": "backend\\README_IMPLEMENTATION_START_HERE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFIBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:38:14.901Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 98,
+              "Title": "BACKEND_INTEGRATION_STATUS_REPORT.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BACKEND_INTEGRATION_STATUS_REPORT.md",
+              "RelativeDocumentMoniker": "backend\\BACKEND_INTEGRATION_STATUS_REPORT.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BACKEND_INTEGRATION_STATUS_REPORT.md",
+              "RelativeToolTip": "backend\\BACKEND_INTEGRATION_STATUS_REPORT.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIwBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:37:49.303Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 97,
+              "Title": "FINAL_ACTION_PLAN_READY_TO_IMPLEMENT.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_ACTION_PLAN_READY_TO_IMPLEMENT.md",
+              "RelativeDocumentMoniker": "backend\\FINAL_ACTION_PLAN_READY_TO_IMPLEMENT.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_ACTION_PLAN_READY_TO_IMPLEMENT.md",
+              "RelativeToolTip": "backend\\FINAL_ACTION_PLAN_READY_TO_IMPLEMENT.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8CAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:37:15.889Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 96,
+              "Title": "COMPLETE_BACKEND_INTEGRATION_CHECKLIST.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\COMPLETE_BACKEND_INTEGRATION_CHECKLIST.md",
+              "RelativeDocumentMoniker": "backend\\COMPLETE_BACKEND_INTEGRATION_CHECKLIST.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\COMPLETE_BACKEND_INTEGRATION_CHECKLIST.md",
+              "RelativeToolTip": "backend\\COMPLETE_BACKEND_INTEGRATION_CHECKLIST.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANIBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:36:20.884Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 95,
+              "Title": "INTEGRATION_ANALYSIS_AND_PLAN.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ANALYSIS_AND_PLAN.md",
+              "RelativeDocumentMoniker": "backend\\INTEGRATION_ANALYSIS_AND_PLAN.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ANALYSIS_AND_PLAN.md",
+              "RelativeToolTip": "backend\\INTEGRATION_ANALYSIS_AND_PLAN.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHYCAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:27:40.871Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MedicalImagesController.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\MedicalImagesController.cs",
+              "RelativeDocumentMoniker": "backend\\Controllers\\MedicalImagesController.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\MedicalImagesController.cs",
+              "RelativeToolTip": "backend\\Controllers\\MedicalImagesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T13:03:45.294Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 94,
+              "Title": "FINAL_APPROACH_C3_COMPLETE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_APPROACH_C3_COMPLETE.md",
+              "RelativeDocumentMoniker": "backend\\FINAL_APPROACH_C3_COMPLETE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_APPROACH_C3_COMPLETE.md",
+              "RelativeToolTip": "backend\\FINAL_APPROACH_C3_COMPLETE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:02:57.937Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 93,
+              "Title": "APPROACH_KEEP_INTEGRATIONS_COMPLETE_ENDPOINTS.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\APPROACH_KEEP_INTEGRATIONS_COMPLETE_ENDPOINTS.md",
+              "RelativeDocumentMoniker": "backend\\APPROACH_KEEP_INTEGRATIONS_COMPLETE_ENDPOINTS.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\APPROACH_KEEP_INTEGRATIONS_COMPLETE_ENDPOINTS.md",
+              "RelativeToolTip": "backend\\APPROACH_KEEP_INTEGRATIONS_COMPLETE_ENDPOINTS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAM8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T13:02:17.943Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 89,
+              "Title": "NURSE_IMPLEMENTATION.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\NURSE_IMPLEMENTATION.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\NURSE_IMPLEMENTATION.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\NURSE_IMPLEMENTATION.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\NURSE_IMPLEMENTATION.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.721Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 88,
+              "Title": "INTEGRATION_ROADMAP.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ROADMAP.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ROADMAP.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ROADMAP.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ROADMAP.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.619Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 91,
+              "Title": "MASTER_CHECKLIST.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\MASTER_CHECKLIST.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\MASTER_CHECKLIST.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\MASTER_CHECKLIST.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\MASTER_CHECKLIST.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.885Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 92,
+              "Title": "IMPLEMENTATION_ROADMAP.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\IMPLEMENTATION_ROADMAP.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\IMPLEMENTATION_ROADMAP.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\IMPLEMENTATION_ROADMAP.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\IMPLEMENTATION_ROADMAP.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.98Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 90,
+              "Title": "BUILD_COMPLETE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\BUILD_COMPLETE.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\BUILD_COMPLETE.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\BUILD_COMPLETE.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\BUILD_COMPLETE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.798Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 87,
+              "Title": "CONFIG_INTEGRATION_GUIDE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\CONFIG_INTEGRATION_GUIDE.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\CONFIG_INTEGRATION_GUIDE.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\CONFIG_INTEGRATION_GUIDE.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\CONFIG_INTEGRATION_GUIDE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.5Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 86,
+              "Title": "COMPLETE_INTEGRATION_SUMMARY.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.382Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 85,
+              "Title": "INTEGRATION_ARCHITECTURE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ARCHITECTURE.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ARCHITECTURE.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ARCHITECTURE.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_ARCHITECTURE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.276Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 84,
+              "Title": "INTEGRATION_COVERAGE_ANALYSIS.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1384551917\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:59:45.195Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 83,
+              "Title": "MockConsumeContext.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\501926384\\MockConsumeContext.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\501926384\\MockConsumeContext.cs",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\501926384\\MockConsumeContext.cs",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\501926384\\MockConsumeContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T12:59:45.052Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 80,
+              "Title": "IMPLEMENTATION_ROADMAP.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_ROADMAP.md",
+              "RelativeDocumentMoniker": "backend\\IMPLEMENTATION_ROADMAP.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_ROADMAP.md",
+              "RelativeToolTip": "backend\\IMPLEMENTATION_ROADMAP.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:54:38.841Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 79,
+              "Title": "MASTER_CHECKLIST.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST.md",
+              "RelativeDocumentMoniker": "backend\\MASTER_CHECKLIST.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST.md",
+              "RelativeToolTip": "backend\\MASTER_CHECKLIST.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:54:33.112Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 78,
+              "Title": "BUILD_COMPLETE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BUILD_COMPLETE.md",
+              "RelativeDocumentMoniker": "backend\\BUILD_COMPLETE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BUILD_COMPLETE.md",
+              "RelativeToolTip": "backend\\BUILD_COMPLETE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:54:27.12Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 81,
+              "Title": "CLEANUP_COMPLETE_PHASE1.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLEANUP_COMPLETE_PHASE1.md",
+              "RelativeDocumentMoniker": "backend\\CLEANUP_COMPLETE_PHASE1.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLEANUP_COMPLETE_PHASE1.md",
+              "RelativeToolTip": "backend\\CLEANUP_COMPLETE_PHASE1.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:55:19.115Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 82,
+              "Title": "PHASE1_CLEANUP_COMPLETE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\PHASE1_CLEANUP_COMPLETE.md",
+              "RelativeDocumentMoniker": "backend\\PHASE1_CLEANUP_COMPLETE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\PHASE1_CLEANUP_COMPLETE.md",
+              "RelativeToolTip": "backend\\PHASE1_CLEANUP_COMPLETE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:55:39.787Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 77,
+              "Title": "NURSE_IMPLEMENTATION.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\NURSE_IMPLEMENTATION.md",
+              "RelativeDocumentMoniker": "backend\\NURSE_IMPLEMENTATION.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\NURSE_IMPLEMENTATION.md",
+              "RelativeToolTip": "backend\\NURSE_IMPLEMENTATION.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:54:21.354Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 76,
+              "Title": "INTEGRATION_ROADMAP.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ROADMAP.md",
+              "RelativeDocumentMoniker": "backend\\INTEGRATION_ROADMAP.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ROADMAP.md",
+              "RelativeToolTip": "backend\\INTEGRATION_ROADMAP.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:54:15.359Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 75,
+              "Title": "CONFIG_INTEGRATION_GUIDE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CONFIG_INTEGRATION_GUIDE.md",
+              "RelativeDocumentMoniker": "backend\\CONFIG_INTEGRATION_GUIDE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CONFIG_INTEGRATION_GUIDE.md",
+              "RelativeToolTip": "backend\\CONFIG_INTEGRATION_GUIDE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:54:09.044Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 74,
+              "Title": "COMPLETE_INTEGRATION_SUMMARY.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "RelativeDocumentMoniker": "backend\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "RelativeToolTip": "backend\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:54:03.16Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 73,
+              "Title": "INTEGRATION_ARCHITECTURE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ARCHITECTURE.md",
+              "RelativeDocumentMoniker": "backend\\INTEGRATION_ARCHITECTURE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_ARCHITECTURE.md",
+              "RelativeToolTip": "backend\\INTEGRATION_ARCHITECTURE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:53:57.164Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 72,
+              "Title": "INTEGRATION_COVERAGE_ANALYSIS.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "RelativeDocumentMoniker": "backend\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "RelativeToolTip": "backend\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:53:51.092Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 71,
+              "Title": "MockConsumeContext.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\MockConsumeContext.cs",
+              "RelativeDocumentMoniker": "backend\\Controllers\\MockConsumeContext.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\MockConsumeContext.cs",
+              "RelativeToolTip": "backend\\Controllers\\MockConsumeContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T12:51:38.867Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 70,
+              "Title": "CLEANUP_AND_COMPLETION_PLAN.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLEANUP_AND_COMPLETION_PLAN.md",
+              "RelativeDocumentMoniker": "backend\\CLEANUP_AND_COMPLETION_PLAN.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLEANUP_AND_COMPLETION_PLAN.md",
+              "RelativeToolTip": "backend\\CLEANUP_AND_COMPLETION_PLAN.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFkBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:31:44.216Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 69,
+              "Title": "NEW_DOCUMENTATION_TODAY.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\NEW_DOCUMENTATION_TODAY.md",
+              "RelativeDocumentMoniker": "backend\\NEW_DOCUMENTATION_TODAY.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\NEW_DOCUMENTATION_TODAY.md",
+              "RelativeToolTip": "backend\\NEW_DOCUMENTATION_TODAY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHMBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:22:28.402Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 68,
+              "Title": "README_TODAY_SUMMARY.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\README_TODAY_SUMMARY.md",
+              "RelativeDocumentMoniker": "backend\\README_TODAY_SUMMARY.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\README_TODAY_SUMMARY.md",
+              "RelativeToolTip": "backend\\README_TODAY_SUMMARY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAE8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:22:00.421Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 67,
+              "Title": "FINAL_INSTRUCTIONS.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_INSTRUCTIONS.md",
+              "RelativeDocumentMoniker": "backend\\FINAL_INSTRUCTIONS.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\FINAL_INSTRUCTIONS.md",
+              "RelativeToolTip": "backend\\FINAL_INSTRUCTIONS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKYBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:21:36.688Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 66,
+              "Title": "DOCUMENTATION_COMPLETE_INDEX.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\DOCUMENTATION_COMPLETE_INDEX.md",
+              "RelativeDocumentMoniker": "backend\\DOCUMENTATION_COMPLETE_INDEX.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\DOCUMENTATION_COMPLETE_INDEX.md",
+              "RelativeToolTip": "backend\\DOCUMENTATION_COMPLETE_INDEX.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIgBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:21:09.443Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 65,
+              "Title": "WORK_COMPLETED_TODAY.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\WORK_COMPLETED_TODAY.md",
+              "RelativeDocumentMoniker": "backend\\WORK_COMPLETED_TODAY.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\WORK_COMPLETED_TODAY.md",
+              "RelativeToolTip": "backend\\WORK_COMPLETED_TODAY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAALcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:20:22.013Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 64,
+              "Title": "MASTER_CHECKLIST_FINAL.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST_FINAL.md",
+              "RelativeDocumentMoniker": "backend\\MASTER_CHECKLIST_FINAL.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST_FINAL.md",
+              "RelativeToolTip": "backend\\MASTER_CHECKLIST_FINAL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:19:48.482Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 63,
+              "Title": "IMPLEMENTATION_COMPLETE_SUMMARY.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_COMPLETE_SUMMARY.md",
+              "RelativeDocumentMoniker": "backend\\IMPLEMENTATION_COMPLETE_SUMMARY.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_COMPLETE_SUMMARY.md",
+              "RelativeToolTip": "backend\\IMPLEMENTATION_COMPLETE_SUMMARY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIkBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:19:18.45Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 62,
+              "Title": "API_ENDPOINT_VERIFICATION_REPORT.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\API_ENDPOINT_VERIFICATION_REPORT.md",
+              "RelativeDocumentMoniker": "backend\\API_ENDPOINT_VERIFICATION_REPORT.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\API_ENDPOINT_VERIFICATION_REPORT.md",
+              "RelativeToolTip": "backend\\API_ENDPOINT_VERIFICATION_REPORT.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:18:46.995Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 61,
+              "Title": "BACKEND_IMPLEMENTATION_GUIDE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BACKEND_IMPLEMENTATION_GUIDE.md",
+              "RelativeDocumentMoniker": "backend\\BACKEND_IMPLEMENTATION_GUIDE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\BACKEND_IMPLEMENTATION_GUIDE.md",
+              "RelativeToolTip": "backend\\BACKEND_IMPLEMENTATION_GUIDE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-01T12:18:19.556Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 60,
+              "Title": "BusinessException.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Exceptions\\BusinessException.cs",
+              "RelativeDocumentMoniker": "backend\\Exceptions\\BusinessException.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Exceptions\\BusinessException.cs",
+              "RelativeToolTip": "backend\\Exceptions\\BusinessException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T12:17:32.319Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "GlobalExceptionHandler.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Middleware\\GlobalExceptionHandler.cs",
+              "RelativeDocumentMoniker": "backend\\Middleware\\GlobalExceptionHandler.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Middleware\\GlobalExceptionHandler.cs",
+              "RelativeToolTip": "backend\\Middleware\\GlobalExceptionHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-28T09:45:04.006Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "BillingController.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\Billing_Backend\\Controllers\\BillingController.cs",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\Billing_Backend\\Controllers\\BillingController.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\Billing_Backend\\Controllers\\BillingController.cs",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\Billing_Backend\\Controllers\\BillingController.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAADIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-28T09:41:48.276Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "EventPublisher.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\EventPublisher.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\EventPublisher.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\EventPublisher.cs",
+              "RelativeToolTip": "backend\\Services\\EventPublisher.cs",
+              "ViewState": "AgIAAHwAAAAAAAAAAIBJwH4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-21T02:18:07.82Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 57,
+              "Title": "CLINICSYSTEM.csproj",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLINICSYSTEM.csproj",
+              "RelativeDocumentMoniker": "backend\\CLINICSYSTEM.csproj",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\CLINICSYSTEM.csproj",
+              "RelativeToolTip": "backend\\CLINICSYSTEM.csproj",
+              "ViewState": "AgIAADwAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-21T02:15:02.792Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "TherapyDTOs.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\TherapyDTOs.cs",
+              "RelativeDocumentMoniker": "backend\\Data\\DTOs\\TherapyDTOs.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\TherapyDTOs.cs",
+              "RelativeToolTip": "backend\\Data\\DTOs\\TherapyDTOs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:44:30.975Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ExternalIntegrationController.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ExternalIntegrationController.cs",
+              "RelativeDocumentMoniker": "backend\\Controllers\\ExternalIntegrationController.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ExternalIntegrationController.cs",
+              "RelativeToolTip": "backend\\Controllers\\ExternalIntegrationController.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAIBJwIAAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:50:43.068Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ImagingController.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ImagingController.cs",
+              "RelativeDocumentMoniker": "backend\\Controllers\\ImagingController.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\ImagingController.cs",
+              "RelativeToolTip": "backend\\Controllers\\ImagingController.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAIBJwBgAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:55:18.319Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 58,
+              "Title": "IEventPublisher.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\IEventPublisher.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\IEventPublisher.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\IEventPublisher.cs",
+              "RelativeToolTip": "backend\\Services\\IEventPublisher.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-21T02:17:55.261Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 59,
+              "Title": "BUILD_COMPLETE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\BUILD_COMPLETE.md",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\BUILD_COMPLETE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\BUILD_COMPLETE.md",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\BUILD_COMPLETE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABECAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-21T02:32:44.029Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "backend\\appsettings.Development.json",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\appsettings.Development.json",
+              "RelativeToolTip": "backend\\appsettings.Development.json",
+              "ViewState": "AgIAABUAAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-20T17:23:02.17Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ImagingDTOs.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\ImagingDTOs.cs",
+              "RelativeDocumentMoniker": "backend\\Data\\DTOs\\ImagingDTOs.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\ImagingDTOs.cs",
+              "RelativeToolTip": "backend\\Data\\DTOs\\ImagingDTOs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:44:06.431Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "PatientTimelineController.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\PatientTimelineController.cs",
+              "RelativeDocumentMoniker": "backend\\Controllers\\PatientTimelineController.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\PatientTimelineController.cs",
+              "RelativeToolTip": "backend\\Controllers\\PatientTimelineController.cs",
+              "ViewState": "AgIAAH4AAAAAAAAAAIBJwLUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:56:17.679Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "IntegrationStatusController.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\IntegrationStatusController.cs",
+              "RelativeDocumentMoniker": "backend\\Controllers\\IntegrationStatusController.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\IntegrationStatusController.cs",
+              "RelativeToolTip": "backend\\Controllers\\IntegrationStatusController.cs",
+              "ViewState": "AgIAANAAAAAAAAAAAABhwNcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:51:39.628Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "TherapyService.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\TherapyService.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\TherapyService.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\TherapyService.cs",
+              "RelativeToolTip": "backend\\Services\\TherapyService.cs",
+              "ViewState": "AgIAAKIAAAAAAAAAAIBJwDsBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:53:30.452Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ServiceCollectionExtensions.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Extensions\\ServiceCollectionExtensions.cs",
+              "RelativeDocumentMoniker": "backend\\Extensions\\ServiceCollectionExtensions.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Extensions\\ServiceCollectionExtensions.cs",
+              "RelativeToolTip": "backend\\Extensions\\ServiceCollectionExtensions.cs",
+              "ViewState": "AgIAAMsAAAAAAAAAAABRwM4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:25:46.063Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 54,
+              "Title": "ImagingService.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ImagingService.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\ImagingService.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ImagingService.cs",
+              "RelativeToolTip": "backend\\Services\\ImagingService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAK8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:52:14.593Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 55,
+              "Title": "PatientTimelineService.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\PatientTimelineService.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\PatientTimelineService.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\PatientTimelineService.cs",
+              "RelativeToolTip": "backend\\Services\\PatientTimelineService.cs",
+              "ViewState": "AgIAACgBAAAAAAAAAABhwC8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:54:58.52Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 56,
+              "Title": "TherapyController.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\TherapyController.cs",
+              "RelativeDocumentMoniker": "backend\\Controllers\\TherapyController.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Controllers\\TherapyController.cs",
+              "RelativeToolTip": "backend\\Controllers\\TherapyController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAN0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:55:49.167Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 53,
+              "Title": "PatientTimelineDTO.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\PatientTimelineDTO.cs",
+              "RelativeDocumentMoniker": "backend\\Data\\DTOs\\PatientTimelineDTO.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\PatientTimelineDTO.cs",
+              "RelativeToolTip": "backend\\Data\\DTOs\\PatientTimelineDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAK0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:45:45.64Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 52,
+              "Title": "TherapyPlanModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\TherapyPlanModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\TherapyPlanModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\TherapyPlanModel.cs",
+              "RelativeToolTip": "backend\\Models\\TherapyPlanModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:43:33.735Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 51,
+              "Title": "TherapySessionModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\TherapySessionModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\TherapySessionModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\TherapySessionModel.cs",
+              "RelativeToolTip": "backend\\Models\\TherapySessionModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:42:56.364Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 50,
+              "Title": "MedicalImagingModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\MedicalImagingModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\MedicalImagingModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\MedicalImagingModel.cs",
+              "RelativeToolTip": "backend\\Models\\MedicalImagingModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:42:33.439Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "INTEGRATION_COVERAGE_ANALYSIS.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_COVERAGE_ANALYSIS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-20T19:42:06.382Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "MassTransitEventConsumers.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\EventConsumer\\MassTransitEventConsumers.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\EventConsumer\\MassTransitEventConsumers.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\EventConsumer\\MassTransitEventConsumers.cs",
+              "RelativeToolTip": "backend\\Services\\EventConsumer\\MassTransitEventConsumers.cs",
+              "ViewState": "AgIAAMQAAAAAAAAAAABhwMsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:50:04.231Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "ExternalPatientIdService.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ExternalPatientIdService.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\ExternalPatientIdService.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ExternalPatientIdService.cs",
+              "RelativeToolTip": "backend\\Services\\ExternalPatientIdService.cs",
+              "ViewState": "AgIAAKYAAAAAAAAAAIBJwKkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:34:47.532Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "INTEGRATION_ARCHITECTURE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1094484421\\INTEGRATION_ARCHITECTURE.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1094484421\\INTEGRATION_ARCHITECTURE.md",
+              "ToolTip": "C:\\Users\\Best By\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1094484421\\INTEGRATION_ARCHITECTURE.md",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1094484421\\INTEGRATION_ARCHITECTURE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-20T19:20:17.389Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "DoctorSchedule.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\DoctorSchedule.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\DoctorSchedule.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\DoctorSchedule.cs",
+              "RelativeToolTip": "backend\\Models\\DoctorSchedule.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:19:24.327Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "DoctorModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\DoctorModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\DoctorModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\DoctorModel.cs",
+              "RelativeToolTip": "backend\\Models\\DoctorModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T19:19:22.45Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "IMPLEMENTATION_ROADMAP.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_ROADMAP.md",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_ROADMAP.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_ROADMAP.md",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\IMPLEMENTATION_ROADMAP.md",
+              "ViewState": "AgIAAIMBAAAAAAAAAAAAADEDAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-20T17:28:02.38Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "MockConsumeContext.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Controllers\\MockConsumeContext.cs",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Controllers\\MockConsumeContext.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Controllers\\MockConsumeContext.cs",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Controllers\\MockConsumeContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAE4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:54:14.815Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "PatientModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\PatientModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\PatientModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\PatientModel.cs",
+              "RelativeToolTip": "backend\\Models\\PatientModel.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:49:22.342Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "ReferralModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\ReferralModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\ReferralModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\ReferralModel.cs",
+              "RelativeToolTip": "backend\\Models\\ReferralModel.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAIBZwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:49:44.275Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Program.cs",
+              "RelativeDocumentMoniker": "backend\\Program.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Program.cs",
+              "RelativeToolTip": "backend\\Program.cs",
+              "ViewState": "AgIAAAMBAAAAAAAAAIBZwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:52:02.064Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "20260320_AddExternalSystemIntegrationFields.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260320_AddExternalSystemIntegrationFields.cs",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260320_AddExternalSystemIntegrationFields.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260320_AddExternalSystemIntegrationFields.cs",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260320_AddExternalSystemIntegrationFields.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:52:33.679Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "MASTER_CHECKLIST.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST.md",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST.md",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\MASTER_CHECKLIST.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-20T17:30:51.792Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "SharedEvents.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Events\\SharedEvents.cs",
+              "RelativeDocumentMoniker": "backend\\Events\\SharedEvents.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Events\\SharedEvents.cs",
+              "RelativeToolTip": "backend\\Events\\SharedEvents.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:34:15.332Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "ResiliencePolicies.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\Resilience\\ResiliencePolicies.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\Resilience\\ResiliencePolicies.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\Resilience\\ResiliencePolicies.cs",
+              "RelativeToolTip": "backend\\Services\\Resilience\\ResiliencePolicies.cs",
+              "ViewState": "AgIAAFgAAAAAAAAAAABhwF8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:35:05.893Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "INTEGRATION_ARCHITECTURE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_ARCHITECTURE.md",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_ARCHITECTURE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_ARCHITECTURE.md",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\INTEGRATION_ARCHITECTURE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-20T17:48:53.265Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "CONFIG_INTEGRATION_GUIDE.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\CONFIG_INTEGRATION_GUIDE.md",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\CONFIG_INTEGRATION_GUIDE.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\CONFIG_INTEGRATION_GUIDE.md",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\CONFIG_INTEGRATION_GUIDE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKABAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-20T17:28:44.698Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "COMPLETE_INTEGRATION_SUMMARY.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\COMPLETE_INTEGRATION_SUMMARY.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFwCAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-20T17:29:40.851Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "ClinicSystemDb_Dev.db",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\ClinicSystemDb_Dev.db",
+              "RelativeDocumentMoniker": "backend\\ClinicSystemDb_Dev.db",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\ClinicSystemDb_Dev.db",
+              "RelativeToolTip": "backend\\ClinicSystemDb_Dev.db",
+              "Icon": "00000000-0000-0000-0000-000000000000.000000|iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIKSURBVDhPrZXfS1NhGMe/EynnCI7roG2w3OaOa4vMcgV2YQjdeWV3QlBmECQIYlMKVMRQYnhRiSQUhQjd9D\u002BsC3HJbhTaav7YHMdIsoGghW5nO72Op9yB98hJ\u002BsDhPc/7fPmc9z0HzmsC8WggmAJUJ5VHYFpXCmgPhUKLNHGIqqolwofqyOgYVfoMDz6G2Wze3vm518qTltH4T9zp7BJOWSrCwWCwkab\u002BcizhGZtdV3os4QF60nIauWxsbiGxJsMvOWGrthbnBEEovscShPIyhNlYdVBwhb/29rH0eQ3Z/Sx2dncRX0kimZYhuR3o7eun1CHsAQLd8rccW07h\u002B1YGhUIegQYf8nkF6Y1vkL9uUkIfrrDR54GiKPA4HXCdtcPrrmV1Dhd8EiX00VlhErlcFrHEKlaSaSzFl1mdw4f5KCX04QptNSL7CGJREp5bQJ6ttlqsQnPTRUrowxXWiFZcb25CA9tixckT8HvduNFyDSlZRvfAIBY/xfAjk6G0Fq7wD7UOOzputsFb58KLV2/x8s0sztd78GxqGtOvZyil5UhhKX6prih70HWbfZxzqJfc1NFiWBj/ksBCNIqJ55OYj3xkV4Q6WgwL797qQM/9e4gwWX9vD54MD1FHi2GheNqKwOVLeP9uFlevBGCxVFJHi2GhUf67sOSP3ceOAJOBI4CHuj7\u002BdMIFAL8B2kWpjQLikHsAAAAASUVORK5CYII=",
+              "WhenOpened": "2026-04-20T17:22:58.066Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "ClinicSystem.http",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\ClinicSystem.http",
+              "RelativeDocumentMoniker": "backend\\ClinicSystem.http",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\ClinicSystem.http",
+              "RelativeToolTip": "backend\\ClinicSystem.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2026-04-20T17:22:45.956Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "20260309203555_AddReferralSystemAndExternalPatientSupport.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260309203555_AddReferralSystemAndExternalPatientSupport.cs",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260309203555_AddReferralSystemAndExternalPatientSupport.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260309203555_AddReferralSystemAndExternalPatientSupport.cs",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\Migrations\\20260309203555_AddReferralSystemAndExternalPatientSupport.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T17:03:38.293Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "NURSE_IMPLEMENTATION.md",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\NURSE_IMPLEMENTATION.md",
+              "RelativeDocumentMoniker": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\NURSE_IMPLEMENTATION.md",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\NURSE_IMPLEMENTATION.md",
+              "RelativeToolTip": "..\\Software Engineering\\Clinic(hospital sys)\\Clinic(hospital sys)\\backend\\NURSE_IMPLEMENTATION.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-20T14:30:59.552Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "ConsultationService.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ConsultationService.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\ConsultationService.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\ConsultationService.cs",
+              "RelativeToolTip": "backend\\Services\\ConsultationService.cs",
+              "ViewState": "AgIAAHQAAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:24:57.056Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "AuthDTOs.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\AuthDTOs.cs",
+              "RelativeDocumentMoniker": "backend\\Data\\DTOs\\AuthDTOs.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\AuthDTOs.cs",
+              "RelativeToolTip": "backend\\Data\\DTOs\\AuthDTOs.cs",
+              "ViewState": "AgIAAFgAAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:14:42.035Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "ClinicDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\ClinicDbContext.cs",
+              "RelativeDocumentMoniker": "backend\\Data\\ClinicDbContext.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\ClinicDbContext.cs",
+              "RelativeToolTip": "backend\\Data\\ClinicDbContext.cs",
+              "ViewState": "AgIAAOUAAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:11:18.921Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "UserModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\UserModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\UserModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\UserModel.cs",
+              "RelativeToolTip": "backend\\Models\\UserModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-16T17:14:42.161Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "NurseDTOs.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\NurseDTOs.cs",
+              "RelativeDocumentMoniker": "backend\\Data\\DTOs\\NurseDTOs.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Data\\DTOs\\NurseDTOs.cs",
+              "RelativeToolTip": "backend\\Data\\DTOs\\NurseDTOs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:16:36.837Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "MappingProfile.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Mappings\\MappingProfile.cs",
+              "RelativeDocumentMoniker": "backend\\Mappings\\MappingProfile.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Mappings\\MappingProfile.cs",
+              "RelativeToolTip": "backend\\Mappings\\MappingProfile.cs",
+              "ViewState": "AgIAAHUAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:17:46.64Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "UserRole.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Enums\\UserRole.cs",
+              "RelativeDocumentMoniker": "backend\\Enums\\UserRole.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Enums\\UserRole.cs",
+              "RelativeToolTip": "backend\\Enums\\UserRole.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAAAUAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-16T17:14:37.687Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "DoctorService.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\DoctorService.cs",
+              "RelativeDocumentMoniker": "backend\\Services\\DoctorService.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Services\\DoctorService.cs",
+              "RelativeToolTip": "backend\\Services\\DoctorService.cs",
+              "ViewState": "AgIAACoBAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-20T14:18:37.251Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "RegisterRequestValidator.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Validators\\RegisterRequestValidator.cs",
+              "RelativeDocumentMoniker": "backend\\Validators\\RegisterRequestValidator.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Validators\\RegisterRequestValidator.cs",
+              "RelativeToolTip": "backend\\Validators\\RegisterRequestValidator.cs",
+              "ViewState": "AgIAAEwAAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-16T17:14:24.654Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "PatientCareTaskModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\PatientCareTaskModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\PatientCareTaskModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\PatientCareTaskModel.cs",
+              "RelativeToolTip": "backend\\Models\\PatientCareTaskModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-16T17:14:04.228Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "NurseModel.cs",
+              "DocumentMoniker": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\NurseModel.cs",
+              "RelativeDocumentMoniker": "backend\\Models\\NurseModel.cs",
+              "ToolTip": "C:\\Users\\Best By\\OneDrive - Nile University\\Desktop\\Clinic(hospital sys)\\backend\\Models\\NurseModel.cs",
+              "RelativeToolTip": "backend\\Models\\NurseModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-16T17:04:18.18Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

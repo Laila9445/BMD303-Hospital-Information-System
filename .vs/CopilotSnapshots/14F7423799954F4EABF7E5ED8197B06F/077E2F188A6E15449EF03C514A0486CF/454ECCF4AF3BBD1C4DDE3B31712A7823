@@ -1,0 +1,27 @@
+﻿namespace CLINICSYSTEM.Models
+{
+  
+    public class PatientModel
+    {
+        public int PatientId { get; set; }
+             
+        public string ExternalPatientId { get; set; } = string.Empty;
+        
+       
+        public string FullName { get; set; } = string.Empty;
+        
+        
+        public string? PhoneNumber { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+        // Track when external ID was synchronized with external systems
+        public DateTime? ExternalIdSyncedAt { get; set; }
+
+        // Navigation properties (backward compatibility - will be deprecated)
+        public ICollection<AppointmentModel>? Appointments { get; set; }
+        public ICollection<MedicalRecordModel>? MedicalRecords { get; set; }
+        public ICollection<MedicalImageModel>? MedicalImages { get; set; }
+    }
+}

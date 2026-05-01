@@ -1,0 +1,123 @@
+﻿namespace CLINICSYSTEM.Events
+{
+    /// <summary>
+    /// Base interface for all clinic events
+    /// Used for pub/sub communication between systems
+    /// </summary>
+    public interface IClinicEvent
+    {
+        Guid EventId { get; }
+        DateTime Timestamp { get; }
+        string SourceSystem { get; }
+    }
+
+    /// <summary>
+    /// Published when doctor creates referral to external system (Physiotherapy/Radiology)
+    /// Contains patient info, diagnosis, and referral details
+    /// </summary>
+    public class ReferralCreatedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; } = Guid.NewGuid();
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string SourceSystem { get; set; } = "orthopedic";
+
+        // Referral details
+        public int ReferralId { get; set; }
+        public Guid PatientExternalId { get; set; }  // Universal UUID across systems
+        public string PatientName { get; set; } = string.Empty;
+        public string PatientPhone { get; set; } = string.Empty;
+        
+        // Doctor info
+        public int DoctorId { get; set; }
+        public string DoctorName { get; set; } = string.Empty;
+        
+        // Clinical info
+        public string ReferralType { get; set; } = string.Empty;  // "Physiotherapy", "Radiology"
+        public string Diagnosis { get; set; } = string.Empty;
+        public string Reason { get; set; } = string.Empty;
+        public string Priority { get; set; } = "Normal";  // "Low", "Normal", "High", "Urgent"
+        public string? Notes { get; set; }
+    }
+
+    /// <summary>
+    /// Published by external system (Physiotherapy) when referral is accepted
+    /// Indicates successful creation in external system
+    /// </summary>
+    public class ReferralAcceptedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; } = Guid.NewGuid();
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string SourceSystem { get; set; } = "physiotherapy";
+
+        public Guid PatientExternalId { get; set; }
+        public int RemoteReferralId { get; set; }     // External system's referral ID
+        public string Status { get; set; } = "Accepted";
+        public string? ExternalReferralId { get; set; }
+    }
+
+    /// <summary>
+    /// Published by Physiotherapy when appointment is scheduled for referred patient
+    /// </summary>
+    public class AppointmentScheduledEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; } = Guid.NewGuid();
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string SourceSystem { get; set; } = "physiotherapy";
+
+        public Guid PatientExternalId { get; set; }
+        public DateTime AppointmentDate { get; set; }
+        public TimeSpan AppointmentTime { get; set; }
+        public string TherapistName { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Published by Physiotherapy when therapy session is completed
+    /// Contains patient progress metrics (pain scores, assessments, etc.)
+    /// </summary>
+    public class SessionCompletedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; } = Guid.NewGuid();
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string SourceSystem { get; set; } = "physiotherapy";
+
+        public Guid PatientExternalId { get; set; }
+        public int PainScoreBefore { get; set; }      // 0-10 scale
+        public int PainScoreAfter { get; set; }       // 0-10 scale
+        public string Assessment { get; set; } = string.Empty;
+        public string Treatment { get; set; } = string.Empty;
+        public DateTime? NextAppointmentDate { get; set; }
+    }
+
+    /// <summary>
+    /// Published by Orthopedic when imaging is requested (X-ray, MRI, CT, etc.)
+    /// </summary>
+    public class ImagingRequestedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; } = Guid.NewGuid();
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string SourceSystem { get; set; } = "orthopedic";
+
+        public Guid PatientExternalId { get; set; }
+        public string ImagingType { get; set; } = string.Empty;      // "X-ray", "MRI", "CT", etc.
+        public string BodyPart { get; set; } = string.Empty;
+        public string Indication { get; set; } = string.Empty;
+        public string Priority { get; set; } = "Normal";
+    }
+
+    /// <summary>
+    /// Published by Radiology when imaging is completed and stored
+    /// Contains image storage URL (S3, Azure Blob, etc.)
+    /// </summary>
+    public class ImagingCompletedEvent : IClinicEvent
+    {
+        public Guid EventId { get; set; } = Guid.NewGuid();
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string SourceSystem { get; set; } = "radiology";
+
+        public Guid PatientExternalId { get; set; }
+        public string ImagingId { get; set; } = string.Empty;
+        public string StorageUrl { get; set; } = string.Empty;       // Cloud URL (S3, Azure Blob, etc.)
+        public DateTime CompletionDate { get; set; }
+    }
+}

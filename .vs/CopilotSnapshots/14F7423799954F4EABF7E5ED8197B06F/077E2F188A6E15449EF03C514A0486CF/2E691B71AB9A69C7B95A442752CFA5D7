@@ -1,0 +1,163 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using CLINICSYSTEM.Events;
+using CLINICSYSTEM.Services.EventConsumer;
+
+namespace CLINICSYSTEM.Controllers
+{
+    /// <summary>
+    /// Webhook endpoints for receiving integration callbacks from external systems
+    /// Used when direct event messaging is not available
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class ExternalIntegrationController : ControllerBase
+    {
+        private readonly ReferralAcceptedEventConsumer _referralAcceptedConsumer;
+        private readonly AppointmentScheduledEventConsumer _appointmentScheduledConsumer;
+        private readonly SessionCompletedEventConsumer _sessionCompletedConsumer;
+        private readonly ImagingCompletedEventConsumer _imagingCompletedConsumer;
+        private readonly ILogger<ExternalIntegrationController> _logger;
+
+        public ExternalIntegrationController(
+            ReferralAcceptedEventConsumer referralAcceptedConsumer,
+            AppointmentScheduledEventConsumer appointmentScheduledConsumer,
+            SessionCompletedEventConsumer sessionCompletedConsumer,
+            ImagingCompletedEventConsumer imagingCompletedConsumer,
+            ILogger<ExternalIntegrationController> logger)
+        {
+            _referralAcceptedConsumer = referralAcceptedConsumer;
+            _appointmentScheduledConsumer = appointmentScheduledConsumer;
+            _sessionCompletedConsumer = sessionCompletedConsumer;
+            _imagingCompletedConsumer = imagingCompletedConsumer;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Webhook endpoint: Physiotherapy accepts referral
+        /// </summary>
+        [HttpPost("referral/accepted")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ReferralAccepted([FromBody] ReferralAcceptedEvent @event)
+        {
+            try
+            {
+                if (@event == null)
+                    return BadRequest(new { message = "Event cannot be null" });
+
+                _logger.LogInformation($"Received ReferralAccepted webhook for patient {@event.PatientExternalId}");
+                await _referralAcceptedConsumer.HandleEvent(@event);
+
+                return Ok(new { message = "Referral acceptance processed successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing ReferralAccepted webhook");
+                return StatusCode(500, new { message = "Error processing event", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Webhook endpoint: Physiotherapy schedules appointment
+        /// </summary>
+        [HttpPost("appointment/scheduled")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AppointmentScheduled([FromBody] AppointmentScheduledEvent @event)
+        {
+            try
+            {
+                if (@event == null)
+                    return BadRequest(new { message = "Event cannot be null" });
+
+                _logger.LogInformation($"Received AppointmentScheduled webhook for patient {@event.PatientExternalId}");
+                await _appointmentScheduledConsumer.HandleEvent(@event);
+
+                return Ok(new { message = "Appointment scheduled processed successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing AppointmentScheduled webhook");
+                return StatusCode(500, new { message = "Error processing event", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Webhook endpoint: Physiotherapy completes therapy session
+        /// </summary>
+        [HttpPost("session/completed")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SessionCompleted([FromBody] SessionCompletedEvent @event)
+        {
+            try
+            {
+                if (@event == null)
+                    return BadRequest(new { message = "Event cannot be null" });
+
+                _logger.LogInformation($"Received SessionCompleted webhook for patient {@event.PatientExternalId}");
+                await _sessionCompletedConsumer.HandleEvent(@event);
+
+                return Ok(new { message = "Session completion processed successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing SessionCompleted webhook");
+                return StatusCode(500, new { message = "Error processing event", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Webhook endpoint: Radiology completes imaging with storage URL
+        /// </summary>
+        [HttpPost("imaging/completed")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ImagingCompleted([FromBody] ImagingCompletedEvent @event)
+        {
+            try
+            {
+                if (@event == null)
+                    return BadRequest(new { message = "Event cannot be null" });
+
+                _logger.LogInformation($"Received ImagingCompleted webhook for patient {@event.PatientExternalId}");
+                await _imagingCompletedConsumer.HandleEvent(@event);
+
+                return Ok(new { message = "Imaging completion processed successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing ImagingCompleted webhook");
+                return StatusCode(500, new { message = "Error processing event", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Health check endpoint: Verify system connectivity
+        /// </summary>
+        [HttpGet("health")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult HealthCheck()
+        {
+            return Ok(new
+            {
+                status = "healthy",
+                timestamp = DateTime.UtcNow,
+                version = "1.0",
+                integration = new
+                {
+                    rabbitmq = "configured",
+                    redis = "configured",
+                    externalSystems = new[] { "physiotherapy", "radiology" }
+                }
+            });
+        }
+    }
+}
