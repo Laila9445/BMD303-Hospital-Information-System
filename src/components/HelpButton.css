@@ -1,0 +1,235 @@
+/* ════════════════════════════════════════════
+   PhysioFit — Floating Help Button + Popup
+   ════════════════════════════════════════════ */
+
+/* ── Floating Button ── */
+.help-float-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #3BB4A6;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px 12px 16px;
+    cursor: pointer;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    box-shadow: 0 4px 20px rgba(59, 180, 166, .40);
+    transition: background .2s, transform .2s, box-shadow .2s;
+    animation: helpFadeIn .4s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes helpFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.help-float-btn:hover {
+    background: #5FBDB2;
+    box-shadow: 0 6px 28px rgba(59, 180, 166, .50);
+}
+
+.help-float-btn:active {
+    transform: scale(.96);
+}
+
+.help-float-btn.active {
+    background: #2a8f83;
+}
+
+.help-float-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.help-float-title {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.help-float-sub {
+    font-size: 11px;
+    opacity: .85;
+}
+
+/* ── Popup ── */
+.help-popup {
+    position: fixed;
+    bottom: 90px;
+    right: 28px;
+    z-index: 101;
+    width: 340px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, .15);
+    overflow: hidden;
+    animation: popupIn .3s cubic-bezier(.22, 1, .36, 1) both;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+@keyframes popupIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* header */
+.help-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.help-popup-header h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #2C2C2C;
+    margin: 0;
+}
+
+.help-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color .2s, background .2s;
+}
+
+.help-close-btn:hover {
+    color: #333;
+    background: #f0f0f0;
+}
+
+/* subtitle */
+.help-popup-sub {
+    font-size: 13px;
+    color: #717182;
+    line-height: 1.6;
+    margin: 0;
+    padding: 14px 20px 10px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+/* items */
+.help-popup-items {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.help-popup-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: background .2s;
+    cursor: default;
+}
+
+a.help-popup-item {
+    cursor: pointer;
+}
+
+a.help-popup-item:hover {
+    background: rgba(59, 180, 166, .08);
+}
+
+.help-popup-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(59, 180, 166, .12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3BB4A6;
+    flex-shrink: 0;
+}
+
+.help-popup-item>div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.help-popup-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #717182;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.help-popup-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2C2C2C;
+}
+
+.help-popup-closed {
+    font-size: 12px;
+    color: #e53e3e;
+    font-weight: 500;
+}
+
+/* close btn */
+.help-popup-close-btn {
+    width: calc(100% - 24px);
+    margin: 4px 12px 14px;
+    padding: 11px;
+    background: none;
+    border: 2px solid #E5E5E5;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2C2C2C;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .2s;
+}
+
+.help-popup-close-btn:hover {
+    background: #f5f5f5;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .help-popup {
+        width: calc(100vw - 32px);
+        right: 16px;
+    }
+
+    .help-float-btn {
+        right: 16px;
+        bottom: 20px;
+    }
+}

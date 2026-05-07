@@ -1,0 +1,29 @@
+# Public Assets Folder
+
+Files placed here will be served at the root `/`
+
+## Image Organization:
+
+```
+public/
+├── images/
+│   ├── logo.png
+│   ├── backgrounds/
+│   └── photos/
+├── fonts/
+└── docs/
+```
+
+## Usage:
+
+Reference files directly from your React components:
+
+```jsx
+// Image in public/images/
+<img src="/images/logo.png" alt="Logo" />
+
+// Background image
+<div style={{ backgroundImage: 'url(/images/backgrounds/pattern.jpg)' }}>
+  Content
+</div>
+```
