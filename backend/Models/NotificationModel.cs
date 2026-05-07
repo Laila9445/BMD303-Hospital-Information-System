@@ -1,7 +1,10 @@
-﻿namespace CLINICSYSTEM.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
 {
     public class NotificationModel
     {
+        [Key]
         public int NotificationId { get; set; }
         public int UserId { get; set; }
         public string Title { get; set; } = string.Empty;

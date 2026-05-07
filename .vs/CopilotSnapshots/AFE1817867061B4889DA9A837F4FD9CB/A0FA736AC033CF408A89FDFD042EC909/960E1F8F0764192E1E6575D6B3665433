@@ -1,0 +1,57 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CLINICSYSTEM.Models
+{
+    /// <summary>
+    /// Appointment model for managing patient appointments
+    /// Supports external patient IDs for integrated hospital system
+    /// </summary>
+    public class AppointmentModel
+    {
+        [Key]
+        public int AppointmentId { get; set; }
+
+        [Required]
+        [ForeignKey("Doctor")]
+        public int DoctorId { get; set; }
+
+        public DoctorModel? Doctor { get; set; }
+
+        /// <summary>
+        /// Internal patient ID - kept for backward compatibility
+        /// Will be phased out when fully migrated to external patient system
+        /// </summary>
+        public int? PatientId { get; set; }
+
+        /// <summary>
+        /// External patient ID from the Patient Portal system
+        /// This will be the primary patient identifier in the integrated hospital system
+        /// </summary>
+        public string? PatientExternalId { get; set; }
+
+        [Required]
+        [ForeignKey("TimeSlot")]
+        public int TimeSlotId { get; set; }
+        public TimeSlotModel? TimeSlot { get; set; }
+        [Required]
+        public string Status { get; set; } = string.Empty;
+        // Scheduled, Active, Completed, Cancelled
+
+        public string? ReasonForVisit { get; set; }
+        [Required]
+        public DateTime BookedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? CanceledAt { get; set; }
+        public string? CancellationReason { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
+        // Navigation properties
+        /// <summary>
+        /// Optional - kept for backward compatibility
+        /// </summary>
+        public PatientModel? Patient { get; set; }
+
+        public ConsultationModel? Consultation { get; set; }
+    }
+}

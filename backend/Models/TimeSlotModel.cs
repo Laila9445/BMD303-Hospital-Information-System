@@ -1,7 +1,10 @@
-﻿namespace CLINICSYSTEM.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
 {
     public class TimeSlotModel
     {
+        [Key]
         public int TimeSlotId { get; set; }
         public int ScheduleId { get; set; }
         public DateTime SlotDate { get; set; }

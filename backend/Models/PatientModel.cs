@@ -1,8 +1,11 @@
-﻿namespace CLINICSYSTEM.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
 {
   
     public class PatientModel
     {
+        [Key]
         public int PatientId { get; set; }
              
         public string ExternalPatientId { get; set; } = string.Empty;

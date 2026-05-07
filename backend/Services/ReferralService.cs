@@ -20,7 +20,7 @@ namespace CLINICSYSTEM.Services
             ILogger<ReferralService> logger)
         {
             _context = context;
-            _httpClientFactory = httpClientFactory;
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _configuration = configuration;
             _logger = logger;
         }

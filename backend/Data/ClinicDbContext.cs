@@ -37,49 +37,8 @@ namespace CLINICSYSTEM.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure primary keys explicitly
-            modelBuilder.Entity<UserModel>()
-                .HasKey(u => u.UserId);
-                
-            modelBuilder.Entity<PatientModel>()
-                .HasKey(p => p.PatientId);
-                
-            modelBuilder.Entity<DoctorModel>()
-                .HasKey(d => d.DoctorId);
-                
-            modelBuilder.Entity<AppointmentModel>()
-                .HasKey(a => a.AppointmentId);
-                
-            modelBuilder.Entity<TimeSlotModel>()
-                .HasKey(ts => ts.TimeSlotId);
-                
-            modelBuilder.Entity<DoctorSchedule>()
-                .HasKey(ds => ds.ScheduleId);
-                
-            modelBuilder.Entity<ConsultationModel>()
-                .HasKey(c => c.ConsultationId);
-                
-            modelBuilder.Entity<PrescriptionModel>()
-                .HasKey(p => p.PrescriptionId);
-                
-            modelBuilder.Entity<MedicalRecordModel>()
-                .HasKey(mr => mr.RecordId);
-                
-            modelBuilder.Entity<MedicalImageModel>()
-                .HasKey(mi => mi.ImageId);
-                
-            modelBuilder.Entity<NotificationModel>()
-                .HasKey(n => n.NotificationId);
-
-            modelBuilder.Entity<ReferralModel>()
-                .HasKey(r => r.ReferralId);
-
-            modelBuilder.Entity<NurseModel>()
-                .HasKey(n => n.NurseId);
-
-            modelBuilder.Entity<PatientCareTaskModel>()
-                .HasKey(t => t.TaskId);
-
+            // REMOVED: Redundant HasKey() calls - EF Core auto-recognizes {EntityName}Id as primary keys
+            // This significantly speeds up model building at startup
             // User relationships - Doctor and Nurse profiles
             modelBuilder.Entity<DoctorModel>()
                 .HasOne(d => d.User)

@@ -1,0 +1,47 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CLINICSYSTEM.Models
+{
+    /// <summary>
+    /// Consultation model for managing doctor-patient consultations
+    /// </summary>
+    public class ConsultationModel
+    {
+        [Key]
+        public int ConsultationId { get; set; }
+
+        [Required]
+        [ForeignKey("Appointment")]
+        public int AppointmentId { get; set; }
+
+        public AppointmentModel? Appointment { get; set; }
+
+        [Required]
+        public DateTime ConsultationDate { get; set; }
+
+        [Required]
+        public TimeSpan StartTime { get; set; }
+
+        public TimeSpan? EndTime { get; set; }
+
+        [Required]
+        public string Status { get; set; } = "In Progress"; // In Progress, Completed
+
+        public string? Symptoms { get; set; }
+
+        public string? Diagnosis { get; set; }
+
+        public string? Notes { get; set; }
+
+        [Required]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime? UpdatedAt { get; set; }
+
+        // Navigation properties
+        public ICollection<PrescriptionModel>? Prescriptions { get; set; }
+
+        public ICollection<MedicalRecordModel>? MedicalRecords { get; set; }
+    }
+}

@@ -72,7 +72,7 @@ namespace CLINICSYSTEM.Controllers
             catch (BusinessException ex)
             {
                 _logger.LogWarning("Business error creating referral: {Message}", ex.Message);
-                return BadRequest(new { message = ex.Message, code = ex.Code });
+                return BadRequest(new { message = ex.Message, code = ex.MachineCode });
             }
             catch (Exception ex)
             {
@@ -237,7 +237,7 @@ namespace CLINICSYSTEM.Controllers
             catch (BusinessException ex)
             {
                 _logger.LogWarning("Business error updating referral status: {Message}", ex.Message);
-                return BadRequest(new { message = ex.Message, code = ex.Code });
+                return BadRequest(new { message = ex.Message, code = ex.MachineCode });
             }
             catch (Exception ex)
             {
@@ -310,7 +310,7 @@ namespace CLINICSYSTEM.Controllers
             catch (BusinessException ex)
             {
                 _logger.LogWarning("Business error sending referral: {Message}", ex.Message);
-                return BadRequest(new { message = ex.Message, code = ex.Code });
+                return BadRequest(new { message = ex.Message, code = ex.MachineCode });
             }
             catch (Exception ex)
             {

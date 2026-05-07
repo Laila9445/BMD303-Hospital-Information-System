@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FluentValidation; // for ValidationException from FluentValidation
+using FluentValidation; // for  from FluentValidation
 using CLINICSYSTEM.Exceptions;
 
 namespace CLINICSYSTEM.Middleware
 {
     /// <summary>
     /// Global exception handling middleware producing a standard JSON error envelope.
-    /// Register with app.UseMiddleware<GlobalExceptionHandler>();
+    /// Register with app.UseMiddleware&lt;GlobalExceptionHandler&gt;();
     /// </summary>
     public class GlobalExceptionHandler
     {

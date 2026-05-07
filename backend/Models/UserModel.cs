@@ -1,4 +1,7 @@
-﻿namespace CLINICSYSTEM.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
 {
     /// <summary>
     /// User model for Clinic System authentication
@@ -6,14 +9,24 @@
     /// </summary>
     public class UserModel
     {
+        [Key]
         public int UserId { get; set; }
+        [Required]
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
+        [Phone]
+        public string? PhoneNumber { get; set; }
+        [Required]
+        [StringLength(50)]
         public string FirstName { get; set; } = string.Empty;
+        [Required]
+        [StringLength(50)]
         public string LastName { get; set; } = string.Empty;
+        [Required]
         public string Role { get; set; } = string.Empty; // "Doctor", "Admin", "Staff", "Nurse"
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
         public bool IsActive { get; set; } = true;
 
         // Navigation properties

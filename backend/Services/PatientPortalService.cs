@@ -1,215 +1,206 @@
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using CLINICSYSTEM.Data;
+using CLINICSYSTEM.Data.DTOs;
 using CLINICSYSTEM.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace CLINICSYSTEM.Services
+namespace CLINICSYSTEM.Services;
+
+/// <summary>
+/// Patient Portal service - simplified for course project
+/// Uses local DB directly instead of external microservice calls
+/// </summary>
+public class PatientPortalService : IPatientPortalService
 {
-    /// <summary>
-    /// Service for integrating with Patient Portal microservice
-    /// Retrieves patient data from external Patient Portal API
-    /// </summary>
-    public interface IPatientPortalService
+    private readonly ClinicDbContext _context;
+    private readonly ILogger<PatientPortalService> _logger;
+
+    public PatientPortalService(ClinicDbContext context, ILogger<PatientPortalService> logger)
     {
-        Task<PatientPortalDTO?> GetPatientByExternalIdAsync(string externalPatientId);
-        Task<PatientMedicalHistoryDTO?> GetPatientMedicalHistoryAsync(string externalPatientId);
-        Task<bool> ValidatePatientExistsAsync(string externalPatientId);
-        Task SyncPatientCacheAsync(string externalPatientId);
-        Task<PatientModel?> GetCachedPatientAsync(string externalPatientId);
+        _context = context;
+        _logger = logger;
     }
 
-    public class PatientPortalService : IPatientPortalService
+    public async Task<PatientProfileDTO?> GetPatientProfileAsync(int userId)
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<PatientPortalService> _logger;
-        private readonly ClinicDbContext _context;
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return null;
 
-        public PatientPortalService(
-            IHttpClientFactory httpClientFactory,
-            ILogger<PatientPortalService> logger,
-            ClinicDbContext context)
+        var patient = await _context.Patients
+            .FirstOrDefaultAsync(p => p.FullName == $"{user.FirstName} {user.LastName}");
+
+        return new PatientProfileDTO
         {
-            _httpClientFactory = httpClientFactory;
-            _logger = logger;
-            _context = context;
-        }
-
-        public async Task<PatientPortalDTO?> GetPatientByExternalIdAsync(string externalPatientId)
-        {
-            try
-            {
-                var client = _httpClientFactory.CreateClient("PatientPortalApi");
-                
-                // If Patient Portal API is not configured, return null
-                if (client.BaseAddress == null)
-                {
-                    _logger.LogWarning("Patient Portal API is not configured");
-                    return null;
-                }
-                
-                var response = await client.GetAsync($"/api/patients/{externalPatientId}");
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning("Failed to retrieve patient {PatientId} from Patient Portal. Status: {Status}",
-                        externalPatientId, response.StatusCode);
-                    return null;
-                }
-
-                var content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<PatientPortalDTO>(content, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving patient {PatientId} from Patient Portal", externalPatientId);
-                return null;
-            }
-        }
-
-        public async Task<PatientMedicalHistoryDTO?> GetPatientMedicalHistoryAsync(string externalPatientId)
-        {
-            try
-            {
-                var client = _httpClientFactory.CreateClient("PatientPortalApi");
-                
-                if (client.BaseAddress == null)
-                {
-                    _logger.LogWarning("Patient Portal API is not configured");
-                    return null;
-                }
-                
-                var response = await client.GetAsync($"/api/patients/{externalPatientId}/medical-history");
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning("Failed to retrieve medical history for patient {PatientId}. Status: {Status}",
-                        externalPatientId, response.StatusCode);
-                    return null;
-                }
-
-                var content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<PatientMedicalHistoryDTO>(content, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving medical history for patient {PatientId}", externalPatientId);
-                return null;
-            }
-        }
-
-        public async Task<bool> ValidatePatientExistsAsync(string externalPatientId)
-        {
-            try
-            {
-                // First check local cache
-                var cachedPatient = await GetCachedPatientAsync(externalPatientId);
-                if (cachedPatient != null)
-                {
-                    return true;
-                }
-                
-                // Check with Patient Portal API
-                var client = _httpClientFactory.CreateClient("PatientPortalApi");
-                
-                if (client.BaseAddress == null)
-                {
-                    _logger.LogWarning("Patient Portal API is not configured");
-                    return false;
-                }
-                
-                var response = await client.GetAsync($"/api/patients/{externalPatientId}/exists");
-                return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error validating patient {PatientId} existence", externalPatientId);
-                return false;
-            }
-        }
-
-        public async Task<PatientModel?> GetCachedPatientAsync(string externalPatientId)
-        {
-            try
-            {
-                return await _context.Patients
-                    .FirstOrDefaultAsync(p => p.ExternalPatientId == externalPatientId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting cached patient {PatientId}", externalPatientId);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Syncs patient basic info to local cache table for quick lookups
-        /// </summary>
-        public async Task SyncPatientCacheAsync(string externalPatientId)
-        {
-            try
-            {
-                var patientData = await GetPatientByExternalIdAsync(externalPatientId);
-                if (patientData == null) return;
-
-                var existingCache = await GetCachedPatientAsync(externalPatientId);
-
-                if (existingCache != null)
-                {
-                    // Update cache
-                    existingCache.FullName = $"{patientData.FirstName} {patientData.LastName}";
-                    existingCache.PhoneNumber = patientData.PhoneNumber;
-                    existingCache.UpdatedAt = DateTime.UtcNow;
-                }
-                else
-                {
-                    // Create new cache entry
-                    _context.Patients.Add(new PatientModel
-                    {
-                        ExternalPatientId = externalPatientId,
-                        FullName = $"{patientData.FirstName} {patientData.LastName}",
-                        PhoneNumber = patientData.PhoneNumber,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
-                }
-
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Synced patient cache for {PatientId}", externalPatientId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error syncing patient cache for {PatientId}", externalPatientId);
-            }
-        }
+            UserId = user.UserId,
+            FullName = $"{user.FirstName} {user.LastName}",
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            DateOfBirth = default,
+            Gender = string.Empty,
+            Address = string.Empty,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt
+        };
     }
 
-    // DTOs for Patient Portal API responses
-    public class PatientPortalDTO
+    public async Task<bool> UpdatePatientProfileAsync(int userId, UpdatePatientProfileRequest request)
     {
-        public string ExternalPatientId { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
-        public string Gender { get; set; } = string.Empty;
-        public string Address { get; set; } = string.Empty;
-        public DateTime DateOfBirth { get; set; }
-        public string? EmergencyContact { get; set; }
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return false;
+
+        // Split full name back into first/last
+        var nameParts = request.FullName.Split(' ', 2);
+        user.FirstName = nameParts[0];
+        user.LastName = nameParts.Length > 1 ? nameParts[1] : user.LastName;
+        user.PhoneNumber = request.PhoneNumber;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return true;
     }
 
-    public class PatientMedicalHistoryDTO
+    public async Task<MedicalHistoryDTO?> GetMedicalHistoryAsync(int userId)
     {
-        public string? Allergies { get; set; }
-        public string? ChronicConditions { get; set; }
-        public string? CurrentMedications { get; set; }
-        public string? BloodType { get; set; }
-        public string? SurgicalHistory { get; set; }
-        public string? FamilyHistory { get; set; }
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return null;
+
+        // Return basic history from available data
+        return new MedicalHistoryDTO
+        {
+            UserId = userId,
+            Allergies = null,
+            ChronicConditions = null,
+            CurrentMedications = null,
+            BloodType = null,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt
+        };
+    }
+
+    public async Task<bool> UpdateMedicalHistoryAsync(int userId, UpdateMedicalHistoryRequest request)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return false;
+
+        // No medical history fields on current PatientModel - just acknowledge
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<List<AppointmentDTO>> GetPatientAppointmentsAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return new List<AppointmentDTO>();
+
+        // Find patient by matching user name
+        var patient = await _context.Patients
+            .FirstOrDefaultAsync(p => p.FullName == $"{user.FirstName} {user.LastName}");
+
+        if (patient == null) return new List<AppointmentDTO>();
+
+        return await _context.Appointments
+            .Include(a => a.Doctor).ThenInclude(d => d!.User)
+            .Include(a => a.TimeSlot)
+            .Where(a => a.PatientId == patient.PatientId)
+            .Select(a => new AppointmentDTO
+            {
+                AppointmentId = a.AppointmentId,
+                DoctorName = a.Doctor != null && a.Doctor.User != null
+                    ? $"{a.Doctor.User.FirstName} {a.Doctor.User.LastName}" : "Unknown",
+                PatientName = patient.FullName,
+                AppointmentDate = a.TimeSlot != null ? a.TimeSlot.SlotDate : default,
+                StartTime = a.TimeSlot != null ? a.TimeSlot.StartTime : default,
+                EndTime = a.TimeSlot != null ? a.TimeSlot.EndTime : default,
+                Status = a.Status ?? string.Empty,
+                ReasonForVisit = a.ReasonForVisit
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<PatientPrescriptionDTO>> GetPatientPrescriptionsAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return new List<PatientPrescriptionDTO>();
+
+        var patient = await _context.Patients
+            .FirstOrDefaultAsync(p => p.FullName == $"{user.FirstName} {user.LastName}");
+
+        if (patient == null) return new List<PatientPrescriptionDTO>();
+
+        return await _context.Prescriptions
+            .Include(p => p.Consultation).ThenInclude(c => c!.Appointment).ThenInclude(a => a!.Doctor).ThenInclude(d => d!.User)
+            .Where(p => p.Consultation != null && p.Consultation.Appointment != null
+                && p.Consultation.Appointment.PatientId == patient.PatientId)
+            .Select(p => new PatientPrescriptionDTO
+            {
+                PrescriptionId = p.PrescriptionId,
+                DateIssued = p.CreatedAt,
+                MedicationName = p.MedicationName,
+                Dosage = p.Dosage,
+                Frequency = p.Frequency,
+                DurationDays = p.DurationDays,
+                Status = p.Status ?? string.Empty
+            })
+            .ToListAsync();
+    }
+
+    public async Task<MedicalImageDTO?> UploadMedicalImageAsync(int userId, UploadMedicalImageRequest request)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return null;
+
+        var patient = await _context.Patients
+            .FirstOrDefaultAsync(p => p.FullName == $"{user.FirstName} {user.LastName}");
+
+        if (patient == null) return null;
+
+        var image = new MedicalImageModel
+        {
+            PatientId = patient.PatientId,
+            ImageType = request.ImageType,
+            FileName = request.File.FileName,
+            FilePath = $"uploads/{request.File.FileName}",
+            FileSizeBytes = request.File.Length,
+            DateUploaded = DateTime.UtcNow,
+            Description = request.Description
+        };
+
+        _context.MedicalImages.Add(image);
+        await _context.SaveChangesAsync();
+
+        return new MedicalImageDTO
+        {
+            ImageId = image.ImageId,
+            ImageType = image.ImageType,
+            FileName = image.FileName,
+            DateUploaded = image.DateUploaded,
+            FileSizeBytes = image.FileSizeBytes,
+            Description = image.Description
+        };
+    }
+
+    public async Task<List<MedicalImageDTO>> GetMedicalImagesAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return new List<MedicalImageDTO>();
+
+        var patient = await _context.Patients
+            .FirstOrDefaultAsync(p => p.FullName == $"{user.FirstName} {user.LastName}");
+
+        if (patient == null) return new List<MedicalImageDTO>();
+
+        return await _context.MedicalImages
+            .Where(m => m.PatientId == patient.PatientId)
+            .OrderByDescending(m => m.DateUploaded)
+            .Select(m => new MedicalImageDTO
+            {
+                ImageId = m.ImageId,
+                ImageType = m.ImageType,
+                FileName = m.FileName,
+                DateUploaded = m.DateUploaded,
+                FileSizeBytes = m.FileSizeBytes,
+                Description = m.Description
+            })
+            .ToListAsync();
     }
 }

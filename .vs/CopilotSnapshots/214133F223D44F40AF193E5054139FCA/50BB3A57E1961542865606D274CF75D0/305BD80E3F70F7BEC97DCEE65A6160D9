@@ -1,0 +1,100 @@
+﻿namespace CLINICSYSTEM.Models
+{
+    /// <summary>
+    /// Nurse model for clinic staff management
+    /// </summary>
+    public class NurseModel
+    {
+        public int NurseId { get; set; }
+        public int UserId { get; set; }
+        public string LicenseNumber { get; set; } = string.Empty;
+        public string Specialization { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public bool IsActive { get; set; } = true;
+
+        // Navigation properties
+        public UserModel? User { get; set; }
+        public ICollection<PatientCareTaskModel>? CareTasks { get; set; }
+    }
+
+    /// <summary>
+    /// Patient Care Task model for nursing staff
+    /// </summary>
+    public class PatientCareTaskModel
+    {
+        public int TaskId { get; set; }
+        public int NurseId { get; set; }
+        public string PatientExternalId { get; set; } = string.Empty;
+        public string TaskDescription { get; set; } = string.Empty;
+        public string Status { get; set; } = "Pending";
+        public DateTime ScheduledAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public string? Notes { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+        // Navigation properties
+        public NurseModel? Nurse { get; set; }
+    }
+
+    /// <summary>
+    /// Medical Imaging model for managing medical imaging records
+    /// </summary>
+    public class MedicalImagingModel
+    {
+        public int ImagingId { get; set; }
+        public string PatientExternalId { get; set; } = string.Empty;
+        public int? DoctorId { get; set; }
+        public string ImagingType { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public DateTime ImagingDate { get; set; }
+        public string ImagePath { get; set; } = string.Empty;
+        public string Status { get; set; } = "Pending";
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+        // Navigation properties
+        public DoctorModel? Doctor { get; set; }
+    }
+
+    /// <summary>
+    /// Therapy Session model for tracking therapy sessions
+    /// </summary>
+    public class TherapySessionModel
+    {
+        public int SessionId { get; set; }
+        public int TherapyPlanId { get; set; }
+        public string PatientExternalId { get; set; } = string.Empty;
+        public DateTime SessionDate { get; set; }
+        public string Status { get; set; } = "Scheduled";
+        public string? Notes { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+        // Navigation properties
+        public TherapyPlanModel? TherapyPlan { get; set; }
+    }
+
+    /// <summary>
+    /// Therapy Plan model for managing therapy plans
+    /// </summary>
+    public class TherapyPlanModel
+    {
+        public int PlanId { get; set; }
+        public string PatientExternalId { get; set; } = string.Empty;
+        public int? DoctorId { get; set; }
+        public string TherapyType { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public int NumberOfSessions { get; set; }
+        public string Status { get; set; } = "Active";
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+        // Navigation properties
+        public DoctorModel? Doctor { get; set; }
+        public ICollection<TherapySessionModel>? Sessions { get; set; }
+    }
+}

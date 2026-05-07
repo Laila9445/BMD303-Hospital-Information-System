@@ -25,6 +25,12 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<MedicalRecordModel>? _medicalRecords;
     private IRepository<MedicalImageModel>? _medicalImages;
     private IRepository<NotificationModel>? _notifications;
+    private IRepository<ReferralModel>? _referrals;
+    private IRepository<NurseModel>? _nurses;
+    private IRepository<PatientCareTaskModel>? _patientCareTasks;
+    private IRepository<TherapyPlanModel>? _therapyPlans;
+    private IRepository<TherapySessionModel>? _therapySessions;
+    private IRepository<MedicalImagingModel>? _medicalImagings;
 
     // Dictionary for generic repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -47,6 +53,12 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<MedicalRecordModel> MedicalRecords => _medicalRecords ??= new Repository<MedicalRecordModel>(_context);
     public IRepository<MedicalImageModel> MedicalImages => _medicalImages ??= new Repository<MedicalImageModel>(_context);
     public IRepository<NotificationModel> Notifications => _notifications ??= new Repository<NotificationModel>(_context);
+    public IRepository<ReferralModel> Referrals => _referrals ??= new Repository<ReferralModel>(_context);
+    public IRepository<NurseModel> Nurses => _nurses ??= new Repository<NurseModel>(_context);
+    public IRepository<PatientCareTaskModel> PatientCareTasks => _patientCareTasks ??= new Repository<PatientCareTaskModel>(_context);
+    public IRepository<TherapyPlanModel> TherapyPlans => _therapyPlans ??= new Repository<TherapyPlanModel>(_context);
+    public IRepository<TherapySessionModel> TherapySessions => _therapySessions ??= new Repository<TherapySessionModel>(_context);
+    public IRepository<MedicalImagingModel> MedicalImagings => _medicalImagings ??= new Repository<MedicalImagingModel>(_context);
 
     #endregion
 

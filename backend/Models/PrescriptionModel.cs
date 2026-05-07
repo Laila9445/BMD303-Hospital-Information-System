@@ -1,7 +1,10 @@
-﻿namespace CLINICSYSTEM.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
 {
     public class PrescriptionModel
     {
+        [Key]
         public int PrescriptionId { get; set; }
         public int ConsultationId { get; set; }
         public string MedicationName { get; set; } = string.Empty;

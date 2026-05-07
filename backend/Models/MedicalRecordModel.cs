@@ -1,4 +1,6 @@
-﻿namespace CLINICSYSTEM.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
 {
     /// <summary>
     /// Medical records for clinic consultations
@@ -7,6 +9,7 @@
     /// </summary>
     public class MedicalRecordModel
     {
+        [Key]
         public int RecordId { get; set; }
         
         /// <summary>

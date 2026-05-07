@@ -1,16 +1,36 @@
-﻿namespace CLINICSYSTEM.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CLINICSYSTEM.Models
 {
+    /// <summary>
+    /// Doctor model for managing doctor profiles
+    /// </summary>
     public class DoctorModel
     {
+        [Key]
         public int DoctorId { get; set; }
+
+        [Required]
+        [ForeignKey("User")]
         public int UserId { get; set; }
-        public string Specialization { get; set; } = "Orthopedic Specialist";
+        public UserModel? User { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Specialization { get; set; } = string.Empty;
+
+        [StringLength(20)]
         public string? LicenseNumber { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+
+        public bool IsActive { get; set; } = true;
+
+        [Required]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime? UpdatedAt { get; set; }
 
         // Navigation properties
-        public UserModel? User { get; set; }
         public ICollection<DoctorSchedule>? Schedules { get; set; }
         public ICollection<AppointmentModel>? Appointments { get; set; }
         public ICollection<ConsultationModel>? Consultations { get; set; }

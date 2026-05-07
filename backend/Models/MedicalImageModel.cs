@@ -1,4 +1,6 @@
-﻿namespace CLINICSYSTEM.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CLINICSYSTEM.Models
 {
     /// <summary>
     /// Medical images for clinic system
@@ -7,6 +9,7 @@
     /// </summary>
     public class MedicalImageModel
     {
+        [Key]
         public int ImageId { get; set; }
         
         /// <summary>

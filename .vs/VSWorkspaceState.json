@@ -1,14 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\backend",
-    "\\backend\\Controllers",
-    "\\backend\\Data",
-    "\\backend\\Data\\DTOs",
-    "\\backend\\Middleware",
-    "\\backend\\Models",
-    "\\backend\\Services"
+    "\\backend"
   ],
-  "SelectedNode": "\\backend\\Controllers\\ReferralsController.cs",
+  "SelectedNode": "\\backend\\Constants",
   "PreviewInSolutionExplorer": false
 }
