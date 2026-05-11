@@ -37,7 +37,7 @@ namespace CLINICSYSTEM.Controllers
             return Ok(slots);
         }
 
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = "Patient,Doctor")]
         [HttpPost("book")]
         public async Task<IActionResult> BookAppointment([FromBody] BookAppointmentRequest request)
         {
@@ -64,7 +64,7 @@ namespace CLINICSYSTEM.Controllers
             return Ok(new { message = "Appointment rescheduled successfully" });
         }
 
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = "Patient,Doctor")]
         [HttpPut("cancel")]
         public async Task<IActionResult> CancelAppointment([FromBody] CancelAppointmentRequest request)
         {
