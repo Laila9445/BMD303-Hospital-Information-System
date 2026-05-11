@@ -26,7 +26,6 @@ namespace CLINICSYSTEM.Services
         // =========================
         public async Task<List<TimeSlotDTO>> GetAvailableSlotsAsync(int doctorId, DateTime startDate, DateTime endDate)
         {
-            // Step 1: safe EF query (NO complex ordering, NO risky translation)
             var slots = await _context.TimeSlots
                 .Include(ts => ts.Schedule)
                 .Where(ts =>
@@ -45,11 +44,40 @@ namespace CLINICSYSTEM.Services
                 })
                 .ToListAsync();
 
-            // Step 2: safe in-memory sorting (fixes SQLite translation crash)
             return slots
                 .OrderBy(x => x.SlotDate)
                 .ThenBy(x => x.StartTime)
                 .ToList();
+        }
+
+        // =========================
+        // CREATE APPOINTMENT (MISSING - FIXED)
+        // =========================
+        public async Task<bool> CreateAppointmentAsync(int patientId, CreateAppointmentRequest request)
+        {
+            var timeSlot = await _context.TimeSlots.FindAsync(request.TimeSlotId);
+
+            if (timeSlot == null || timeSlot.Status != "Available")
+                return false;
+
+            var appointment = new AppointmentModel
+            {
+                
+                PatientId = patientId,
+                TimeSlotId = request.TimeSlotId,
+                Status = "Scheduled",
+                ReasonForVisit = request.ReasonForVisit,
+                BookedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            timeSlot.Status = "Booked";
+
+            _context.Appointments.Add(appointment);
+            _context.TimeSlots.Update(timeSlot);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
         // =========================
@@ -69,7 +97,7 @@ namespace CLINICSYSTEM.Services
 
             var appointment = new AppointmentModel
             {
-                DoctorId = request.DoctorId,
+            
                 PatientId = patientId,
                 TimeSlotId = request.TimeSlotId,
                 Status = "Scheduled",
@@ -84,21 +112,38 @@ namespace CLINICSYSTEM.Services
             _context.TimeSlots.Update(timeSlot);
             await _context.SaveChangesAsync();
 
-            var doctor = await _context.Doctors
-                .Include(d => d.User)
-                .FirstOrDefaultAsync(d => d.DoctorId == request.DoctorId);
+            return await GetAppointmentDetailsAsync(appointment.AppointmentId);
+        }
 
-            if (doctor?.User != null)
+        // =========================
+        // GET DOCTOR APPOINTMENTS (MISSING - FIXED)
+        // =========================
+        public async Task<List<AppointmentDTO>> GetDoctorAppointmentsAsync(int doctorId, DateTime? date)
+        {
+            var query = _context.Appointments
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                .Include(a => a.TimeSlot)
+                .Where(a => a.DoctorId == doctorId);
+
+            if (date.HasValue)
             {
-                await _notificationService.CreateNotificationAsync(doctor.UserId, new CreateNotificationRequest
-                {
-                    Title = "New Appointment",
-                    Message = $"Patient booked an appointment on {timeSlot.SlotDate:MMM dd, yyyy}",
-                    Type = "Appointment"
-                });
+                query = query.Where(a => a.TimeSlot.SlotDate.Date == date.Value.Date);
             }
 
-            return await GetAppointmentDetailsAsync(appointment.AppointmentId);
+            var result = await query.ToListAsync();
+
+            return result.Select(a => new AppointmentDTO
+            {
+                AppointmentId = a.AppointmentId,
+                DoctorName = $"{a.Doctor.User.FirstName} {a.Doctor.User.LastName}",
+                PatientName = "",
+                AppointmentDate = a.TimeSlot.SlotDate,
+                StartTime = a.TimeSlot.StartTime,
+                EndTime = a.TimeSlot.EndTime,
+                Status = a.Status,
+                ReasonForVisit = a.ReasonForVisit
+            }).ToList();
         }
 
         // =========================
@@ -119,23 +164,12 @@ namespace CLINICSYSTEM.Services
             if (newSlot == null || newSlot.Status != "Available")
                 return false;
 
-            var newDateTime = newSlot.SlotDate.Add(newSlot.StartTime);
-
-            if (newDateTime < _dateTimeProvider.UtcNow)
-                return false;
-
             if (appointment.TimeSlot != null)
-            {
                 appointment.TimeSlot.Status = "Available";
-                _context.TimeSlots.Update(appointment.TimeSlot);
-            }
 
             newSlot.Status = "Booked";
             appointment.TimeSlotId = request.NewTimeSlotId;
             appointment.UpdatedAt = DateTime.UtcNow;
-
-            _context.Appointments.Update(appointment);
-            _context.TimeSlots.Update(newSlot);
 
             await _context.SaveChangesAsync();
             return true;
@@ -156,18 +190,11 @@ namespace CLINICSYSTEM.Services
 
             appointment.Status = "Cancelled";
             appointment.CanceledAt = DateTime.UtcNow;
-            appointment.CancellationReason = request.CancellationReason;
-            appointment.UpdatedAt = DateTime.UtcNow;
 
             if (appointment.TimeSlot != null)
-            {
                 appointment.TimeSlot.Status = "Available";
-                _context.TimeSlots.Update(appointment.TimeSlot);
-            }
 
-            _context.Appointments.Update(appointment);
             await _context.SaveChangesAsync();
-
             return true;
         }
 

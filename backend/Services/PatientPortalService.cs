@@ -35,54 +35,42 @@ namespace CLINICSYSTEM.Services
                 FullName = $"{user.FirstName} {user.LastName}",
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-
-                // Not in DB → safe nulls
                 DateOfBirth = patient?.DateOfBirth ?? DateTime.MinValue,
                 Gender = patient?.Gender ?? string.Empty,
                 Address = patient?.Address ?? string.Empty,
-
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
             };
         }
 
         public async Task<bool> UpdatePatientProfileAsync(int userId, UpdatePatientProfileRequest request)
-{
-    var user = await _context.Users.FindAsync(userId);
-    if (user == null) return false;
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return false;
 
-    var patient = await _context.Patients
-        .FirstOrDefaultAsync(p => p.UserId == userId);
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(p => p.UserId == userId);
 
-    var nameParts = request.FullName.Split(' ', 2);
+            var nameParts = request.FullName.Split(' ', 2);
 
-    // =========================
-    // UPDATE USER TABLE
-    // =========================
-    user.FirstName = nameParts[0];
-    user.LastName = nameParts.Length > 1 ? nameParts[1] : user.LastName;
-    user.PhoneNumber = request.PhoneNumber;
-    user.UpdatedAt = DateTime.UtcNow;
+            user.FirstName = nameParts[0];
+            user.LastName = nameParts.Length > 1 ? nameParts[1] : user.LastName;
+            user.PhoneNumber = request.PhoneNumber;
+            user.UpdatedAt = DateTime.UtcNow;
 
-    // =========================
-    // UPDATE PATIENT TABLE
-    // =========================
-    if (patient != null)
-    {
-        patient.FullName = request.FullName;
-        patient.PhoneNumber = request.PhoneNumber;
+            if (patient != null)
+            {
+                patient.FullName = request.FullName;
+                patient.PhoneNumber = request.PhoneNumber;
+                patient.DateOfBirth = request.DateOfBirth;
+                patient.Gender = request.Gender;
+                patient.Address = request.Address;
+                patient.UpdatedAt = DateTime.UtcNow;
+            }
 
-        // ✅ THESE FIX YOUR EARLIER ERRORS
-        patient.DateOfBirth = request.DateOfBirth;
-        patient.Gender = request.Gender;
-        patient.Address = request.Address;
-
-        patient.UpdatedAt = DateTime.UtcNow;
-    }
-
-    await _context.SaveChangesAsync();
-    return true;
-}
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
         // =========================
         // MEDICAL HISTORY
@@ -229,6 +217,57 @@ namespace CLINICSYSTEM.Services
                     Description = m.Description
                 })
                 .ToListAsync();
+        }
+
+        // =========================
+        // DASHBOARD STATS (FIXED)
+        // =========================
+        public async Task<PatientDashboardStatsDTO> GetPatientDashboardStatsAsync(int userId)
+        {
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+
+            if (patient == null)
+            {
+                return new PatientDashboardStatsDTO
+                {
+                    TotalAppointments = 0,
+                    UpcomingAppointments = 0,
+                    TotalPrescriptions = 0,
+                    TotalMedicalImages = 0
+                };
+            }
+
+            var today = DateTime.UtcNow.Date;
+
+            var totalAppointments = await _context.Appointments
+                .CountAsync(a => a.PatientId == patient.PatientId);
+
+            var upcomingAppointments = await _context.Appointments
+                .Include(a => a.TimeSlot)
+                .CountAsync(a =>
+                    a.PatientId == patient.PatientId &&
+                    a.TimeSlot != null &&
+                    a.TimeSlot.SlotDate >= today);
+
+            var totalPrescriptions = await _context.Prescriptions
+                .Include(p => p.Consultation)
+                .ThenInclude(c => c!.Appointment)
+                .CountAsync(p =>
+                    p.Consultation != null &&
+                    p.Consultation.Appointment != null &&
+                    p.Consultation.Appointment.PatientId == patient.PatientId);
+
+            var totalMedicalImages = await _context.MedicalImages
+                .CountAsync(m => m.PatientId == patient.PatientId);
+
+            return new PatientDashboardStatsDTO
+            {
+                TotalAppointments = totalAppointments,
+                UpcomingAppointments = upcomingAppointments,
+                TotalPrescriptions = totalPrescriptions,
+                TotalMedicalImages = totalMedicalImages
+            };
         }
     }
 }

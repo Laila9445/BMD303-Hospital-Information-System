@@ -37,7 +37,7 @@ namespace CLINICSYSTEM.Data.DTOs
         public string Frequency { get; set; } = string.Empty;
 
         [Required]
-        [Range(1, 365, ErrorMessage = "Duration must be between 1 and 365 days")]
+        [Range(1, 365)]
         public int DurationDays { get; set; }
 
         [StringLength(1000)]
@@ -66,6 +66,9 @@ namespace CLINICSYSTEM.Data.DTOs
         public List<CreatePrescriptionRequest> Prescriptions { get; set; } = new();
     }
 
+    // ⚠️ IMPORTANT FIX:
+    // This class might already exist elsewhere in your project.
+    // Keep ONLY ONE version across all DTO files.
     public class PatientPrescriptionDTO
     {
         public int PrescriptionId { get; set; }
