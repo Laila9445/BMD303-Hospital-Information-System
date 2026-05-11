@@ -75,7 +75,16 @@ builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IPatientPortalService, PatientPortalService>();
+builder.Services.AddScoped<IFhirService, FhirService>();
 builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+builder.Services
+    .AddOptions<ReferralWebSocketOptions>()
+    .Bind(builder.Configuration.GetSection(ReferralWebSocketOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddSingleton<ReferralWebSocketClientService>();
+builder.Services.AddSingleton<IReferralWebSocketClient>(sp => sp.GetRequiredService<ReferralWebSocketClientService>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<ReferralWebSocketClientService>());
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

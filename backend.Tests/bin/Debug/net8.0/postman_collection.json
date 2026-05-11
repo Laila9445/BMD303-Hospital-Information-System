@@ -1,0 +1,1280 @@
+﻿{
+	"info": {
+		"_postman_id": "clinic-system-test-collection",
+		"name": "Clinic Management System - Complete API Testing",
+		"description": "Complete API testing collection for the Clinic Management System with Arabic names and Egyptian data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register Patient - Ahmed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient_token', jsonData.token);",
+									"    pm.environment.set('patient_user_id', jsonData.user.userId);",
+									"    pm.environment.set('patient_email', jsonData.user.email);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ahmed.mohamed@gmail.com\",\n  \"password\": \"AhmedPass123!\",\n  \"firstName\": \"Ahmed\",\n  \"lastName\": \"Mohamed\",\n  \"phoneNumber\": \"01012345678\",\n  \"role\": \"Patient\",\n  \"gender\": \"Male\",\n  \"dateOfBirth\": \"15/3/1995\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register Patient - Fatma",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('patient2_token', jsonData.token);",
+									"    pm.environment.set('patient2_user_id', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"fatma.hassan@yahoo.com\",\n  \"password\": \"FatmaPass123!\",\n  \"firstName\": \"Fatma\",\n  \"lastName\": \"Hassan\",\n  \"phoneNumber\": \"01156789012\",\n  \"role\": \"Patient\",\n  \"gender\": \"Female\",\n  \"dateOfBirth\": \"22/7/1988\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register Doctor - Dr. Omar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor_token', jsonData.token);",
+									"    pm.environment.set('doctor_user_id', jsonData.user.userId);",
+									"    pm.environment.set('doctor_email', jsonData.user.email);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.omar.ibrahim@clinic.com\",\n  \"password\": \"DrOmarPass123!\",\n  \"firstName\": \"Omar\",\n  \"lastName\": \"Ibrahim\",\n  \"phoneNumber\": \"01223456789\",\n  \"role\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register Doctor - Dr. Mona",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('doctor2_token', jsonData.token);",
+									"    pm.environment.set('doctor2_user_id', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.mona.ali@clinic.com\",\n  \"password\": \"DrMonaPass123!\",\n  \"firstName\": \"Mona\",\n  \"lastName\": \"Ali\",\n  \"phoneNumber\": \"01034567890\",\n  \"role\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login Patient - Ahmed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('current_token', jsonData.token);",
+									"    pm.environment.set('current_user_id', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ahmed.mohamed@gmail.com\",\n  \"password\": \"AhmedPass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login Doctor - Dr. Omar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('current_token', jsonData.token);",
+									"    pm.environment.set('current_user_id', jsonData.user.userId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.omar.ibrahim@clinic.com\",\n  \"password\": \"DrOmarPass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Patients Management",
+			"item": [
+				{
+					"name": "Get Patient Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"patients",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Patient Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Ahmed\",\n  \"lastName\": \"Mohamed Ali\",\n  \"phoneNumber\": \"01012345678\",\n  \"gender\": \"Male\",\n  \"address\": \"15 شارع النيل، المهندسين، الجيزة\",\n  \"emergencyContact\": \"01987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"patients",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Medical History",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"allergies\": \"حساسية من البنسلين والمكسرات\",\n  \"chronicConditions\": \"ضغط دم مرتفع\",\n  \"currentMedications\": \"أقراص الضغط - كونكور 5 مجم يومياً\",\n  \"surgicalHistory\": \"عملية الزائدة الدودية 2010\",\n  \"familyHistory\": \"تاريخ عائلي لمرض السكري والضغط\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/medical-history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"patients",
+								"medical-history"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Medical History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/medical-history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"patients",
+								"medical-history"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Patient Appointments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/appointments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"patients",
+								"appointments"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Patient Prescriptions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/prescriptions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"patients",
+								"prescriptions"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Medical Images",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/patients/medical-images",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"patients",
+								"medical-images"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Doctors Management",
+			"item": [
+				{
+					"name": "Get All Doctors",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/doctors",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"doctors"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Doctor Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/doctors/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"doctors",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Doctor Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Omar\",\n  \"lastName\": \"Ibrahim Mohamed\",\n  \"phoneNumber\": \"01223456789\",\n  \"specialization\": \"طب القلب والأوعية الدموية\",\n  \"licenseNumber\": \"DOC123456789\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/doctors/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"doctors",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Doctor Schedule",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dayOfWeek\": \"Sunday\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDurationMinutes\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/doctors/schedule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"doctors",
+								"schedule"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Doctor Schedule",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/doctors/schedule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"doctors",
+								"schedule"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Today's Appointments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/doctors/appointments/today",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"doctors",
+								"appointments",
+								"today"
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Patients",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/doctors/patients/search?query=Ahmed",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"doctors",
+								"patients",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "Ahmed"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Appointments",
+			"item": [
+				{
+					"name": "Get Available Time Slots",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.environment.set('time_slot_id', jsonData[0].timeSlotId);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/appointments/available-slots/1?date=2024-12-25",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"appointments",
+								"available-slots",
+								"1"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2024-12-25"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Book Appointment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('appointment_id', jsonData.appointmentId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"doctorId\": 1,\n  \"timeSlotId\": {{time_slot_id}},\n  \"reasonForVisit\": \"فحص دوري للقلب وقياس الضغط\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/appointments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"appointments"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Appointment Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/appointments/{{appointment_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"appointments",
+								"{{appointment_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Reschedule Appointment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"appointmentId\": {{appointment_id}},\n  \"newTimeSlotId\": {{time_slot_id}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/appointments/reschedule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"appointments",
+								"reschedule"
+							]
+						}
+					}
+				},
+				{
+					"name": "Cancel Appointment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"appointmentId\": {{appointment_id}},\n  \"cancellationReason\": \"تغيير في الجدول الزمني\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/appointments/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"appointments",
+								"cancel"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Consultations",
+			"item": [
+				{
+					"name": "Create Consultation (Doctor)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('consultation_id', jsonData.consultationId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"appointmentId\": {{appointment_id}},\n  \"symptoms\": \"ألم في الصدر، ضيق في التنفس، خفقان في القلب\",\n  \"diagnosis\": \"ارتفاع ضغط الدم مع عدم انتظام ضربات القلب\",\n  \"notes\": \"المريض يحتاج متابعة دورية وتعديل الدواء\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/consultations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"consultations"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Consultation Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/consultations/{{consultation_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"consultations",
+								"{{consultation_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Consultation",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"symptoms\": \"ألم في الصدر، ضيق في التنفس، خفقان في القلب، دوخة\",\n  \"diagnosis\": \"ارتفاع ضغط الدم الأساسي مع عدم انتظام ضربات القلب\",\n  \"notes\": \"المريض يحتاج متابعة دورية كل أسبوعين وتعديل جرعة الدواء\",\n  \"status\": \"Completed\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/consultations/{{consultation_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"consultations",
+								"{{consultation_id}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Prescriptions",
+			"item": [
+				{
+					"name": "Create Prescription",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('prescription_id', jsonData.prescriptionId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"prescriptions\": [\n    {\n      \"consultationId\": {{consultation_id}},\n      \"medicationName\": \"كونكور (Concor)\",\n      \"dosage\": \"5 مجم\",\n      \"frequency\": \"مرة واحدة يومياً صباحاً\",\n      \"durationDays\": 30,\n      \"instructions\": \"يؤخذ قبل الإفطار بنصف ساعة مع كوب ماء\"\n    },\n    {\n      \"consultationId\": {{consultation_id}},\n      \"medicationName\": \"أسبرين (Aspirin)\",\n      \"dosage\": \"81 مجم\",\n      \"frequency\": \"مرة واحدة يومياً\",\n      \"durationDays\": 30,\n      \"instructions\": \"يؤخذ بعد العشاء مع الطعام\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/prescriptions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"prescriptions"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Prescription Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{doctor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/prescriptions/{{prescription_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"prescriptions",
+								"{{prescription_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Download Prescription PDF",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/prescriptions/{{prescription_id}}/pdf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"prescriptions",
+								"{{prescription_id}}",
+								"pdf"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Medical Images",
+			"item": [
+				{
+					"name": "Upload Medical Image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('image_id', jsonData.imageId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "imageType",
+									"value": "أشعة سينية للصدر",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "أشعة سينية للصدر للفحص الدوري",
+									"type": "text"
+								},
+								{
+									"key": "consultationId",
+									"value": "{{consultation_id}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/medicalimages/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicalimages",
+								"upload"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Medical Image Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/medicalimages/{{image_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicalimages",
+								"{{image_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Download Medical Image",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/medicalimages/{{image_id}}/download",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicalimages",
+								"{{image_id}}",
+								"download"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Medical Image",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patient_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/medicalimages/{{image_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicalimages",
+								"{{image_id}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Get All Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notifications"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Unread Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/unread",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notifications",
+								"unread"
+							]
+						}
+					}
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{current_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/1/read",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notifications",
+								"1",
+								"read"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://localhost:7157",
+			"type": "string"
+		}
+	]
+}

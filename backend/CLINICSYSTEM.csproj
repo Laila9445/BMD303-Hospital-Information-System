@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <!-- Core Framework -->
+    <PackageReference Include="Hl7.Fhir.R4" Version="6.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     

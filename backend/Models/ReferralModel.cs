@@ -23,6 +23,11 @@ namespace CLINICSYSTEM.Models
         public string PatientExternalId { get; set; } = string.Empty;
 
         /// <summary>
+        /// Optional patient phone number for outbound referral communication.
+        /// </summary>
+        public string? PatientPhone { get; set; }
+
+        /// <summary>
         /// ID of the doctor who referred the patient
         /// </summary>
         public int DoctorId { get; set; }

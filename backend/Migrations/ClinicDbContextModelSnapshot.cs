@@ -604,6 +604,9 @@ namespace CLINICSYSTEM.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PatientPhone")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Priority")
                         .IsRequired()
                         .HasColumnType("TEXT");

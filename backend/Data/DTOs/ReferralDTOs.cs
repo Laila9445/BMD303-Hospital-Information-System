@@ -8,7 +8,12 @@ namespace CLINICSYSTEM.Data.DTOs
         [Required(ErrorMessage = "Patient External ID is required")]
         public string PatientExternalId { get; set; } = string.Empty;
 
+        [Phone(ErrorMessage = "Patient phone format is invalid")]
+        [StringLength(30, ErrorMessage = "Patient phone cannot exceed 30 characters")]
+        public string? PatientPhone { get; set; }
+
         [Required(ErrorMessage = "Doctor ID is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "Doctor ID must be greater than 0")]
         public int DoctorId { get; set; }
 
         [Required(ErrorMessage = "Referral type is required")]
@@ -32,6 +37,9 @@ namespace CLINICSYSTEM.Data.DTOs
         [StringLength(2000, ErrorMessage = "Doctor notes cannot exceed 2000 characters")]
         public string? DoctorNotes { get; set; }
 
+        [StringLength(100, ErrorMessage = "External referral ID cannot exceed 100 characters")]
+        public string? ExternalReferralId { get; set; }
+
        
         public bool AutoSend { get; set; } = true;
     }
@@ -40,6 +48,7 @@ namespace CLINICSYSTEM.Data.DTOs
     {
         public int ReferralId { get; set; }
         public string PatientExternalId { get; set; } = string.Empty;
+        public string? PatientPhone { get; set; }
         public int DoctorId { get; set; }
         public string DoctorName { get; set; } = string.Empty;
         public string ReferralType { get; set; } = string.Empty;

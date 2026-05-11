@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using CLINICSYSTEM.Services;
 using CLINICSYSTEM.Data.DTOs;
 using CLINICSYSTEM.Exceptions;
+using CLINICSYSTEM.Mappers;
+using CLINICSYSTEM.Models.FHIR;
+using Hl7.Fhir.Serialization;
 
 namespace CLINICSYSTEM.Controllers
 {
@@ -67,7 +70,7 @@ namespace CLINICSYSTEM.Controllers
                 }
 
                 _logger.LogInformation("Referral created successfully with ID: {ReferralId}", referral.ReferralId);
-                return Ok(referral);
+                return IsFhirRequest() ? FhirOk(referral) : Ok(referral);
             }
             catch (BusinessException ex)
             {
@@ -110,7 +113,7 @@ namespace CLINICSYSTEM.Controllers
                     return NotFound(new { message = "Referral not found", code = "REFERRAL_NOT_FOUND" });
                 }
 
-                return Ok(referral);
+                return IsFhirRequest() ? FhirOk(referral) : Ok(referral);
             }
             catch (Exception ex)
             {
@@ -145,7 +148,7 @@ namespace CLINICSYSTEM.Controllers
 
                 var referrals = await _referralService.GetDoctorReferralsAsync(doctorId, status);
 
-                return Ok(referrals);
+                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(referrals);
             }
             catch (Exception ex)
             {
@@ -180,7 +183,7 @@ namespace CLINICSYSTEM.Controllers
 
                 var referrals = await _referralService.GetDoctorReferralsAsync(userId, status);
 
-                return Ok(referrals);
+                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(referrals);
             }
             catch (Exception ex)
             {
@@ -194,6 +197,35 @@ namespace CLINICSYSTEM.Controllers
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             return userIdClaim != null && int.TryParse(userIdClaim.Value, out var id) ? id : 0;
+        }
+
+        private bool IsFhirRequest()
+        {
+            return Request.Headers["Accept"].ToString().Contains("application/fhir+json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private IActionResult FhirOk(ReferralDTO referral)
+        {
+            var fhirRequest = ReferralToFhirMapper.ToFhirServiceRequest(referral);
+            var serializer = new FhirJsonSerializer();
+            return Content(serializer.SerializeToString(fhirRequest), "application/fhir+json");
+        }
+
+        private IActionResult FhirBundleOk(IEnumerable<ReferralDTO> referrals)
+        {
+            var bundle = new Hl7.Fhir.Model.Bundle
+            {
+                Type = Hl7.Fhir.Model.Bundle.BundleType.Searchset
+            };
+            foreach (var r in referrals)
+            {
+                bundle.Entry.Add(new Hl7.Fhir.Model.Bundle.EntryComponent
+                {
+                    Resource = ReferralToFhirMapper.ToFhirServiceRequest(r)
+                });
+            }
+            var serializer = new FhirJsonSerializer();
+            return Content(serializer.SerializeToString(bundle), "application/fhir+json");
         }
 
         /// <summary>
@@ -222,7 +254,7 @@ namespace CLINICSYSTEM.Controllers
 
                 var referrals = await _referralService.GetPatientReferralsAsync(patientExternalId);
 
-                return Ok(referrals);
+                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(referrals);
             }
             catch (Exception ex)
             {
@@ -273,7 +305,8 @@ namespace CLINICSYSTEM.Controllers
                 }
 
                 var referral = await _referralService.GetReferralByIdAsync(id);
-                return Ok(referral);
+                if (referral == null) return NotFound();
+                return IsFhirRequest() ? FhirOk(referral) : Ok(referral);
             }
             catch (BusinessException ex)
             {
@@ -345,8 +378,9 @@ namespace CLINICSYSTEM.Controllers
                 }
 
                 var updatedReferral = await _referralService.GetReferralByIdAsync(id);
+                if (updatedReferral == null) return NotFound();
                 _logger.LogInformation("Referral {ReferralId} sent successfully to external system", id);
-                return Ok(updatedReferral);
+                return IsFhirRequest() ? FhirOk(updatedReferral) : Ok(updatedReferral);
             }
             catch (BusinessException ex)
             {

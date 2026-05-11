@@ -1,27 +1,27 @@
 using Microsoft.EntityFrameworkCore;
 using CLINICSYSTEM.Data;
 using CLINICSYSTEM.Data.DTOs;
+using CLINICSYSTEM.Exceptions;
 using CLINICSYSTEM.Models;
-using System.Net.Http.Json;
 
 namespace CLINICSYSTEM.Services
 {
     public class ReferralService : IReferralService
     {
         private readonly ClinicDbContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly ILogger<ReferralService> _logger;
+        private readonly IReferralWebSocketClient _referralWebSocketClient;
 
         public ReferralService(
             ClinicDbContext context,
-            IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
+            IReferralWebSocketClient referralWebSocketClient,
             ILogger<ReferralService> logger)
         {
             _context = context;
-            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _configuration = configuration;
+            _referralWebSocketClient = referralWebSocketClient;
             _logger = logger;
         }
 
@@ -29,9 +29,18 @@ namespace CLINICSYSTEM.Services
         {
             try
             {
+                var doctorExists = await _context.Doctors.AnyAsync(d => d.DoctorId == request.DoctorId);
+                if (!doctorExists)
+                {
+                    throw new BusinessException(
+                        "DOCTOR_NOT_FOUND",
+                        $"Doctor with ID {request.DoctorId} was not found.");
+                }
+
                 var referral = new ReferralModel
                 {
                     PatientExternalId = request.PatientExternalId,
+                    PatientPhone = request.PatientPhone,
                     DoctorId = request.DoctorId,
                     ReferralType = request.ReferralType,
                     Reason = request.Reason,
@@ -39,6 +48,7 @@ namespace CLINICSYSTEM.Services
                     RecommendedTreatment = request.RecommendedTreatment,
                     Priority = request.Priority,
                     DoctorNotes = request.DoctorNotes,
+                    ExternalReferralId = request.ExternalReferralId,
                     Status = "Pending",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -57,6 +67,10 @@ namespace CLINICSYSTEM.Services
                 }
 
                 return await GetReferralByIdAsync(referral.ReferralId);
+            }
+            catch (BusinessException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -191,70 +205,63 @@ namespace CLINICSYSTEM.Services
                     return false;
                 }
 
-                // Get external service configuration
-                var externalServiceUrl = _configuration["ExternalServices:PhysiotherapyApi:BaseUrl"];
-                if (string.IsNullOrEmpty(externalServiceUrl))
-                {
-                    _logger.LogError("Physiotherapy API URL not configured");
-                    return false;
-                }
+                var outboundReferralId = !string.IsNullOrWhiteSpace(referral.ExternalReferralId)
+                    ? referral.ExternalReferralId
+                    : referral.ReferralId.ToString();
 
-                // Create HTTP client
-                var httpClient = _httpClientFactory.CreateClient("PhysiotherapyApi");
-
-                // Prepare payload
-                var payload = new
+                var wsReferralData = new ReferralData
                 {
-                    PatientExternalId = referral.PatientExternalId,
-                    ReferringDoctorId = referral.DoctorId,
-                    ReferringDoctorName = referral.Doctor?.User != null 
-                        ? $"{referral.Doctor.User.FirstName} {referral.Doctor.User.LastName}"
+                    ReferralId = outboundReferralId,
+                    ReferringDoctor = referral.Doctor?.User != null
+                        ? $"Dr. {referral.Doctor.User.FirstName} {referral.Doctor.User.LastName}".Trim()
                         : "Unknown Doctor",
-                    Diagnosis = referral.Diagnosis,
-                    Reason = referral.Reason,
-                    RecommendedTreatment = referral.RecommendedTreatment,
-                    Priority = referral.Priority,
-                    DoctorNotes = referral.DoctorNotes,
-                    ReferralDate = referral.CreatedAt
+                    ServiceRequested = referral.ReferralType,
+                    DoctorNotes = referral.DoctorNotes ?? referral.Reason,
+                    Priority = MapPriority(referral.Priority),
+                    CreatedAt = referral.CreatedAt,
+                    Patient = new ReferralPatient
+                    {
+                        Name = referral.PatientExternalId,
+                        Phone = referral.PatientPhone,
+                        Email = null,
+                        DateOfBirth = null
+                    }
                 };
 
-                // Send to external system
-                var response = await httpClient.PostAsJsonAsync($"{externalServiceUrl}/api/referrals/receive", payload);
+                await _referralWebSocketClient.SendReferralAsync(wsReferralData);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = await response.Content.ReadFromJsonAsync<ExternalReferralResponse>();
+                referral.ExternalReferralId = wsReferralData.ReferralId;
+                referral.ExternalServiceUrl = _configuration["ReferralWebSocket:EndpointUrl"];
+                referral.Status = "Sent";
+                referral.SentAt = DateTime.UtcNow;
+                referral.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
 
-                    // Update referral with external reference
-                    referral.ExternalReferralId = result?.ReferralId;
-                    referral.ExternalServiceUrl = externalServiceUrl;
-                    referral.Status = "Sent";
-                    referral.SentAt = DateTime.UtcNow;
-                    referral.UpdatedAt = DateTime.UtcNow;
-
-                    await _context.SaveChangesAsync();
-
-                    _logger.LogInformation("Referral {ReferralId} sent successfully to external system. External ID: {ExternalId}",
-                        referralId, result?.ReferralId);
-                    return true;
-                }
-                else
-                {
-                    _logger.LogError("Failed to send referral {ReferralId} to external system. Status: {Status}",
-                        referralId, response.StatusCode);
-                    return false;
-                }
+                _logger.LogInformation(
+                    "Referral {ReferralId} sent successfully via WebSocket with external ID {ExternalId}",
+                    referralId, wsReferralData.ReferralId);
+                return true;
             }
-            catch (HttpRequestException ex)
+            catch (TimeoutException ex)
             {
-                _logger.LogError(ex, "Network error sending referral {ReferralId} to external system", referralId);
+                _logger.LogError(ex, "Timeout waiting acknowledgement for referral {ReferralId}", referralId);
                 return false;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error sending referral {ReferralId} to external system", referralId);
+                _logger.LogError(ex, "Error sending referral {ReferralId} via WebSocket", referralId);
                 return false;
             }
+        }
+
+        private static string MapPriority(string priority)
+        {
+            return priority switch
+            {
+                "Urgent" => "urgent",
+                "High" => "urgent",
+                _ => "routine"
+            };
         }
 
         private ReferralDTO MapToDTO(ReferralModel referral)
@@ -263,6 +270,7 @@ namespace CLINICSYSTEM.Services
             {
                 ReferralId = referral.ReferralId,
                 PatientExternalId = referral.PatientExternalId,
+                PatientPhone = referral.PatientPhone,
                 DoctorId = referral.DoctorId,
                 DoctorName = referral.Doctor?.User != null
                     ? $"{referral.Doctor.User.FirstName} {referral.Doctor.User.LastName}"
