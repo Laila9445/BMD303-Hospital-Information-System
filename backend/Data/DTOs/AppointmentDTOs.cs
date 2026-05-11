@@ -73,4 +73,24 @@ namespace CLINICSYSTEM.Data.DTOs
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
     }
+
+    public class CreateAppointmentRequest
+    {
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Valid patient ID is required")]
+        public int PatientId { get; set; }
+
+        [Required]
+        public DateTime AppointmentDate { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Valid time slot ID is required")]
+        public int TimeSlotId { get; set; }
+
+        [StringLength(500)]
+        public string? ReasonForVisit { get; set; }
+
+        [StringLength(100)]
+        public string? Status { get; set; } = "Scheduled";
+    }
 }

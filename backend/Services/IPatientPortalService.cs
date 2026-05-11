@@ -12,5 +12,6 @@ namespace CLINICSYSTEM.Services
         Task<List<PatientPrescriptionDTO>> GetPatientPrescriptionsAsync(int userId);
         Task<MedicalImageDTO?> UploadMedicalImageAsync(int userId, UploadMedicalImageRequest request);
         Task<List<MedicalImageDTO>> GetMedicalImagesAsync(int userId);
+        Task<PatientDashboardStatsDTO> GetPatientDashboardStatsAsync(int userId);
     }
 }

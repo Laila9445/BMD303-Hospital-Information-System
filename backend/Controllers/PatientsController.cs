@@ -111,5 +111,16 @@ namespace CLINICSYSTEM.Controllers
             var images = await _patientService.GetMedicalImagesAsync(userId);
             return Ok(images);
         }
+
+        [HttpGet("dashboard-stats")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            var userId = GetUserId();
+            if (userId == 0) return Unauthorized();
+
+            var stats = await _patientService.GetPatientDashboardStatsAsync(userId);
+            return Ok(stats);
+        }
     }
 }

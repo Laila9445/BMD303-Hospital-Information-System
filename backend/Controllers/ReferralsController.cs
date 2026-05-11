@@ -156,6 +156,47 @@ namespace CLINICSYSTEM.Controllers
         }
 
         /// <summary>
+        /// Get referrals for the currently logged-in doctor
+        /// </summary>
+        /// <param name="status">Optional status filter (Pending, Sent, Accepted, InProgress, Completed, Cancelled)</param>
+        /// <returns>List of referrals for current doctor</returns>
+        /// <response code="200">Referrals retrieved successfully</response>
+        /// <response code="401">Unauthorized - user not authenticated</response>
+        /// <response code="500">Internal server error</response>
+        [HttpGet("my-referrals")]
+        [Authorize(Roles = "Doctor")]
+        [ProducesResponseType(typeof(List<ReferralDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetMyReferrals([FromQuery] string? status = null)
+        {
+            try
+            {
+                var userId = GetUserId();
+                if (userId == 0) return Unauthorized();
+
+                _logger.LogInformation("Retrieving referrals for current doctor: {DoctorId}, status filter: {Status}",
+                    userId, status ?? "none");
+
+                var referrals = await _referralService.GetDoctorReferralsAsync(userId, status);
+
+                return Ok(referrals);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving referrals for current doctor");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { message = "An unexpected error occurred", code = "INTERNAL_SERVER_ERROR" });
+            }
+        }
+
+        private int GetUserId()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            return userIdClaim != null && int.TryParse(userIdClaim.Value, out var id) ? id : 0;
+        }
+
+        /// <summary>
         /// Get all referrals for a specific patient
         /// </summary>
         /// <param name="patientExternalId">Patient external ID</param>

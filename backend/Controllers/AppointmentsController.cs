@@ -96,5 +96,31 @@ namespace CLINICSYSTEM.Controllers
 
             return Ok(appointment);
         }
+
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("doctor-appointments")]
+        public async Task<IActionResult> GetDoctorAppointments(
+            [FromQuery] DateTime? date = null)
+        {
+            var userId = GetUserId();
+            if (userId == 0) return Unauthorized();
+
+            var appointments = await _appointmentService.GetDoctorAppointmentsAsync(userId, date);
+            return Ok(appointments);
+        }
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateAppointment([FromBody] CreateAppointmentRequest request)
+        {
+            var userId = GetUserId();
+            if (userId == 0) return Unauthorized();
+
+            var appointment = await _appointmentService.CreateAppointmentAsync(userId, request);
+            if (appointment == null) 
+                return BadRequest(new { error = "Failed to create appointment. The selected time slot may be unavailable." });
+
+            return Ok(appointment);
+        }
     }
 }

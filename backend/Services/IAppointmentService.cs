@@ -10,5 +10,9 @@ namespace CLINICSYSTEM.Services
         Task<bool> CancelAppointmentAsync(int patientId, CancelAppointmentRequest request);
         Task<List<AppointmentDTO>> GetPatientAppointmentsAsync(int patientId);
         Task<AppointmentDTO?> GetAppointmentDetailsAsync(int appointmentId);
+        
+        // Doctor-specific methods
+        Task<List<AppointmentDTO>> GetDoctorAppointmentsAsync(int doctorId, DateTime? date = null);
+        Task<AppointmentDTO?> CreateAppointmentAsync(int doctorId, CreateAppointmentRequest request);
     }
 }
