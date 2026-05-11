@@ -106,6 +106,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("DoctorOnly", policy => policy.RequireRole("Doctor"));
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("StaffOnly", policy => policy.RequireRole("Staff", "Admin", "Doctor"));
+    options.AddPolicy("PatientOnly", policy =>
+        policy.RequireRole("Patient"));
 });
 
 // CORS
@@ -210,6 +212,7 @@ if (initializeDb)
 try
 {
     Console.WriteLine("Clinic API starting...");
+    app.Urls.Add("http://0.0.0.0:5000");
     await app.RunAsync();
 }
 catch (Exception ex)

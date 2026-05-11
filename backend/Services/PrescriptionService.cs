@@ -18,6 +18,16 @@ namespace CLINICSYSTEM.Services
 
         public async Task<PrescriptionDTO?> CreatePrescriptionAsync(CreatePrescriptionRequest request)
         {
+            // CHECK IF CONSULTATION EXISTS
+            var consultationExists = await _context.Consultations
+                .AnyAsync(c => c.ConsultationId == request.ConsultationId);
+
+            if (!consultationExists)
+            {
+                throw new KeyNotFoundException(
+                    $"Consultation with ID {request.ConsultationId} not found.");
+            }
+
             var prescription = new PrescriptionModel
             {
                 ConsultationId = request.ConsultationId,
@@ -39,6 +49,16 @@ namespace CLINICSYSTEM.Services
 
         public async Task<List<PrescriptionDTO>> CreateBulkPrescriptionsAsync(BulkPrescriptionRequest request)
         {
+            // CHECK IF CONSULTATION EXISTS
+            var consultationExists = await _context.Consultations
+                .AnyAsync(c => c.ConsultationId == request.ConsultationId);
+
+            if (!consultationExists)
+            {
+                throw new KeyNotFoundException(
+                    $"Consultation with ID {request.ConsultationId} not found.");
+            }
+
             var prescriptions = new List<PrescriptionDTO>();
 
             foreach (var item in request.Prescriptions)
@@ -107,9 +127,9 @@ namespace CLINICSYSTEM.Services
 
             // Generate PDF with available patient data
             var pdfBytes = _pdfService.GeneratePrescriptionPdf(
-                prescription, 
-                patient, 
-                doctor, 
+                prescription,
+                patient,
+                doctor,
                 prescription.Consultation);
 
             prescription.PdfGeneratedAt = DateTime.UtcNow;

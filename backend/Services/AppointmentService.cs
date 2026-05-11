@@ -9,21 +9,32 @@ namespace CLINICSYSTEM.Services
     {
         private readonly ClinicDbContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public AppointmentService(ClinicDbContext context, INotificationService notificationService)
+        public AppointmentService(
+            ClinicDbContext context,
+            INotificationService notificationService,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _notificationService = notificationService;
+            _dateTimeProvider = dateTimeProvider;
         }
 
+        // =========================
+        // FIXED METHOD
+        // =========================
         public async Task<List<TimeSlotDTO>> GetAvailableSlotsAsync(int doctorId, DateTime startDate, DateTime endDate)
         {
-            return await _context.TimeSlots
+            // Step 1: safe EF query (NO complex ordering, NO risky translation)
+            var slots = await _context.TimeSlots
                 .Include(ts => ts.Schedule)
-                .Where(ts => ts.Schedule.DoctorId == doctorId && 
-                           ts.SlotDate >= startDate && 
-                           ts.SlotDate <= endDate &&
-                           ts.Status == "Available")
+                .Where(ts =>
+                    ts.Schedule != null &&
+                    ts.Schedule.DoctorId == doctorId &&
+                    ts.SlotDate >= startDate &&
+                    ts.SlotDate <= endDate &&
+                    ts.Status == "Available")
                 .Select(ts => new TimeSlotDTO
                 {
                     TimeSlotId = ts.TimeSlotId,
@@ -32,15 +43,28 @@ namespace CLINICSYSTEM.Services
                     EndTime = ts.EndTime,
                     Status = ts.Status
                 })
-                .OrderBy(ts => ts.SlotDate)
-                .ThenBy(ts => ts.StartTime)
                 .ToListAsync();
+
+            // Step 2: safe in-memory sorting (fixes SQLite translation crash)
+            return slots
+                .OrderBy(x => x.SlotDate)
+                .ThenBy(x => x.StartTime)
+                .ToList();
         }
 
+        // =========================
+        // BOOK APPOINTMENT
+        // =========================
         public async Task<AppointmentDTO?> BookAppointmentAsync(int patientId, BookAppointmentRequest request)
         {
             var timeSlot = await _context.TimeSlots.FindAsync(request.TimeSlotId);
+
             if (timeSlot == null || timeSlot.Status != "Available")
+                return null;
+
+            var appointmentDateTime = timeSlot.SlotDate.Add(timeSlot.StartTime);
+
+            if (appointmentDateTime < _dateTimeProvider.UtcNow)
                 return null;
 
             var appointment = new AppointmentModel
@@ -60,8 +84,10 @@ namespace CLINICSYSTEM.Services
             _context.TimeSlots.Update(timeSlot);
             await _context.SaveChangesAsync();
 
-            // Send notification
-            var doctor = await _context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.DoctorId == request.DoctorId);
+            var doctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.DoctorId == request.DoctorId);
+
             if (doctor?.User != null)
             {
                 await _notificationService.CreateNotificationAsync(doctor.UserId, new CreateNotificationRequest
@@ -75,41 +101,56 @@ namespace CLINICSYSTEM.Services
             return await GetAppointmentDetailsAsync(appointment.AppointmentId);
         }
 
+        // =========================
+        // RESCHEDULE
+        // =========================
         public async Task<bool> RescheduleAppointmentAsync(int patientId, RescheduleAppointmentRequest request)
         {
             var appointment = await _context.Appointments
                 .Include(a => a.TimeSlot)
-                .FirstOrDefaultAsync(a => a.AppointmentId == request.AppointmentId && a.PatientId == patientId);
+                .FirstOrDefaultAsync(a =>
+                    a.AppointmentId == request.AppointmentId &&
+                    a.PatientId == patientId);
 
             if (appointment == null) return false;
 
             var newSlot = await _context.TimeSlots.FindAsync(request.NewTimeSlotId);
-            if (newSlot == null || newSlot.Status != "Available") return false;
 
-            // Free the old slot
+            if (newSlot == null || newSlot.Status != "Available")
+                return false;
+
+            var newDateTime = newSlot.SlotDate.Add(newSlot.StartTime);
+
+            if (newDateTime < _dateTimeProvider.UtcNow)
+                return false;
+
             if (appointment.TimeSlot != null)
             {
                 appointment.TimeSlot.Status = "Available";
                 _context.TimeSlots.Update(appointment.TimeSlot);
             }
 
-            // Book the new slot
             newSlot.Status = "Booked";
             appointment.TimeSlotId = request.NewTimeSlotId;
             appointment.UpdatedAt = DateTime.UtcNow;
 
             _context.Appointments.Update(appointment);
             _context.TimeSlots.Update(newSlot);
-            await _context.SaveChangesAsync();
 
+            await _context.SaveChangesAsync();
             return true;
         }
 
+        // =========================
+        // CANCEL
+        // =========================
         public async Task<bool> CancelAppointmentAsync(int patientId, CancelAppointmentRequest request)
         {
             var appointment = await _context.Appointments
                 .Include(a => a.TimeSlot)
-                .FirstOrDefaultAsync(a => a.AppointmentId == request.AppointmentId && a.PatientId == patientId);
+                .FirstOrDefaultAsync(a =>
+                    a.AppointmentId == request.AppointmentId &&
+                    a.PatientId == patientId);
 
             if (appointment == null) return false;
 
@@ -130,33 +171,39 @@ namespace CLINICSYSTEM.Services
             return true;
         }
 
+        // =========================
+        // GET PATIENT APPOINTMENTS
+        // =========================
         public async Task<List<AppointmentDTO>> GetPatientAppointmentsAsync(int patientId)
         {
-            // FIXED: Load data first, then do string concatenation in memory
             var appointments = await _context.Appointments
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
                 .Include(a => a.TimeSlot)
                 .Where(a => a.PatientId == patientId)
-                .OrderByDescending(a => a.TimeSlot.SlotDate)
                 .ToListAsync();
 
-            return appointments.Select(a => new AppointmentDTO
-            {
-                AppointmentId = a.AppointmentId,
-                DoctorName = $"{a.Doctor.User.FirstName} {a.Doctor.User.LastName}", // String concat in memory
-                PatientName = "",
-                AppointmentDate = a.TimeSlot.SlotDate,
-                StartTime = a.TimeSlot.StartTime,
-                EndTime = a.TimeSlot.EndTime,
-                Status = a.Status,
-                ReasonForVisit = a.ReasonForVisit
-            }).ToList();
+            return appointments
+                .OrderByDescending(a => a.TimeSlot.SlotDate)
+                .Select(a => new AppointmentDTO
+                {
+                    AppointmentId = a.AppointmentId,
+                    DoctorName = $"{a.Doctor.User.FirstName} {a.Doctor.User.LastName}",
+                    PatientName = "",
+                    AppointmentDate = a.TimeSlot.SlotDate,
+                    StartTime = a.TimeSlot.StartTime,
+                    EndTime = a.TimeSlot.EndTime,
+                    Status = a.Status,
+                    ReasonForVisit = a.ReasonForVisit
+                })
+                .ToList();
         }
 
+        // =========================
+        // GET APPOINTMENT DETAILS
+        // =========================
         public async Task<AppointmentDTO?> GetAppointmentDetailsAsync(int appointmentId)
         {
-            // FIXED: Load data first, then do string concatenation in memory
             var appointment = await _context.Appointments
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
@@ -168,7 +215,7 @@ namespace CLINICSYSTEM.Services
             return new AppointmentDTO
             {
                 AppointmentId = appointment.AppointmentId,
-                DoctorName = $"{appointment.Doctor.User.FirstName} {appointment.Doctor.User.LastName}", // String concat in memory
+                DoctorName = $"{appointment.Doctor.User.FirstName} {appointment.Doctor.User.LastName}",
                 PatientName = "",
                 AppointmentDate = appointment.TimeSlot.SlotDate,
                 StartTime = appointment.TimeSlot.StartTime,

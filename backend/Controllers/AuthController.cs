@@ -33,8 +33,7 @@ namespace CLINICSYSTEM.Controllers
         }
 
         /// <summary>
-        /// Register a new clinic user (Doctor, Admin, or Staff only)
-        /// Patient registration is handled by the Patient Portal service
+        /// Register a new clinic user (Doctor, Nurse, Admin, Staff, or Patient)
         /// </summary>
         /// <param name="request">Registration details including role</param>
         /// <returns>JWT token and user information</returns>

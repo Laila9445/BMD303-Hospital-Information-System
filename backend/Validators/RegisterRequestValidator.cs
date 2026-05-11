@@ -37,8 +37,8 @@ namespace CLINICSYSTEM.Validators
 
             RuleFor(x => x.Role)
                 .NotEmpty().WithMessage("Role is required")
-                .Must(role => role == "Doctor" || role == "Nurse" || role == "Admin" || role == "Staff")
-                .WithMessage("Role must be 'Doctor', 'Nurse', 'Admin', or 'Staff'. Patient registration is handled by Patient Portal service.");
+                .Must(role => role == "Doctor" || role == "Nurse" || role == "Admin" || role == "Staff" || role == "Patient")
+                .WithMessage("Role must be 'Doctor', 'Nurse', 'Admin', 'Staff', or 'Patient'");
 
             // Doctor-specific validation
             RuleFor(x => x.Specialization)

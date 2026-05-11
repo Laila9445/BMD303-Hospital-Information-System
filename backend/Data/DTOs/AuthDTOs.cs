@@ -4,8 +4,7 @@ namespace CLINICSYSTEM.Data.DTOs
 {
     /// <summary>
     /// Registration request for Clinic System users
-    /// Allows Doctor, Nurse, Admin, and Staff roles
-    /// Patients register through the Patient Portal microservice
+    /// Allows Doctor, Nurse, Admin, Staff, and Patient roles
     /// </summary>
     public class RegisterRequest
     {
@@ -26,11 +25,11 @@ namespace CLINICSYSTEM.Data.DTOs
         public string LastName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Phone number is required")]
-        [Phone(ErrorMessage = "Invalid phone number format")]
+        [RegularExpression(@"^(\+20|0)?1[0125]\d{8}$", ErrorMessage = "Invalid Egyptian phone number format")]
         public string PhoneNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Role is required")]
-        [RegularExpression("^(Doctor|Nurse|Admin|Staff)$", ErrorMessage = "Role must be either 'Doctor', 'Nurse', 'Admin', or 'Staff'")]
+        [RegularExpression("^(Doctor|Nurse|Admin|Staff|Patient)$", ErrorMessage = "Role must be either 'Doctor', 'Nurse', 'Admin', 'Staff', or 'Patient'")]
         public string Role { get; set; } = string.Empty;
 
         // Doctor-specific fields (optional)

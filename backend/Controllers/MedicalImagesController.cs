@@ -8,7 +8,7 @@ namespace CLINICSYSTEM.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Patient")]
+    [Authorize(Roles = "Patient,Doctor")]
     public class MedicalImagesController : ControllerBase
     {
         private readonly IMedicalImageService _medicalImageService;

@@ -96,6 +96,10 @@ namespace CLINICSYSTEM.Services
                 {
                     await CreateDoctorProfileAsync(user.UserId, request);
                 }
+                else if (request.Role == "Patient")
+{
+                 await CreatePatientProfileAsync(user.UserId, request);
+}
                 // Admin and Staff roles don't need additional profiles
 
                 _logger.LogInformation("User {Email} registered successfully as {Role} with UserId {UserId}", 
@@ -154,7 +158,7 @@ namespace CLINICSYSTEM.Services
 
         private async Task EnsureRolesExistAsync()
         {
-            var roles = new[] { "Doctor", "Admin", "Staff" };
+            var roles = new[] { "Doctor", "Admin", "Staff","Patient" };
             
             foreach (var roleName in roles)
             {
@@ -274,5 +278,41 @@ namespace CLINICSYSTEM.Services
                 throw;
             }
         }
+        private async Task CreatePatientProfileAsync(int userId, RegisterRequest request)
+{
+    try
+    {
+        var patient = new PatientModel
+        {
+            UserId = userId,
+            FullName = $"{request.FirstName} {request.LastName}",
+            PhoneNumber = request.PhoneNumber ?? string.Empty,
+
+            // SAFE nullable handling
+            DateOfBirth = null,
+            Gender = string.Empty,
+            Address = string.Empty,
+
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _context.Patients.Add(patient);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Patient profile created for UserId: {UserId}, PatientId: {PatientId}",
+            userId, patient.PatientId
+        );
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Failed to create patient profile for UserId: {UserId}", userId);
+
+        // IMPORTANT: rollback identity inconsistency
+        throw;
+    }
+}
+
     }
 }

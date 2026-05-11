@@ -23,11 +23,7 @@ namespace CLINICSYSTEM.Controllers
         private int GetUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var id))
-            {
-                return id;
-            }
-            return 0;
+            return (userIdClaim != null && int.TryParse(userIdClaim.Value, out var id)) ? id : 0;
         }
 
         [HttpGet]
@@ -47,24 +43,16 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpGet("profile")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> GetProfile()
         {
             try
             {
                 var userId = GetUserId();
-                if (userId == 0)
-                {
-                    _logger.LogWarning("Unauthorized access attempt - no valid user ID in token");
-                    return Unauthorized(new { message = "Invalid authentication token" });
-                }
+                if (userId == 0) return Unauthorized();
 
                 var profile = await _doctorService.GetProfileAsync(userId);
                 if (profile == null)
-                {
-                    _logger.LogWarning("Doctor profile not found for UserId: {UserId}", userId);
-                    return NotFound(new { message = "Doctor profile not found. Please complete registration." });
-                }
+                    return NotFound(new { message = "Doctor profile not found" });
 
                 return Ok(profile);
             }
@@ -76,7 +64,6 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpPut("profile")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateDoctorProfileRequest request)
         {
             try
@@ -86,10 +73,7 @@ namespace CLINICSYSTEM.Controllers
 
                 var result = await _doctorService.UpdateProfileAsync(userId, request);
                 if (!result)
-                {
-                    _logger.LogWarning("Failed to update profile for UserId: {UserId}", userId);
                     return BadRequest(new { message = "Failed to update profile" });
-                }
 
                 return Ok(new { message = "Profile updated successfully" });
             }
@@ -101,7 +85,6 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpGet("appointments/today")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> GetTodayAppointments()
         {
             try
@@ -110,10 +93,13 @@ namespace CLINICSYSTEM.Controllers
                 if (userId == 0) return Unauthorized();
 
                 var doctorId = await _doctorService.GetDoctorIdByUserIdAsync(userId);
-                if (doctorId == null) return NotFound(new { message = "Doctor profile not found" });
+                if (doctorId == null)
+                    return NotFound(new { message = "Doctor profile not found" });
 
                 var appointments = await _doctorService.GetTodayAppointmentsAsync(doctorId.Value);
-                return Ok(appointments);
+
+                // FIX: ensure NOT null type mismatch
+                return Ok(appointments ?? new List<DayAppointmentDTO>());
             }
             catch (Exception ex)
             {
@@ -123,7 +109,6 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpGet("appointments")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> GetAppointments([FromQuery] DateTime date)
         {
             try
@@ -132,12 +117,15 @@ namespace CLINICSYSTEM.Controllers
                 if (userId == 0) return Unauthorized();
 
                 var doctorId = await _doctorService.GetDoctorIdByUserIdAsync(userId);
-                if (doctorId == null) return NotFound(new { message = "Doctor profile not found" });
+                if (doctorId == null)
+                    return NotFound(new { message = "Doctor profile not found" });
 
-                if (date == DateTime.MinValue) date = DateTime.UtcNow.Date;
+                if (date == DateTime.MinValue)
+                    date = DateTime.UtcNow.Date;
 
                 var appointments = await _doctorService.GetAppointmentsAsync(doctorId.Value, date);
-                return Ok(appointments);
+
+                return Ok(appointments ?? new List<DayAppointmentDTO>());
             }
             catch (Exception ex)
             {
@@ -147,13 +135,13 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpGet("patients/{patientId}")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> GetPatientRecord([FromRoute] int patientId)
         {
             try
             {
                 var record = await _doctorService.GetPatientRecordAsync(patientId);
-                if (record == null) return NotFound(new { message = "Patient record not found" });
+                if (record == null)
+                    return NotFound(new { message = "Patient record not found" });
 
                 return Ok(record);
             }
@@ -165,12 +153,11 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpGet("patients/search")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> SearchPatients([FromQuery] string query)
         {
             try
             {
-                if (string.IsNullOrEmpty(query))
+                if (string.IsNullOrWhiteSpace(query))
                     return BadRequest(new { message = "Search query is required" });
 
                 var patients = await _doctorService.SearchPatientsAsync(query);
@@ -184,7 +171,6 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpGet("patients/{patientId}/images")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> GetPatientMedicalImages([FromRoute] int patientId)
         {
             try
@@ -200,7 +186,6 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpPost("schedule")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleRequest request)
         {
             try
@@ -208,27 +193,24 @@ namespace CLINICSYSTEM.Controllers
                 var userId = GetUserId();
                 if (userId == 0) return Unauthorized();
 
-                // Get doctorId from userId
                 var doctorId = await _doctorService.GetDoctorIdByUserIdAsync(userId);
                 if (doctorId == null)
-                {
                     return NotFound(new { message = "Doctor profile not found" });
-                }
 
                 var result = await _doctorService.CreateScheduleAsync(doctorId.Value, request);
-                if (!result) return BadRequest(new { message = "Failed to create schedule" });
+                if (!result)
+                    return BadRequest(new { message = "Failed to create schedule" });
 
                 return Ok(new { message = "Schedule created successfully" });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating schedule");
-                return StatusCode(500, new { message = $"An error occurred while creating schedule: {ex.Message}" });
+                return StatusCode(500, new { message = "An error occurred while creating schedule" });
             }
         }
 
         [HttpGet("schedule")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> GetSchedules()
         {
             try
@@ -237,10 +219,12 @@ namespace CLINICSYSTEM.Controllers
                 if (userId == 0) return Unauthorized();
 
                 var doctorId = await _doctorService.GetDoctorIdByUserIdAsync(userId);
-                if (doctorId == null) return NotFound(new { message = "Doctor profile not found" });
+                if (doctorId == null)
+                    return NotFound(new { message = "Doctor profile not found" });
 
                 var schedules = await _doctorService.GetSchedulesAsync(doctorId.Value);
-                return Ok(schedules);
+
+                return Ok(schedules ?? new List<DoctorScheduleDTO>());
             }
             catch (Exception ex)
             {
@@ -250,13 +234,13 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpDelete("schedule/{scheduleId}")]
-        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> DeleteSchedule([FromRoute] int scheduleId)
         {
             try
             {
                 var result = await _doctorService.DeleteScheduleAsync(scheduleId);
-                if (!result) return NotFound(new { message = "Schedule not found" });
+                if (!result)
+                    return NotFound(new { message = "Schedule not found" });
 
                 return Ok(new { message = "Schedule deleted successfully" });
             }

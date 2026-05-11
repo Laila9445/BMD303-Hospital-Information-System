@@ -18,6 +18,9 @@ namespace CLINICSYSTEM.Controllers
             _consultationService = consultationService;
         }
 
+        // ============================================
+        // DOCTOR: Start consultation
+        // ============================================
         [HttpPost("start")]
         public async Task<IActionResult> StartConsultation([FromBody] StartConsultationRequest request)
         {
@@ -27,6 +30,9 @@ namespace CLINICSYSTEM.Controllers
             return Ok(consultation);
         }
 
+        // ============================================
+        // DOCTOR: Update consultation
+        // ============================================
         [HttpPut("{consultationId}")]
         public async Task<IActionResult> UpdateConsultation(
             [FromRoute] int consultationId,
@@ -38,6 +44,9 @@ namespace CLINICSYSTEM.Controllers
             return Ok(new { message = "Consultation updated successfully" });
         }
 
+        // ============================================
+        // DOCTOR: End consultation
+        // ============================================
         [HttpPut("{consultationId}/end")]
         public async Task<IActionResult> EndConsultation([FromRoute] int consultationId)
         {
@@ -47,6 +56,9 @@ namespace CLINICSYSTEM.Controllers
             return Ok(new { message = "Consultation ended successfully" });
         }
 
+        // ============================================
+        // DOCTOR: Get consultation details
+        // ============================================
         [HttpGet("{consultationId}")]
         public async Task<IActionResult> GetConsultationDetails([FromRoute] int consultationId)
         {
@@ -56,6 +68,9 @@ namespace CLINICSYSTEM.Controllers
             return Ok(consultation);
         }
 
+        // ============================================
+        // PATIENT: Own consultation history
+        // ============================================
         [Authorize(Roles = "Patient")]
         [HttpGet("patient/history")]
         public async Task<IActionResult> GetPatientConsultationHistory()
@@ -65,6 +80,17 @@ namespace CLINICSYSTEM.Controllers
                 return Unauthorized();
 
             var history = await _consultationService.GetPatientConsultationHistoryAsync(userId);
+            return Ok(history);
+        }
+
+        // ============================================
+        // DOCTOR: View any patient's consultation history (NEW)
+        // ============================================
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("doctor/patient-history/{patientId}")]
+        public async Task<IActionResult> GetPatientConsultationHistoryForDoctor([FromRoute] int patientId)
+        {
+            var history = await _consultationService.GetPatientConsultationHistoryAsync(patientId);
             return Ok(history);
         }
     }

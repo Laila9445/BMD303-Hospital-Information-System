@@ -17,12 +17,12 @@ namespace CLINICSYSTEM.Data.DTOs
         [StringLength(15)]
         public string? PhoneNumber { get; set; }
 
-        [Required]
-        public DateTime DateOfBirth { get; set; }
+        // ✅ FIX: make nullable (IMPORTANT)
+        public DateTime? DateOfBirth { get; set; }
 
-        [Required]
+        // ✅ FIX: make nullable (patients may not provide it)
         [StringLength(10)]
-        public string Gender { get; set; } = string.Empty;
+        public string? Gender { get; set; }
 
         [StringLength(200)]
         public string? Address { get; set; }

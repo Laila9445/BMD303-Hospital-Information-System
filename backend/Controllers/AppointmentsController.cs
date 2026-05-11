@@ -45,7 +45,8 @@ namespace CLINICSYSTEM.Controllers
             if (userId == 0) return Unauthorized();
 
             var appointment = await _appointmentService.BookAppointmentAsync(userId, request);
-            if (appointment == null) return BadRequest("Failed to book appointment");
+            if (appointment == null) 
+                return BadRequest(new { error = "Cannot book appointment. The selected time slot is either unavailable or in the past." });
 
             return Ok(appointment);
         }
@@ -58,7 +59,7 @@ namespace CLINICSYSTEM.Controllers
             if (userId == 0) return Unauthorized();
 
             var result = await _appointmentService.RescheduleAppointmentAsync(userId, request);
-            if (!result) return BadRequest("Failed to reschedule appointment");
+            if (!result) return BadRequest(new { error = "Cannot reschedule appointment. The selected time slot is either unavailable, in the past, or the appointment was not found." });
 
             return Ok(new { message = "Appointment rescheduled successfully" });
         }

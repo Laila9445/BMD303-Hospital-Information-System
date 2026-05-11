@@ -110,24 +110,29 @@ namespace CLINICSYSTEM.Services
         }
 
         public async Task<List<DayAppointmentDTO>> GetAppointmentsAsync(int doctorId, DateTime date)
+{
+    var targetDate = date.Date;
+
+    var appointments = await _context.Appointments
+        .Include(a => a.Patient)
+        .Include(a => a.TimeSlot)
+        .Where(a => a.DoctorId == doctorId
+            && a.TimeSlot != null
+            && a.TimeSlot.SlotDate == targetDate)
+        .Select(a => new DayAppointmentDTO
         {
-            return await _context.Appointments
-                .Include(a => a.Patient)
-                .Include(a => a.TimeSlot)
-                .Where(a => a.DoctorId == doctorId && a.TimeSlot.SlotDate.Date == date.Date)
-                .OrderBy(a => a.TimeSlot.StartTime)
-                .Select(a => new DayAppointmentDTO
-                {
-                    AppointmentId = a.AppointmentId,
-                    PatientName = a.Patient != null ? a.Patient.FullName : "Unknown Patient",
-                    AppointmentDate = a.TimeSlot.SlotDate,
-                    StartTime = a.TimeSlot.StartTime,
-                    EndTime = a.TimeSlot.EndTime,
-                    Status = a.Status,
-                    ReasonForVisit = a.ReasonForVisit
-                })
-                .ToListAsync();
-        }
+            AppointmentId = a.AppointmentId,
+            PatientName = a.Patient != null ? a.Patient.FullName : "Unknown Patient",
+            AppointmentDate = a.TimeSlot.SlotDate,
+            StartTime = a.TimeSlot.StartTime,
+            EndTime = a.TimeSlot.EndTime,
+            Status = a.Status,
+            ReasonForVisit = a.ReasonForVisit
+        })
+        .ToListAsync();
+
+    return appointments.OrderBy(a => a.StartTime).ToList();
+}
 
         public async Task<PatientRecordDetailDTO?> GetPatientRecordAsync(int patientId)
         {
