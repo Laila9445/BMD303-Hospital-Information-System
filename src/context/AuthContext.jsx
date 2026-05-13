@@ -63,9 +63,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    authService.logout();
+    localStorage.clear();
     setUser(null);
     setIsAuthenticated(false);
+    window.location.href = '/login';
   };
 
   const value = {
@@ -78,6 +79,8 @@ export const AuthProvider = ({ children }) => {
     isDoctor: user?.role === 'Doctor',
     isPatient: user?.role === 'Patient',
     isNurse: user?.role === 'Nurse',
+    isPhysio: user?.role === 'Physiotherapist',
+    isRadiology: user?.role === 'Radiologist',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

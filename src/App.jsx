@@ -1,6 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
+import { ReferralProvider } from './context/ReferralContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import DoctorLayout from './components/layout/DoctorLayout';
 import PatientLayout from './components/layout/PatientLayout';
@@ -11,6 +12,31 @@ import Services from './pages/Services';
 import About from './pages/About';
 import PatientsInfo from './pages/Patients';
 import Contact from './pages/Contact';
+import PhysioDashboard from './pages/physio/PhysioDashboard';
+import RadiologyDashboard from './pages/radiology/RadiologyDashboard';
+import RadiologyOsLogin from './pages/radiology/Login';
+import RadiologyOsDashboard from './pages/radiology/Dashboard';
+import RadiologyPatients from './pages/radiology/Patients';
+import RadiologyStudies from './pages/radiology/Studies';
+import RadiologyReports from './pages/radiology/Reports';
+import RadiologyPlaceholder from './pages/radiology/RadiologyPlaceholder';
+import RadiologyLayout from './components/layout/RadiologyLayout';
+import RadiologyStaffDashboard from './pages/radiology/RadiologyStaffDashboard';
+import RadiologyServicesPage from './pages/radiology/RadiologyServicesPage';
+import RadiologyBookingPage from './pages/radiology/RadiologyBookingPage';
+import RadiologySuccessPage from './pages/radiology/SuccessPage';
+import RadiologyAppointmentsPage from './pages/radiology/Appointments';
+import { PhysioAuthProvider } from './pages/physio/contexts';
+import PhysioServicesPage from './pages/physio/ServicesPage';
+import PhysioBookingPage from './pages/physio/BookingPage';
+import PhysioSuccessPage from './pages/physio/SuccessPage';
+import PhysioContactPage from './pages/physio/Contactpage';
+import PhysioAppDashboard from './pages/physio/PhysioAppDashboard';
+import PhysioStaffDashboard from './pages/physio/PhysioStaffDashboard';
+import PhysioPatientsPage from './pages/physio/Patients';
+import PhysioAppointmentsPage from './pages/physio/Appointments';
+import PhysioTreatmentPlansPage from './pages/physio/TreatmentPlans';
+import PhysioPatientDetail from './pages/physio/PhysioPatientDetail';
 
 // Create a smart redirect component
 const DashboardRedirect = () => {
@@ -21,6 +47,12 @@ const DashboardRedirect = () => {
   if (isNurse) return <Navigate to="/nurse/dashboard" replace />;
   return <Navigate to="/login" replace />;
 };
+
+const PhysioPortalShell = () => (
+  <PhysioAuthProvider>
+    <Outlet />
+  </PhysioAuthProvider>
+);
 
 // Auth Pages
 import Login from './pages/auth/Login';
@@ -52,10 +84,12 @@ import NursePatients from './pages/nurse/NursePatients';
 import NurseSchedule from './pages/nurse/NurseSchedule';
 import NurseProfile from './pages/nurse/NurseProfile';
 import NurseLayout from './components/layout/NurseLayout';
+import PhysioLayout from './components/layout/PhysioLayout';
 
 function App() {
   return (
     <AuthProvider>
+      <ReferralProvider>
       <Router>
         <Toaster position="top-right" rtl={true} />
         <Routes>
@@ -67,6 +101,97 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route
+            path="/physio/dashboard"
+            element={
+              <ProtectedRoute>
+                <DoctorLayout>
+                  <PhysioDashboard />
+                </DoctorLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/physio" element={<PhysioPortalShell />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="services" element={<PhysioServicesPage />} />
+            <Route path="booking" element={<PhysioBookingPage />} />
+            <Route path="success" element={<PhysioSuccessPage />} />
+            <Route
+              path="contact"
+              element={
+                <PhysioLayout>
+                  <PhysioContactPage />
+                </PhysioLayout>
+              }
+            />
+            <Route
+              path="panel"
+              element={
+                <PhysioLayout>
+                  <PhysioAppDashboard />
+                </PhysioLayout>
+              }
+            />
+            <Route
+              path="staff"
+              element={
+                <PhysioLayout>
+                  <PhysioStaffDashboard />
+                </PhysioLayout>
+              }
+            />
+            <Route
+              path="patients"
+              element={
+                <PhysioLayout>
+                  <PhysioPatientsPage />
+                </PhysioLayout>
+              }
+            />
+            <Route
+              path="patients/:patientId"
+              element={
+                <PhysioLayout>
+                  <PhysioPatientDetail />
+                </PhysioLayout>
+              }
+            />
+            <Route path="appointments" element={<PhysioAppointmentsPage />} />
+            <Route
+              path="treatment-plans"
+              element={
+                <PhysioLayout>
+                  <PhysioTreatmentPlansPage />
+                </PhysioLayout>
+              }
+            />
+          </Route>
+          <Route path="/radiology/login" element={<RadiologyOsLogin />} />
+          <Route path="/radiology/panel" element={<RadiologyOsDashboard />} />
+          <Route path="/radiology/patients" element={<RadiologyPatients />} />
+          <Route path="/radiology/studies" element={<RadiologyStudies />} />
+          <Route path="/radiology/reports" element={<RadiologyReports />} />
+          <Route path="/radiology/billing" element={<RadiologyPlaceholder title="Billing" />} />
+          <Route
+            path="/radiology/staff"
+            element={
+              <RadiologyLayout>
+                <RadiologyStaffDashboard />
+              </RadiologyLayout>
+            }
+          />
+          <Route path="/radiology/services" element={<RadiologyServicesPage />} />
+          <Route path="/radiology/booking" element={<RadiologyBookingPage />} />
+          <Route path="/radiology/success" element={<RadiologySuccessPage />} />
+          <Route path="/radiology/appointments" element={<RadiologyAppointmentsPage />} />
+          <Route
+            path="/radiology/dashboard"
+            element={
+              <RadiologyLayout>
+                <RadiologyDashboard />
+              </RadiologyLayout>
+            }
+          />
           
           {/* Doctor Routes */}
           <Route
@@ -295,6 +420,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
+      </ReferralProvider>
     </AuthProvider>
   );
 }

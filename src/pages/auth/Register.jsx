@@ -145,6 +145,10 @@ const Register = () => {
           navigate('/doctor/dashboard');
         } else if (result.user.role === 'Nurse') {
           navigate('/nurse/dashboard');
+        } else if (result.user.role === 'Physiotherapist') {
+          navigate('/physio/staff');
+        } else if (result.user.role === 'Radiologist') {
+          navigate('/radiology/staff');
         } else {
           navigate('/patient/dashboard');
         }
@@ -239,6 +243,8 @@ const Register = () => {
               <option value="Doctor">Doctor</option>
               <option value="Patient">Patient</option>
               <option value="Nurse">Nurse</option>
+              <option value="Physiotherapist">Physiotherapist</option>
+              <option value="Radiologist">Radiologist</option>
             </select>
           </div>
 

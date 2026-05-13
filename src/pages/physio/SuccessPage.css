@@ -1,0 +1,237 @@
+/* ════════════════════════════════════════════
+   PhysioFit — Success Page
+   ════════════════════════════════════════════ */
+
+.sc-page {
+    min-height: 100vh;
+    background: #F5F7F9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+.sc-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 32px rgba(59, 180, 166, .12);
+    padding: 48px 40px;
+    max-width: 560px;
+    width: 100%;
+    text-align: center;
+    animation: scFadeIn .5s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes scFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* icon */
+.sc-icon-wrap {
+    width: 88px;
+    height: 88px;
+    background: rgba(59, 180, 166, .12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.sc-check {
+    color: #3BB4A6;
+}
+
+.sc-card h1 {
+    font-size: 30px;
+    font-weight: 800;
+    color: #2C2C2C;
+    margin: 0 0 8px;
+}
+
+.sc-sub {
+    font-size: 15px;
+    color: #717182;
+    margin: 0 0 28px;
+}
+
+/* summary */
+.sc-summary {
+    background: #F5F7F9;
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 28px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sc-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.sc-row-icon {
+    color: #3BB4A6;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.sc-row div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sc-row-label {
+    font-size: 12px;
+    color: #717182;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.sc-row-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2C2C2C;
+}
+
+/* actions */
+.sc-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.sc-btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: #3BB4A6;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background .2s, transform .1s;
+}
+
+.sc-btn-primary:hover {
+    background: #5FBDB2;
+}
+
+.sc-btn-primary:active {
+    transform: scale(.98);
+}
+
+.sc-btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.sc-btn-outline {
+    padding: 13px;
+    border: 2px solid #E5E5E5;
+    border-radius: 25px;
+    background: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    color: #2C2C2C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background .2s;
+}
+
+.sc-btn-outline:hover {
+    background: #f0f0f0;
+}
+
+.sc-btn-secondary {
+    padding: 13px;
+    border: none;
+    border-radius: 25px;
+    background: #5FBDB2;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background .2s, transform .1s;
+}
+
+.sc-btn-secondary:hover {
+    background: #3BB4A6;
+}
+
+.sc-btn-secondary:active {
+    transform: scale(.98);
+}
+
+/* email note */
+.sc-email-note {
+    font-size: 13px;
+    color: #717182;
+    padding-top: 20px;
+    border-top: 1px solid #E5E5E5;
+    margin: 0;
+}
+
+/* floating help — reuse from BookingPage */
+.bk-help-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: #3BB4A6;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 20px rgba(59, 180, 166, .35);
+    z-index: 99;
+    transition: background .2s;
+}
+
+.bk-help-btn:hover {
+    background: #5FBDB2;
+}
+
+@media (max-width: 480px) {
+    .sc-card {
+        padding: 32px 20px;
+    }
+
+    .sc-btn-row {
+        grid-template-columns: 1fr;
+    }
+}

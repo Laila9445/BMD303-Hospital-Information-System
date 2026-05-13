@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import PatientSidebar from './PatientSidebar';
 import Navbar from './Navbar';
@@ -20,12 +19,10 @@ const MainContent = styled.div`
 
 const PatientLayout = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const navigate = useNavigate();
   const { logout } = useAuth();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
   };
 
   return (

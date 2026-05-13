@@ -40,8 +40,8 @@ export const validatePhoneNumber = (phone) => {
 // Role validation
 export const validateRole = (role) => {
   if (!role) return 'Role is required';
-  const validRoles = ['Doctor', 'Nurse', 'Admin', 'Staff', 'Patient'];
-  if (!validRoles.includes(role)) return 'Role must be Doctor, Nurse, Admin, Staff, or Patient';
+  const validRoles = ['Doctor', 'Nurse', 'Admin', 'Staff', 'Patient', 'Physiotherapist', 'Radiologist'];
+  if (!validRoles.includes(role)) return 'Role must be Doctor, Nurse, Admin, Staff, Patient, Physiotherapist, or Radiologist';
   return null;
 };
 

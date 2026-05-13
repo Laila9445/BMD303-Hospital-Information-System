@@ -98,8 +98,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    logout(); // clears session and redirects via window.location (see AuthContext)
   };
 
   const goToProfile = () => {
@@ -107,7 +106,12 @@ const Navbar = () => {
     else if (user?.role === 'Patient') navigate('/patient/profile');
   };
 
-  const displayName = user?.role === 'Doctor' ? 'Ahmed Nabil' : `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User';
+  const displayName =
+    user?.role === 'Doctor'
+      ? 'Ahmed Nabil'
+      : [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || user?.email || 'User';
+
+  const roleLabel = user?.role || 'User';
 
   return (
     <NavbarContainer>
@@ -123,9 +127,7 @@ const Navbar = () => {
             <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>
               {displayName}
             </div>
-            <div style={{ fontSize: '12px', color: '#6b7280' }}>
-              {user?.role === 'Doctor' ? 'Doctor' : user?.role === 'Patient' ? 'Patient' : 'Staff'}
-            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>{roleLabel}</div>
           </div>
         </UserInfoButton>
         

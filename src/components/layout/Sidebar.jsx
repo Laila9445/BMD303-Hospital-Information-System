@@ -76,7 +76,9 @@ const IconWrapper = styled.div`
 const Sidebar = ({ minimized, onToggleMinimize }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isDoctor } = useAuth();
+  const { isDoctor, user } = useAuth();
+
+  const radiologyPath = user?.role === 'Radiologist' ? '/radiology/staff' : '/radiology/dashboard';
 
   const doctorMenuItems = [
     { icon: HomeIcon, label: 'Dashboard', path: '/doctor/dashboard', key: 'dashboard' },
@@ -86,10 +88,17 @@ const Sidebar = ({ minimized, onToggleMinimize }) => {
     { icon: BeakerIcon, label: 'Prescriptions', path: '/doctor/prescriptions', key: 'prescriptions' },
     { icon: BeakerIcon, label: 'Medical Imaging', path: '/doctor/imaging', key: 'imaging' },
     { icon: DocumentTextIcon, label: 'Referrals', path: '/doctor/referrals', key: 'referrals' },
+    { icon: UserGroupIcon, label: 'Physiotherapy', path: '/physio/dashboard', key: 'physiotherapy' },
+    { icon: BeakerIcon, label: 'Radiology', path: radiologyPath, key: 'radiology' },
     { icon: UserIcon, label: 'Profile', path: '/doctor/profile', key: 'profile' },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === radiologyPath) {
+      return location.pathname.startsWith('/radiology');
+    }
+    return location.pathname === path;
+  };
 
   return (
     <SidebarContainer $minimized={minimized}>

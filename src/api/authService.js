@@ -24,79 +24,12 @@ const generateUserId = () => {
 const authService = {
   // Login user
   login: async (email, password) => {
-    try {
-      // Try backend first
-      const response = await apiClient.post('/api/Auth/login', { email, password });
-      if (response.data.success && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
-      return response.data;
-    } catch (error) {
-      // Fallback to localStorage
-      
-      const users = getUsers();
-      const user = users.find(u => u.email === email && u.password === password);
-      
-      if (user) {
-        // Remove password before storing
-        const { password: _, ...userWithoutPassword } = user;
-        
-        localStorage.setItem('token', 'local-token-' + Date.now());
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
-        
-        return {
-          success: true,
-          token: 'local-token',
-          user: userWithoutPassword,
-          message: 'Login successful'
-        };
-      }
-      
-      return {
-        success: false,
-        message: 'Invalid email or password'
-      };
-    }
-  },
-
-  // Register new user
-  register: async (userData) => {
-    try {
-      // Try backend first
-      const response = await apiClient.post('/api/Auth/register', userData);
-      if (response.data.success && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
-      return response.data;
-    } catch (error) {
-      // Fallback to localStorage
-      
-      const users = getUsers();
-      
-      // Check if email already exists
-      const existingUser = users.find(u => u.email === userData.email);
-      if (existingUser) {
-        return {
-          success: false,
-          message: 'Email already registered'
-        };
-      }
-      
-      // Create new user
-      const newUser = {
-        ...userData,
-        userId: generateUserId(),
-        createdAt: new Date().toISOString()
-      };
-      
-      users.push(newUser);
-      saveUsers(users);
-      
-      // Remove password before storing in session
-      const { password: _, ...userWithoutPassword } = newUser;
+    const users = getUsers();
+    const user = users.find(u => u.email === email && u.password === password);
+    
+    if (user) {
+      // Remove password before storing
+      const { password: _, ...userWithoutPassword } = user;
       
       localStorage.setItem('token', 'local-token-' + Date.now());
       localStorage.setItem('user', JSON.stringify(userWithoutPassword));
@@ -106,9 +39,52 @@ const authService = {
         success: true,
         token: 'local-token',
         user: userWithoutPassword,
-        message: 'Registration successful!'
+        message: 'Login successful'
       };
     }
+    
+    return {
+      success: false,
+      message: 'Invalid email or password'
+    };
+  },
+
+  // Register new user
+  register: async (userData) => {
+    const users = getUsers();
+    
+    // Check if email already exists
+    const existingUser = users.find(u => u.email === userData.email);
+    if (existingUser) {
+      return {
+        success: false,
+        message: 'Email already registered'
+      };
+    }
+    
+    // Create new user
+    const newUser = {
+      ...userData,
+      userId: generateUserId(),
+      createdAt: new Date().toISOString()
+    };
+    
+    users.push(newUser);
+    saveUsers(users);
+    
+    // Remove password before storing in session
+    const { password: _, ...userWithoutPassword } = newUser;
+    
+    localStorage.setItem('token', 'local-token-' + Date.now());
+    localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
+    
+    return {
+      success: true,
+      token: 'local-token',
+      user: userWithoutPassword,
+      message: 'Registration successful!'
+    };
   },
 
   // Get current user profile
@@ -126,11 +102,12 @@ const authService = {
     }
   },
 
-  // Logout user
+  // Logout user — clear clinic session and physio portal token (separate mini auth)
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem('physio_token');
   },
 
   // Get authenticated user from local storage
@@ -157,5 +134,43 @@ const authService = {
     localStorage.removeItem('user');
   }
 };
+
+const initializeDefaultUsers = () => {
+  const users = getUsers();
+  const defaultUsers = [
+    {
+      userId: 1,
+      email: 'doctor@clinic.com',
+      password: '123',
+      role: 'Doctor',
+      firstName: 'Ahmed',
+      lastName: 'Nabil'
+    },
+    {
+      userId: 2,
+      email: 'nurse@clinic.com',
+      password: '123',
+      role: 'Nurse',
+      firstName: 'Sara',
+      lastName: 'Mohamed'
+    },
+    {
+      userId: 3,
+      email: 'patient@clinic.com',
+      password: '123',
+      role: 'Patient',
+      firstName: 'Mohamed',
+      lastName: 'Ali'
+    }
+  ];
+  defaultUsers.forEach(u => {
+    if (!users.find(x => x.email === u.email)) {
+      users.push(u);
+    }
+  });
+  saveUsers(users);
+};
+
+initializeDefaultUsers();
 
 export default authService;

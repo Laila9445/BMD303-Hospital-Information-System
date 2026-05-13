@@ -6,6 +6,7 @@ import Button from '../../components/common/Button';
 import { InputWithLabel, SelectWithLabel } from '../../components/common/Input';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import referralService from '../../api/referralService';
+import { useReferrals } from '../../context/ReferralContext';
 import { validateConsultationField } from '../../utils/validation';
 
 const ModalOverlay = styled.div`
@@ -81,7 +82,8 @@ const SubmitButton = styled(Button)`
   margin-top: 8px;
 `;
 
-const ReferralModal = ({ isOpen, onClose, onSuccess, patientId }) => {
+const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) => {
+  const { addReferral } = useReferrals();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     patientId: patientId || '',
@@ -150,6 +152,18 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId }) => {
         createdDate: new Date().toISOString(),
         status: 'Pending'
       };
+
+      const type = formData.referralType.startsWith('radiology-')
+        ? 'Radiology'
+        : 'Physiotherapy';
+
+      addReferral({
+        patientName: patientName || (formData.patientId ? `Patient #${formData.patientId}` : ''),
+        patientId: formData.patientId,
+        diagnosis: formData.reason,
+        notes: formData.notes || '',
+        type,
+      });
 
       await referralService.createReferral(referralData);
       
