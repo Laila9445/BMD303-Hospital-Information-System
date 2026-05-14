@@ -1,0 +1,341 @@
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--off-white);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 280px;
+    background-color: var(--white);
+    border-right: 1px solid var(--light-gray);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.sidebar-header {
+    padding: 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.logo-small {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+}
+
+.logo-small svg {
+    width: 24px;
+    height: 24px;
+}
+
+.sidebar-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 20px 0;
+    flex: 1;
+}
+
+.nav-item {
+    margin-bottom: 4px;
+}
+
+.nav-item a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--medium-gray);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-item a:hover {
+    background-color: rgba(0, 168, 80, 0.05);
+    color: var(--primary-green);
+}
+
+.nav-item.active a {
+    background-color: rgba(0, 168, 80, 0.1);
+    color: var(--primary-green);
+    border-left-color: var(--primary-green);
+}
+
+.nav-item svg {
+    width: 20px;
+    height: 20px;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid var(--light-gray);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.user-role {
+    font-size: 12px;
+    color: var(--medium-gray);
+    text-transform: capitalize;
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    color: var(--medium-gray);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background-color: var(--error-red);
+    color: var(--white);
+    border-color: var(--error-red);
+}
+
+.btn-logout svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    padding: 30px;
+}
+
+.top-bar {
+    margin-bottom: 30px;
+}
+
+.top-bar h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 8px;
+}
+
+.welcome-text {
+    font-size: 15px;
+    color: var(--medium-gray);
+}
+
+.dashboard-content {
+    display: grid;
+    gap: 24px;
+}
+
+/* Statistics Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon svg {
+    width: 30px;
+    height: 30px;
+}
+
+.stat-icon-patients {
+    background: linear-gradient(135deg, #00a850 0%, #00c163 100%);
+    color: var(--white);
+}
+
+.stat-icon-appointments {
+    background: linear-gradient(135deg, #007bff 0%, #0091ff 100%);
+    color: var(--white);
+}
+
+.stat-icon-treatment {
+    background: linear-gradient(135deg, #fd7e14 0%, #ff9b3d 100%);
+    color: var(--white);
+}
+
+.stat-details h3 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 4px;
+}
+
+.stat-details p {
+    font-size: 14px;
+    color: var(--medium-gray);
+}
+
+/* Appointments Table */
+.appointments-table {
+    overflow-x: auto;
+}
+
+.appointments-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.appointments-table thead {
+    background-color: var(--off-white);
+}
+
+.appointments-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--medium-gray);
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.appointments-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--light-gray);
+    font-size: 14px;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+    display: inline-block;
+}
+
+.status-scheduled {
+    background-color: rgba(0, 123, 255, 0.1);
+    color: var(--info-blue);
+}
+
+.status-completed {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-green);
+}
+
+.status-cancelled {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--error-red);
+}
+
+/* Loading State */
+.dashboard-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 20px;
+}
+
+.spinner-large {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--light-gray);
+    border-top-color: var(--primary-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
