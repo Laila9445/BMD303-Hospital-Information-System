@@ -37,7 +37,7 @@ namespace CLINICSYSTEM.Controllers
             return Ok(slots);
         }
 
-        [Authorize(Roles = "Patient,Doctor")]
+        [Authorize(Roles = "Patient,Doctor,Physiotherapist,Radiologist")]
         [HttpPost("book")]
         public async Task<IActionResult> BookAppointment([FromBody] BookAppointmentRequest request)
         {
@@ -46,9 +46,9 @@ namespace CLINICSYSTEM.Controllers
 
             var appointment = await _appointmentService.BookAppointmentAsync(userId, request);
             if (appointment == null) 
-                return BadRequest(new { error = "Cannot book appointment. The selected time slot is either unavailable or in the past." });
+                return BadRequest(new { success = false, error = "Cannot book appointment. The selected time slot is either unavailable, in the past, or the referral is invalid." });
 
-            return Ok(appointment);
+            return Ok(new { success = true, data = appointment });
         }
 
         [Authorize(Roles = "Patient")]

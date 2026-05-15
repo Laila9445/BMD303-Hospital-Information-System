@@ -389,13 +389,19 @@ namespace CLINICSYSTEM.Controllers
         [HttpGet("ServiceRequest/{id}")]
         [ProducesResponseType(typeof(FhirServiceRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FhirOperationOutcome), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetServiceRequest(int id)
+        public async Task<IActionResult> GetServiceRequest(string id)
         {
             try
             {
                 _logger.LogInformation("FHIR: Retrieving ServiceRequest: {ServiceRequestId}", id);
 
-                var serviceRequest = await _fhirService.GetServiceRequestByIdAsync(id);
+                FhirServiceRequest? serviceRequest = null;
+                if (int.TryParse(id, out var referralId))
+                {
+                    serviceRequest = await _fhirService.GetServiceRequestByIdAsync(referralId);
+                }
+
+                serviceRequest ??= await _fhirService.GetServiceRequestByFhirIdAsync(id);
 
                 if (serviceRequest == null)
                 {
@@ -439,7 +445,8 @@ namespace CLINICSYSTEM.Controllers
                 }
                 else
                 {
-                    return BadRequest(CreateOperationOutcome("error", "required", "Either patient or practitioner parameter is required"));
+                    _logger.LogInformation("FHIR: Returning all ServiceRequests");
+                    serviceRequests = await _fhirService.GetAllServiceRequestsAsync(status);
                 }
 
                 var bundle = new FhirBundle<FhirServiceRequest>

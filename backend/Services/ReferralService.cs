@@ -29,42 +29,74 @@ namespace CLINICSYSTEM.Services
         {
             try
             {
-                var doctorExists = await _context.Doctors.AnyAsync(d => d.DoctorId == request.DoctorId);
-                if (!doctorExists)
+                var doctor = await _context.Users.FindAsync(request.DoctorId);
+                if (doctor == null || doctor.Role != "Doctor")
                 {
-                    throw new BusinessException(
-                        "DOCTOR_NOT_FOUND",
-                        $"Doctor with ID {request.DoctorId} was not found.");
+                    throw new BusinessException("DOCTOR_NOT_FOUND", $"Doctor with ID {request.DoctorId} was not found.");
+                }
+
+                var patient = await _context.Users.FindAsync(request.PatientId);
+                if (patient == null || patient.Role != "Patient")
+                {
+                    throw new BusinessException("PATIENT_NOT_FOUND", $"Patient with ID {request.PatientId} was not found.");
                 }
 
                 var referral = new ReferralModel
                 {
-                    PatientExternalId = request.PatientExternalId,
-                    PatientPhone = request.PatientPhone,
+                    PatientId = request.PatientId,
+                    PatientExternalId = $"PAT-{request.PatientId}",
+                    PatientName = $"{patient.FirstName} {patient.LastName}",
                     DoctorId = request.DoctorId,
+                    DoctorName = $"{doctor.FirstName} {doctor.LastName}",
                     ReferralType = request.ReferralType,
+                    Urgency = request.Urgency,
                     Reason = request.Reason,
-                    Diagnosis = request.Diagnosis,
-                    RecommendedTreatment = request.RecommendedTreatment,
-                    Priority = request.Priority,
-                    DoctorNotes = request.DoctorNotes,
-                    ExternalReferralId = request.ExternalReferralId,
+                    Notes = request.Notes,
                     Status = "Pending",
-                    CreatedAt = DateTime.UtcNow,
+                    FhirServiceRequestId = $"ServiceRequest/{Guid.NewGuid()}",
+                    CreatedDate = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
+
+                // Set Department and AssignedToRole
+                if (referral.ReferralType.StartsWith("radiology-"))
+                {
+                    referral.Department = "Radiology";
+                    referral.AssignedToRole = "Radiologist";
+                }
+                else if (referral.ReferralType.StartsWith("physiotherapy-"))
+                {
+                    referral.Department = "Physiotherapy";
+                    referral.AssignedToRole = "Physiotherapist";
+                }
+                else
+                {
+                    referral.Department = "Doctor";
+                    referral.AssignedToRole = "Doctor";
+                }
 
                 _context.Referrals.Add(referral);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Referral created with ID: {ReferralId} for patient: {PatientId}", 
-                    referral.ReferralId, referral.PatientExternalId);
-
-                // Automatically send to external system if configured
-                if (request.AutoSend && request.ReferralType == "Physiotherapy")
+                _logger.LogInformation("Referral created with ID: {ReferralId} for patient: {PatientId}",
+                    referral.ReferralId, referral.PatientId);
+                
+                // Create notifications
+                var usersToNotify = await _context.Users.Where(u => u.Role == referral.AssignedToRole).ToListAsync();
+                foreach (var user in usersToNotify)
                 {
-                    await SendToExternalSystemAsync(referral.ReferralId);
+                    var notification = new NotificationModel
+                    {
+                        UserId = user.Id,
+                        Title = "New Referral Received",
+                        Message = $"Dr. {referral.DoctorName} referred patient {referral.PatientName} for {referral.ReferralType}. Urgency: {referral.Urgency}",
+                        IsRead = false,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.Notifications.Add(notification);
                 }
+                await _context.SaveChangesAsync();
+
 
                 return await GetReferralByIdAsync(referral.ReferralId);
             }
@@ -74,7 +106,7 @@ namespace CLINICSYSTEM.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating referral for patient: {PatientId}", request.PatientExternalId);
+                _logger.LogError(ex, "Error creating referral for patient: {PatientId}", request.PatientId);
                 return null;
             }
         }
@@ -84,8 +116,6 @@ namespace CLINICSYSTEM.Services
             try
             {
                 var query = _context.Referrals
-                    .Include(r => r.Doctor)
-                        .ThenInclude(d => d!.User)
                     .Where(r => r.DoctorId == doctorId);
 
                 if (!string.IsNullOrEmpty(status))
@@ -94,7 +124,7 @@ namespace CLINICSYSTEM.Services
                 }
 
                 var referrals = await query
-                    .OrderByDescending(r => r.CreatedAt)
+                    .OrderByDescending(r => r.CreatedDate)
                     .ToListAsync();
 
                 return referrals.Select(MapToDTO).ToList();
@@ -111,8 +141,6 @@ namespace CLINICSYSTEM.Services
             try
             {
                 var referral = await _context.Referrals
-                    .Include(r => r.Doctor)
-                        .ThenInclude(d => d!.User)
                     .FirstOrDefaultAsync(r => r.ReferralId == referralId);
 
                 return referral != null ? MapToDTO(referral) : null;
@@ -129,10 +157,8 @@ namespace CLINICSYSTEM.Services
             try
             {
                 var referrals = await _context.Referrals
-                    .Include(r => r.Doctor)
-                        .ThenInclude(d => d!.User)
                     .Where(r => r.PatientExternalId == patientExternalId)
-                    .OrderByDescending(r => r.CreatedAt)
+                    .OrderByDescending(r => r.CreatedDate)
                     .ToListAsync();
 
                 return referrals.Select(MapToDTO).ToList();
@@ -144,7 +170,60 @@ namespace CLINICSYSTEM.Services
             }
         }
 
-        public async Task<bool> UpdateReferralStatusAsync(int referralId, UpdateReferralStatusRequest request)
+        public async Task<List<ReferralDTO>> GetMyReferralsAsync(int userId, string userRole, string? status = null)
+        {
+            try
+            {
+                IQueryable<ReferralModel> query = _context.Referrals;
+
+                switch (userRole)
+                {
+                    case "Doctor":
+                        query = query.Where(r => r.DoctorId == userId);
+                        break;
+                    case "Physiotherapist":
+                        query = query.Where(r => r.AssignedToRole == "Physiotherapist");
+                        break;
+                    case "Radiologist":
+                        query = query.Where(r => r.AssignedToRole == "Radiologist");
+                        break;
+                    case "Patient":
+                        var patientExternalId = $"PAT-{userId}";
+                        query = query.Where(r => r.PatientId == userId || r.PatientExternalId == patientExternalId);
+                        break;
+                    case "Nurse":
+                        // No filter, return all
+                        break;
+                    default:
+                        return new List<ReferralDTO>();
+                }
+
+                if (!string.IsNullOrEmpty(status))
+                {
+                    query = query.Where(r => r.Status == status);
+                }
+
+                if (userRole is "Physiotherapist" or "Radiologist")
+                {
+                    query = query.OrderBy(r => r.Urgency == "Emergency" ? 0 : r.Urgency == "Urgent" ? 1 : 2)
+                                 .ThenByDescending(r => r.CreatedDate);
+                }
+                else
+                {
+                    query = query.OrderByDescending(r => r.CreatedDate);
+                }
+
+                var referrals = await query.ToListAsync();
+                return referrals.Select(MapToDTO).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving 'my-referrals' for user {UserId} with role {UserRole}", userId, userRole);
+                return new List<ReferralDTO>();
+            }
+        }
+
+        public async Task<bool> UpdateReferralStatusAsync(int referralId, UpdateReferralStatusRequest request, int userId, string userRole)
         {
             try
             {
@@ -155,33 +234,71 @@ namespace CLINICSYSTEM.Services
                     return false;
                 }
 
-                referral.Status = request.Status;
+                var oldStatus = referral.Status;
+                var newStatus = request.Status;
+
+                ValidateStatusTransition(referral, oldStatus, newStatus, userId, userRole);
+
+                referral.Status = newStatus;
                 referral.UpdatedAt = DateTime.UtcNow;
 
-                // Update feedback if provided
-                if (!string.IsNullOrEmpty(request.Feedback))
+                string notificationTitle = "";
+                string notificationMessage = "";
+
+                if (newStatus == "Completed")
                 {
-                    referral.ExternalServiceFeedback = request.Feedback;
+                    if (string.IsNullOrEmpty(request.CompletionNotes))
+                    {
+                        throw new BusinessException("COMPLETION_NOTES_REQUIRED", "Completion notes are required when status is 'Completed'");
+                    }
+                    referral.CompletionNotes = request.CompletionNotes;
+                    notificationTitle = "Referral Completed";
+                    notificationMessage = $"Referral for {referral.PatientName} completed. Notes: {request.CompletionNotes}";
+                }
+                else if (newStatus == "Cancelled")
+                {
+                    if (string.IsNullOrEmpty(request.CancellationReason))
+                    {
+                        throw new BusinessException("CANCELLATION_REASON_REQUIRED", "Cancellation reason is required when status is 'Cancelled'");
+                    }
+                    referral.CancellationReason = request.CancellationReason;
+                    notificationTitle = "Referral Cancelled";
+                    notificationMessage = $"Your referral for {referral.PatientName} was cancelled. Reason: {request.CancellationReason}";
+                }
+                else if (newStatus == "Accepted")
+                {
+                    notificationTitle = "Referral Accepted";
+                    notificationMessage = $"Your referral for {referral.PatientName} ({referral.ReferralType}) has been accepted";
                 }
 
-                // Set appropriate timestamps based on status
-                switch (request.Status)
-                {
-                    case "Sent":
-                        referral.SentAt = DateTime.UtcNow;
-                        break;
-                    case "Accepted":
-                        referral.AcceptedAt = DateTime.UtcNow;
-                        break;
-                    case "Completed":
-                        referral.CompletedAt = DateTime.UtcNow;
-                        break;
-                }
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Referral {ReferralId} status updated to: {Status}", referralId, request.Status);
+                // Create notification for the referring doctor
+                if (!string.IsNullOrEmpty(notificationTitle))
+                {
+                    var doctor = await _context.Users.FindAsync(referral.DoctorId);
+                    if (doctor != null)
+                    {
+                        var notification = new NotificationModel
+                        {
+                            UserId = doctor.Id,
+                            Title = notificationTitle,
+                            Message = notificationMessage,
+                            IsRead = false,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        _context.Notifications.Add(notification);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                _logger.LogInformation("Referral {ReferralId} status updated from {OldStatus} to: {NewStatus}", referralId, oldStatus, newStatus);
                 return true;
+            }
+            catch (BusinessException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -192,76 +309,10 @@ namespace CLINICSYSTEM.Services
 
         public async Task<bool> SendToExternalSystemAsync(int referralId)
         {
-            try
-            {
-                var referral = await _context.Referrals
-                    .Include(r => r.Doctor)
-                        .ThenInclude(d => d!.User)
-                    .FirstOrDefaultAsync(r => r.ReferralId == referralId);
-
-                if (referral == null)
-                {
-                    _logger.LogWarning("Referral not found: {ReferralId}", referralId);
-                    return false;
-                }
-
-                var outboundReferralId = !string.IsNullOrWhiteSpace(referral.ExternalReferralId)
-                    ? referral.ExternalReferralId
-                    : referral.ReferralId.ToString();
-
-                var wsReferralData = new ReferralData
-                {
-                    ReferralId = outboundReferralId,
-                    ReferringDoctor = referral.Doctor?.User != null
-                        ? $"Dr. {referral.Doctor.User.FirstName} {referral.Doctor.User.LastName}".Trim()
-                        : "Unknown Doctor",
-                    ServiceRequested = referral.ReferralType,
-                    DoctorNotes = referral.DoctorNotes ?? referral.Reason,
-                    Priority = MapPriority(referral.Priority),
-                    CreatedAt = referral.CreatedAt,
-                    Patient = new ReferralPatient
-                    {
-                        Name = referral.PatientExternalId,
-                        Phone = referral.PatientPhone,
-                        Email = null,
-                        DateOfBirth = null
-                    }
-                };
-
-                await _referralWebSocketClient.SendReferralAsync(wsReferralData);
-
-                referral.ExternalReferralId = wsReferralData.ReferralId;
-                referral.ExternalServiceUrl = _configuration["ReferralWebSocket:EndpointUrl"];
-                referral.Status = "Sent";
-                referral.SentAt = DateTime.UtcNow;
-                referral.UpdatedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation(
-                    "Referral {ReferralId} sent successfully via WebSocket with external ID {ExternalId}",
-                    referralId, wsReferralData.ReferralId);
-                return true;
-            }
-            catch (TimeoutException ex)
-            {
-                _logger.LogError(ex, "Timeout waiting acknowledgement for referral {ReferralId}", referralId);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending referral {ReferralId} via WebSocket", referralId);
-                return false;
-            }
-        }
-
-        private static string MapPriority(string priority)
-        {
-            return priority switch
-            {
-                "Urgent" => "urgent",
-                "High" => "urgent",
-                _ => "routine"
-            };
+            // This method is no longer required as per the new implementation.
+            // It can be removed or left as a placeholder for future use.
+            await Task.CompletedTask;
+            return true;
         }
 
         private ReferralDTO MapToDTO(ReferralModel referral)
@@ -269,27 +320,135 @@ namespace CLINICSYSTEM.Services
             return new ReferralDTO
             {
                 ReferralId = referral.ReferralId,
+                PatientId = referral.PatientId,
+                PatientName = referral.PatientName,
                 PatientExternalId = referral.PatientExternalId,
-                PatientPhone = referral.PatientPhone,
                 DoctorId = referral.DoctorId,
-                DoctorName = referral.Doctor?.User != null
-                    ? $"{referral.Doctor.User.FirstName} {referral.Doctor.User.LastName}"
-                    : "Unknown",
+                DoctorName = referral.DoctorName,
                 ReferralType = referral.ReferralType,
+                Department = referral.Department,
+                AssignedToRole = referral.AssignedToRole,
+                Urgency = referral.Urgency,
                 Reason = referral.Reason,
-                Diagnosis = referral.Diagnosis,
-                RecommendedTreatment = referral.RecommendedTreatment,
-                Priority = referral.Priority,
+                Notes = referral.Notes,
                 Status = referral.Status,
-                ExternalReferralId = referral.ExternalReferralId,
-                ExternalServiceUrl = referral.ExternalServiceUrl,
-                CreatedAt = referral.CreatedAt,
-                SentAt = referral.SentAt,
-                AcceptedAt = referral.AcceptedAt,
-                CompletedAt = referral.CompletedAt,
-                DoctorNotes = referral.DoctorNotes,
-                ExternalServiceFeedback = referral.ExternalServiceFeedback
+                LinkedAppointmentId = referral.LinkedAppointmentId,
+                CompletionNotes = referral.CompletionNotes,
+                CancellationReason = referral.CancellationReason,
+                ReportAttached = referral.ReportAttached,
+                FhirServiceRequestId = referral.FhirServiceRequestId,
+                CreatedDate = referral.CreatedDate,
+                UpdatedAt = referral.UpdatedAt ?? DateTime.UtcNow
             };
+        }
+
+        public async Task<ReferralStatsDTO> GetReferralStatsAsync(int userId, string userRole)
+        {
+            IQueryable<ReferralModel> query = _context.Referrals;
+
+            switch (userRole)
+            {
+                case "Doctor":
+                    query = query.Where(r => r.DoctorId == userId);
+                    break;
+                case "Physiotherapist":
+                    query = query.Where(r => r.AssignedToRole == "Physiotherapist");
+                    break;
+                case "Radiologist":
+                    query = query.Where(r => r.AssignedToRole == "Radiologist");
+                    break;
+                case "Nurse":
+                    // No filter for nurse
+                    break;
+                default:
+                    return new ReferralStatsDTO(); // Return empty stats for other roles
+            }
+
+            var stats = new ReferralStatsDTO
+            {
+                Total = await query.CountAsync(),
+                Pending = await query.CountAsync(r => r.Status == "Pending"),
+                Accepted = await query.CountAsync(r => r.Status == "Accepted"),
+                AppointmentBooked = await query.CountAsync(r => r.Status == "Appointment Booked"),
+                Completed = await query.CountAsync(r => r.Status == "Completed"),
+                Cancelled = await query.CountAsync(r => r.Status == "Cancelled"),
+                ByUrgency = new Dictionary<string, int>
+                {
+                    ["emergency"] = await query.CountAsync(r => r.Urgency == "Emergency"),
+                    ["urgent"] = await query.CountAsync(r => r.Urgency == "Urgent"),
+                    ["routine"] = await query.CountAsync(r => r.Urgency == "Routine")
+                },
+                ByDepartment = await query.Where(r => r.Department == "Radiology" || r.Department == "Physiotherapy")
+                    .GroupBy(r => r.Department)
+                    .ToDictionaryAsync(g => g.Key, g => g.Count())
+            };
+
+            return stats;
+        }
+
+        private static void ValidateStatusTransition(ReferralModel referral, string oldStatus, string newStatus, int userId, string userRole)
+        {
+            if (oldStatus == newStatus)
+            {
+                return;
+            }
+
+            if (oldStatus is "Completed" or "Cancelled")
+            {
+                throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
+            }
+
+            switch (oldStatus)
+            {
+                case "Pending":
+                    if (newStatus == "Accepted")
+                    {
+                        if (userRole is not ("Physiotherapist" or "Radiologist"))
+                        {
+                            throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
+                        }
+                        return;
+                    }
+
+                    if (newStatus == "Cancelled")
+                    {
+                        if (userRole == "Nurse" || (userRole == "Doctor" && referral.DoctorId == userId))
+                        {
+                            return;
+                        }
+                        throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
+                    }
+                    break;
+
+                case "Accepted":
+                    if (newStatus == "Appointment Booked")
+                    {
+                        throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
+                    }
+
+                    if (newStatus == "Cancelled")
+                    {
+                        if (userRole is "Physiotherapist" or "Radiologist")
+                        {
+                            return;
+                        }
+                        throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
+                    }
+                    break;
+
+                case "Appointment Booked":
+                    if (newStatus == "Completed")
+                    {
+                        if (userRole is "Physiotherapist" or "Radiologist")
+                        {
+                            return;
+                        }
+                        throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
+                    }
+                    break;
+            }
+
+            throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
         }
     }
 }

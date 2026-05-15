@@ -22,7 +22,7 @@ namespace CLINICSYSTEM.Services
         /// <summary>
         /// Update referral status
         /// </summary>
-        Task<bool> UpdateReferralStatusAsync(int referralId, UpdateReferralStatusRequest request);
+        Task<bool> UpdateReferralStatusAsync(int referralId, UpdateReferralStatusRequest request, int userId, string userRole);
 
         /// <summary>
         /// Send referral to external physiotherapy system
@@ -33,5 +33,15 @@ namespace CLINICSYSTEM.Services
         /// Get all referrals for a patient (using external patient ID)
         /// </summary>
         Task<List<ReferralDTO>> GetPatientReferralsAsync(string patientExternalId);
+
+        /// <summary>
+        /// Get referrals for the current user based on their role
+        /// </summary>
+        Task<List<ReferralDTO>> GetMyReferralsAsync(int userId, string userRole, string? status = null);
+
+        /// <summary>
+        /// Get referral statistics based on user role
+        /// </summary>
+        Task<ReferralStatsDTO> GetReferralStatsAsync(int userId, string userRole);
     }
 }

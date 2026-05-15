@@ -20,16 +20,18 @@ namespace CLINICSYSTEM.Controllers
     {
         private readonly IReferralService _referralService;
         private readonly ILogger<ReferralsController> _logger;
+        private readonly IAppointmentService _appointmentService;
 
         /// <summary>
         /// Initializes a new instance of the ReferralsController
         /// </summary>
         /// <param name="referralService">Service for referral operations</param>
         /// <param name="logger">Logger for debugging and monitoring</param>
-        public ReferralsController(IReferralService referralService, ILogger<ReferralsController> logger)
+        public ReferralsController(IReferralService referralService, ILogger<ReferralsController> logger, IAppointmentService appointmentService)
         {
             _referralService = referralService ?? throw new ArgumentNullException(nameof(referralService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _appointmentService = appointmentService ?? throw new ArgumentNullException(nameof(appointmentService));
         }
 
         /// <summary>
@@ -58,19 +60,19 @@ namespace CLINICSYSTEM.Controllers
                 }
 
                 _logger.LogInformation("Creating referral for patient: {PatientId} by doctor: {DoctorId}",
-                    request.PatientExternalId, request.DoctorId);
+                    request.PatientId, request.DoctorId);
 
                 var referral = await _referralService.CreateReferralAsync(request);
 
                 if (referral == null)
                 {
-                    _logger.LogError("Failed to create referral for patient: {PatientId}", request.PatientExternalId);
+                    _logger.LogError("Failed to create referral for patient: {PatientId}", request.PatientId);
                     return StatusCode(StatusCodes.Status500InternalServerError,
                         new { message = "Failed to create referral", code = "REFERRAL_CREATE_FAILED" });
                 }
 
                 _logger.LogInformation("Referral created successfully with ID: {ReferralId}", referral.ReferralId);
-                return IsFhirRequest() ? FhirOk(referral) : Ok(referral);
+                return IsFhirRequest() ? FhirOk(referral) : Ok(ApiResponse.Ok(referral));
             }
             catch (BusinessException ex)
             {
@@ -113,7 +115,7 @@ namespace CLINICSYSTEM.Controllers
                     return NotFound(new { message = "Referral not found", code = "REFERRAL_NOT_FOUND" });
                 }
 
-                return IsFhirRequest() ? FhirOk(referral) : Ok(referral);
+                return IsFhirRequest() ? FhirOk(referral) : Ok(ApiResponse.Ok(referral));
             }
             catch (Exception ex)
             {
@@ -148,7 +150,7 @@ namespace CLINICSYSTEM.Controllers
 
                 var referrals = await _referralService.GetDoctorReferralsAsync(doctorId, status);
 
-                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(referrals);
+                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(ApiResponse.Ok(referrals ?? new List<ReferralDTO>()));
             }
             catch (Exception ex)
             {
@@ -159,15 +161,12 @@ namespace CLINICSYSTEM.Controllers
         }
 
         /// <summary>
-        /// Get referrals for the currently logged-in doctor
+        /// Get referrals for the currently logged-in user based on their role
         /// </summary>
-        /// <param name="status">Optional status filter (Pending, Sent, Accepted, InProgress, Completed, Cancelled)</param>
-        /// <returns>List of referrals for current doctor</returns>
-        /// <response code="200">Referrals retrieved successfully</response>
-        /// <response code="401">Unauthorized - user not authenticated</response>
-        /// <response code="500">Internal server error</response>
+        /// <param name="status">Optional status filter</param>
+        /// <returns>List of referrals</returns>
         [HttpGet("my-referrals")]
-        [Authorize(Roles = "Doctor")]
+        [Authorize]
         [ProducesResponseType(typeof(List<ReferralDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -178,18 +177,20 @@ namespace CLINICSYSTEM.Controllers
                 var userId = GetUserId();
                 if (userId == 0) return Unauthorized();
 
-                _logger.LogInformation("Retrieving referrals for current doctor: {DoctorId}, status filter: {Status}",
-                    userId, status ?? "none");
+                var userRole = GetUserRole();
+                if (string.IsNullOrEmpty(userRole)) return Forbid();
 
-                var referrals = await _referralService.GetDoctorReferralsAsync(userId, status);
+                _logger.LogInformation("Retrieving 'my-referrals' for user {UserId} with role {UserRole}", userId, userRole);
 
-                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(referrals);
+                var referrals = await _referralService.GetMyReferralsAsync(userId, userRole, status);
+
+                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(ApiResponse.Ok(referrals ?? new List<ReferralDTO>()));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving referrals for current doctor");
+                _logger.LogError(ex, "Error retrieving 'my-referrals'");
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = "An unexpected error occurred", code = "INTERNAL_SERVER_ERROR" });
+                    new { success = false, message = "An unexpected error occurred", code = "INTERNAL_SERVER_ERROR" });
             }
         }
 
@@ -197,6 +198,11 @@ namespace CLINICSYSTEM.Controllers
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             return userIdClaim != null && int.TryParse(userIdClaim.Value, out var id) ? id : 0;
+        }
+
+        private string? GetUserRole()
+        {
+            return User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
         }
 
         private bool IsFhirRequest()
@@ -254,7 +260,7 @@ namespace CLINICSYSTEM.Controllers
 
                 var referrals = await _referralService.GetPatientReferralsAsync(patientExternalId);
 
-                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(referrals);
+                return IsFhirRequest() ? FhirBundleOk(referrals) : Ok(ApiResponse.Ok(referrals ?? new List<ReferralDTO>()));
             }
             catch (Exception ex)
             {
@@ -277,7 +283,7 @@ namespace CLINICSYSTEM.Controllers
         /// <response code="404">Referral not found</response>
         /// <response code="500">Internal server error</response>
         [HttpPut("{id}/status")]
-        [Authorize(Roles = "Doctor,Admin")]
+        [Authorize(Roles = "Doctor,Admin,Physiotherapist,Radiologist,Nurse")]
         [ProducesResponseType(typeof(ReferralDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -291,33 +297,43 @@ namespace CLINICSYSTEM.Controllers
                 if (!ModelState.IsValid)
                 {
                     _logger.LogWarning("Invalid update status request model state for referral: {ReferralId}", id);
-                    return BadRequest(new { errors = ModelState.Values.SelectMany(v => v.Errors) });
+                    return BadRequest(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors) });
                 }
 
                 _logger.LogInformation("Updating referral {ReferralId} status to: {Status}", id, request.Status);
 
-                var success = await _referralService.UpdateReferralStatusAsync(id, request);
+                var userId = GetUserId();
+                var userRole = GetUserRole() ?? string.Empty;
+                if (userId == 0 || string.IsNullOrEmpty(userRole))
+                {
+                    return Unauthorized(ApiResponse.Fail("User not authenticated"));
+                }
+
+                var success = await _referralService.UpdateReferralStatusAsync(id, request, userId, userRole);
 
                 if (!success)
                 {
-                    _logger.LogWarning("Referral not found: {ReferralId}", id);
-                    return NotFound(new { message = "Referral not found", code = "REFERRAL_NOT_FOUND" });
+                    _logger.LogWarning("Referral not found or update failed: {ReferralId}", id);
+                    return NotFound(new { success = false, message = "Referral not found or update failed", code = "REFERRAL_UPDATE_FAILED" });
                 }
 
                 var referral = await _referralService.GetReferralByIdAsync(id);
-                if (referral == null) return NotFound();
-                return IsFhirRequest() ? FhirOk(referral) : Ok(referral);
+                if (referral == null) return NotFound(new { success = false, message = "Referral not found after update", code = "REFERRAL_NOT_FOUND" });
+                
+                return IsFhirRequest()
+                    ? FhirOk(referral)
+                    : Ok(ApiResponse.Ok(referral));
             }
             catch (BusinessException ex)
             {
                 _logger.LogWarning("Business error updating referral status: {Message}", ex.Message);
-                return BadRequest(new { message = ex.Message, code = ex.MachineCode });
+                return BadRequest(new { success = false, message = ex.Message, code = ex.MachineCode });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating referral status: {ReferralId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = "An unexpected error occurred", code = "INTERNAL_SERVER_ERROR" });
+                    new { success = false, message = "An unexpected error occurred", code = "INTERNAL_SERVER_ERROR" });
             }
         }
 
@@ -342,57 +358,45 @@ namespace CLINICSYSTEM.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SendReferralToExternalSystem(int id)
         {
-            try
+            // This endpoint is deprecated as the new implementation does not require manual sending.
+            return await Task.FromResult(StatusCode(StatusCodes.Status410Gone, new { message = "This endpoint is no longer available." }));
+        }
+
+        [HttpGet("{id}/appointment")]
+        [Authorize(Roles = "Doctor,Physiotherapist,Radiologist,Nurse")]
+        [ProducesResponseType(typeof(AppointmentDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAppointmentForReferral(int id)
+        {
+            var referral = await _referralService.GetReferralByIdAsync(id);
+            if (referral?.LinkedAppointmentId == null)
             {
-                _logger.LogInformation("Sending referral {ReferralId} to external system", id);
-
-                var referral = await _referralService.GetReferralByIdAsync(id);
-                if (referral == null)
-                {
-                    _logger.LogWarning("Referral not found: {ReferralId}", id);
-                    return NotFound(new { message = "Referral not found", code = "REFERRAL_NOT_FOUND" });
-                }
-
-                if (referral.Status == "Sent" && !string.IsNullOrEmpty(referral.ExternalReferralId))
-                {
-                    _logger.LogWarning("Referral already sent: {ReferralId}", id);
-                    return BadRequest(new
-                    {
-                        message = "Referral has already been sent to external system",
-                        code = "REFERRAL_ALREADY_SENT",
-                        externalId = referral.ExternalReferralId
-                    });
-                }
-
-                var success = await _referralService.SendToExternalSystemAsync(id);
-
-                if (!success)
-                {
-                    _logger.LogError("Failed to send referral {ReferralId} to external system", id);
-                    return StatusCode(StatusCodes.Status500InternalServerError,
-                        new
-                        {
-                            message = "Failed to send referral to external system",
-                            code = "EXTERNAL_SYSTEM_ERROR"
-                        });
-                }
-
-                var updatedReferral = await _referralService.GetReferralByIdAsync(id);
-                if (updatedReferral == null) return NotFound();
-                _logger.LogInformation("Referral {ReferralId} sent successfully to external system", id);
-                return IsFhirRequest() ? FhirOk(updatedReferral) : Ok(updatedReferral);
+                return NotFound(new { success = false, message = "No appointment booked yet for this referral" });
             }
-            catch (BusinessException ex)
+
+            var appointment = await _appointmentService.GetAppointmentDetailsAsync(referral.LinkedAppointmentId.Value);
+            if (appointment == null)
             {
-                _logger.LogWarning("Business error sending referral: {Message}", ex.Message);
-                return BadRequest(new { message = ex.Message, code = ex.MachineCode });
+                return NotFound(new { success = false, message = "Appointment not found" });
             }
-            catch (Exception ex)
+
+            return Ok(ApiResponse.Ok(appointment));
+        }
+
+        [HttpGet("stats")]
+        [Authorize(Roles = "Doctor,Nurse,Physiotherapist,Radiologist")]
+        public async Task<IActionResult> GetReferralStats()
+        {
+            var userId = GetUserId();
+            var userRole = GetUserRole();
+
+            if (userId == 0 || string.IsNullOrEmpty(userRole))
             {
-                _logger.LogError(ex, "Error sending referral {ReferralId} to external system", id);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = "An unexpected error occurred", code = "INTERNAL_SERVER_ERROR" });
+                return Unauthorized();
             }
+
+            var stats = await _referralService.GetReferralStatsAsync(userId, userRole);
+            return Ok(ApiResponse.Ok(stats));
         }
     }
 }

@@ -1,16 +1,17 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using CLINICSYSTEM.Models;
 
 namespace CLINICSYSTEM.Data
 {
-    public class ClinicDbContext : IdentityDbContext
+    public class ClinicDbContext : IdentityDbContext<UserModel, IdentityRole<int>, int>
     {
         public ClinicDbContext(DbContextOptions<ClinicDbContext> options) : base(options)
         {
         }
 
-        public new DbSet<UserModel> Users { get; set; }
+        // public new DbSet<UserModel> Users { get; set; }
         
         /// <summary>
         /// Minimal patient reference table - full data in Patient Portal service
@@ -32,10 +33,54 @@ namespace CLINICSYSTEM.Data
         public DbSet<MedicalImagingModel> MedicalImagings { get; set; }
         public DbSet<TherapySessionModel> TherapySessions { get; set; }
         public DbSet<TherapyPlanModel> TherapyPlans { get; set; }
+        public DbSet<BillingService> BillingServices { get; set; }
+        public DbSet<BillingInvoice> BillingInvoices { get; set; }
+        public DbSet<BillingPayment> BillingPayments { get; set; }
+        public DbSet<PhysioTreatmentPlan> PhysioTreatmentPlans { get; set; }
+        public DbSet<RadiologyStudy> RadiologyStudies { get; set; }
+        public DbSet<RadiologyReport> RadiologyReports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<UserModel>().ToTable("AspNetUsers");
+
+            modelBuilder.Entity<BillingInvoice>()
+                .HasMany(i => i.Payments)
+                .WithOne(p => p.BillingInvoice)
+                .HasForeignKey(p => p.InvoiceId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PhysioTreatmentPlan>()
+                .HasOne(p => p.Patient)
+                .WithMany()
+                .HasForeignKey(p => p.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PhysioTreatmentPlan>()
+                .HasOne(p => p.Physio)
+                .WithMany()
+                .HasForeignKey(p => p.PhysioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RadiologyStudy>()
+                .HasOne(s => s.Patient)
+                .WithMany()
+                .HasForeignKey(s => s.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RadiologyStudy>()
+                .HasOne(s => s.Radiologist)
+                .WithMany()
+                .HasForeignKey(s => s.RadiologistId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RadiologyReport>()
+                .HasOne(r => r.Study)
+                .WithMany()
+                .HasForeignKey(r => r.StudyId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // REMOVED: Redundant HasKey() calls - EF Core auto-recognizes {EntityName}Id as primary keys
             // This significantly speeds up model building at startup
@@ -172,7 +217,7 @@ namespace CLINICSYSTEM.Data
                 .HasIndex(r => new { r.DoctorId, r.Status });
 
             modelBuilder.Entity<ReferralModel>()
-                .HasIndex(r => r.ExternalReferralId);
+                .HasIndex(r => r.FhirServiceRequestId);
 
             // Nurse and PatientCareTask indexes
             modelBuilder.Entity<NurseModel>()
@@ -184,6 +229,8 @@ namespace CLINICSYSTEM.Data
 
             modelBuilder.Entity<PatientCareTaskModel>()
                 .HasIndex(t => t.PatientExternalId);
+
+
 
             modelBuilder.Entity<PatientCareTaskModel>()
                 .HasIndex(t => t.ScheduledAt);

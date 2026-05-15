@@ -13,15 +13,15 @@ namespace CLINICSYSTEM.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<UserModel> _userManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
         private readonly ClinicDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthenticationService> _logger;
 
         public AuthenticationService(
-            UserManager<IdentityUser> userManager, 
-            RoleManager<IdentityRole> roleManager, 
+            UserManager<UserModel> userManager, 
+            RoleManager<IdentityRole<int>> roleManager, 
             ClinicDbContext context, 
             IConfiguration configuration,
             ILogger<AuthenticationService> logger)
@@ -48,14 +48,20 @@ namespace CLINICSYSTEM.Services
                 await EnsureRolesExistAsync();
 
                 // Create Identity user
-                var identityUser = new IdentityUser 
+                var user = new UserModel 
                 { 
                     UserName = request.Email, 
                     Email = request.Email,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    PhoneNumber = request.PhoneNumber,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Role = request.Role,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
                 };
 
-                var identityResult = await _userManager.CreateAsync(identityUser, request.Password);
+                var identityResult = await _userManager.CreateAsync(user, request.Password);
                 
                 if (!identityResult.Succeeded)
                 {
@@ -65,45 +71,30 @@ namespace CLINICSYSTEM.Services
                 }
 
                 // Add role
-                var roleResult = await _userManager.AddToRoleAsync(identityUser, request.Role);
+                var roleResult = await _userManager.AddToRoleAsync(user, request.Role);
                 if (!roleResult.Succeeded)
                 {
                     var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
                     _logger.LogError("Role assignment failed: {Errors}", errors);
-                    await _userManager.DeleteAsync(identityUser);
+                    await _userManager.DeleteAsync(user);
                     return new AuthResponse { Success = false, Message = $"Role assignment failed: {errors}" };
                 }
 
-                // Create custom user
-                var user = new UserModel
-                {
-                    Email = request.Email,
-                    PhoneNumber = request.PhoneNumber,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Role = request.Role,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("User created with UserId: {UserId}", user.UserId);
+                _logger.LogInformation("User created with UserId: {UserId}", user.Id);
 
                 // Create role-specific profile
                 if (request.Role == "Doctor")
                 {
-                    await CreateDoctorProfileAsync(user.UserId, request);
+                    await CreateDoctorProfileAsync(user.Id, request);
                 }
                 else if (request.Role == "Patient")
-{
-                 await CreatePatientProfileAsync(user.UserId, request);
-}
+                {
+                 await CreatePatientProfileAsync(user.Id, request);
+                }
                 // Admin and Staff roles don't need additional profiles
 
                 _logger.LogInformation("User {Email} registered successfully as {Role} with UserId {UserId}", 
-                    request.Email, request.Role, user.UserId);
+                    request.Email, request.Role, user.Id);
 
                 var token = GenerateToken(user);
 
@@ -113,7 +104,7 @@ namespace CLINICSYSTEM.Services
                     Token = token,
                     User = new UserDTO
                     {
-                        UserId = user.UserId,
+                        UserId = user.Id,
                         Email = user.Email,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
@@ -164,7 +155,7 @@ namespace CLINICSYSTEM.Services
             {
                 if (!await _roleManager.RoleExistsAsync(roleName))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(roleName));
+                    await _roleManager.CreateAsync(new IdentityRole<int>(roleName));
                     _logger.LogInformation("Created role: {RoleName}", roleName);
                 }
             }
@@ -182,14 +173,7 @@ namespace CLINICSYSTEM.Services
                     return new AuthResponse { Success = false, Message = "Invalid email or password" };
                 }
 
-                var identityUser = await _userManager.FindByEmailAsync(request.Email);
-                if (identityUser == null)
-                {
-                    _logger.LogWarning("Login failed: Identity user {Email} not found", request.Email);
-                    return new AuthResponse { Success = false, Message = "Invalid email or password" };
-                }
-
-                var isPasswordValid = await _userManager.CheckPasswordAsync(identityUser, request.Password);
+                var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
                 if (!isPasswordValid)
                 {
                     _logger.LogWarning("Login failed: Invalid password for {Email}", request.Email);
@@ -198,7 +182,7 @@ namespace CLINICSYSTEM.Services
 
                 var token = GenerateToken(user);
 
-                _logger.LogInformation("User {Email} (UserId: {UserId}) logged in successfully", request.Email, user.UserId);
+                _logger.LogInformation("User {Email} (UserId: {UserId}) logged in successfully", request.Email, user.Id);
 
                 return new AuthResponse
                 {
@@ -206,7 +190,7 @@ namespace CLINICSYSTEM.Services
                     Token = token,
                     User = new UserDTO
                     {
-                        UserId = user.UserId,
+                        UserId = user.Id,
                         Email = user.Email,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
@@ -253,7 +237,7 @@ namespace CLINICSYSTEM.Services
 
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                     new Claim(ClaimTypes.Role, user.Role),
@@ -274,7 +258,7 @@ namespace CLINICSYSTEM.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Token generation failed for user {UserId}", user.UserId);
+                _logger.LogError(ex, "Token generation failed for user {UserId}", user.Id);
                 throw;
             }
         }

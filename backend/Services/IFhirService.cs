@@ -27,6 +27,8 @@ namespace CLINICSYSTEM.Services
 
         // ServiceRequest (Referral) Resources
         Task<FhirServiceRequest?> GetServiceRequestByIdAsync(int referralId);
+        Task<FhirServiceRequest?> GetServiceRequestByFhirIdAsync(string fhirId);
+        Task<List<FhirServiceRequest>> GetAllServiceRequestsAsync(string? status = null);
         Task<List<FhirServiceRequest>> GetServiceRequestsByPatientAsync(string patientExternalId, string? status = null);
         Task<List<FhirServiceRequest>> GetServiceRequestsByPractitionerAsync(int doctorId, string? status = null);
 

@@ -3,6 +3,7 @@ using System;
 using CLINICSYSTEM.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CLINICSYSTEM.Migrations
 {
     [DbContext(typeof(ClinicDbContext))]
-    partial class ClinicDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515114306_SeedUserData")]
+    partial class SeedUserData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
@@ -103,7 +106,7 @@ namespace CLINICSYSTEM.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("InsuranceCoverage")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<decimal?>("InsuranceDiscount")
                         .HasColumnType("decimal(18,2)");
@@ -167,6 +170,8 @@ namespace CLINICSYSTEM.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ServiceId");
 
                     b.ToTable("BillingInvoices");
                 });
@@ -701,68 +706,6 @@ namespace CLINICSYSTEM.Migrations
                     b.ToTable("Patients");
                 });
 
-            modelBuilder.Entity("CLINICSYSTEM.Models.PhysioTreatmentPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CompletedSessions")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("PhysioId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ReferralId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Sessions")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("PhysioId");
-
-                    b.HasIndex("ReferralId");
-
-                    b.ToTable("PhysioTreatmentPlans");
-                });
-
             modelBuilder.Entity("CLINICSYSTEM.Models.PrescriptionModel", b =>
                 {
                     b.Property<int>("PrescriptionId")
@@ -808,111 +751,6 @@ namespace CLINICSYSTEM.Migrations
                     b.HasIndex("ConsultationId");
 
                     b.ToTable("Prescriptions");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.RadiologyReport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Findings")
-                        .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Impression")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("RadiologistId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Recommendations")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("StudyId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("RadiologistId");
-
-                    b.HasIndex("StudyId");
-
-                    b.ToTable("RadiologyReports");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.RadiologyStudy", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("BillingCreated")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("BillingInvoiceId")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("RadiologistId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ReferralId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("StudyDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("StudyType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("RadiologistId");
-
-                    b.HasIndex("ReferralId");
-
-                    b.ToTable("RadiologyStudies");
                 });
 
             modelBuilder.Entity("CLINICSYSTEM.Models.ReferralModel", b =>
@@ -1390,15 +1228,26 @@ namespace CLINICSYSTEM.Migrations
                     b.Navigation("TimeSlot");
                 });
 
-            modelBuilder.Entity("CLINICSYSTEM.Models.BillingPayment", b =>
+            modelBuilder.Entity("CLINICSYSTEM.Models.BillingInvoice", b =>
                 {
-                    b.HasOne("CLINICSYSTEM.Models.BillingInvoice", "BillingInvoice")
-                        .WithMany("Payments")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("CLINICSYSTEM.Models.BillingService", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BillingInvoice");
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("CLINICSYSTEM.Models.BillingPayment", b =>
+                {
+                    b.HasOne("CLINICSYSTEM.Models.BillingInvoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("CLINICSYSTEM.Models.ConsultationModel", b =>
@@ -1511,31 +1360,6 @@ namespace CLINICSYSTEM.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("CLINICSYSTEM.Models.PhysioTreatmentPlan", b =>
-                {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Physio")
-                        .WithMany()
-                        .HasForeignKey("PhysioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.ReferralModel", "Referral")
-                        .WithMany()
-                        .HasForeignKey("ReferralId");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Physio");
-
-                    b.Navigation("Referral");
-                });
-
             modelBuilder.Entity("CLINICSYSTEM.Models.PrescriptionModel", b =>
                 {
                     b.HasOne("CLINICSYSTEM.Models.ConsultationModel", "Consultation")
@@ -1545,58 +1369,6 @@ namespace CLINICSYSTEM.Migrations
                         .IsRequired();
 
                     b.Navigation("Consultation");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.RadiologyReport", b =>
-                {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Radiologist")
-                        .WithMany()
-                        .HasForeignKey("RadiologistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.RadiologyStudy", "Study")
-                        .WithMany()
-                        .HasForeignKey("StudyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Radiologist");
-
-                    b.Navigation("Study");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.RadiologyStudy", b =>
-                {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Radiologist")
-                        .WithMany()
-                        .HasForeignKey("RadiologistId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.ReferralModel", "Referral")
-                        .WithMany()
-                        .HasForeignKey("ReferralId");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Radiologist");
-
-                    b.Navigation("Referral");
                 });
 
             modelBuilder.Entity("CLINICSYSTEM.Models.ReferralModel", b =>
@@ -1717,11 +1489,6 @@ namespace CLINICSYSTEM.Migrations
             modelBuilder.Entity("CLINICSYSTEM.Models.AppointmentModel", b =>
                 {
                     b.Navigation("Consultation");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.BillingInvoice", b =>
-                {
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("CLINICSYSTEM.Models.ConsultationModel", b =>

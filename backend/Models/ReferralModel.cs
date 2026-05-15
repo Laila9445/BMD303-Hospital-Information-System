@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CLINICSYSTEM.Models
 {
@@ -10,129 +10,57 @@ namespace CLINICSYSTEM.Models
     /// </summary>
     public class ReferralModel
     {
-        /// <summary>
-        /// Unique identifier for the referral
-        /// </summary>
         [Key]
         public int ReferralId { get; set; }
 
-        /// <summary>
-        /// External patient ID (from Patient Portal or external system)
-        /// Used for integration across multiple systems
-        /// </summary>
+        public int PatientId { get; set; }
+        [ForeignKey("PatientId")]
+        public UserModel? Patient { get; set; }
+
         public string PatientExternalId { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Optional patient phone number for outbound referral communication.
-        /// </summary>
-        public string? PatientPhone { get; set; }
+        public string PatientName { get; set; } = string.Empty;
 
-        /// <summary>
-        /// ID of the doctor who referred the patient
-        /// </summary>
         public int DoctorId { get; set; }
+        [ForeignKey("DoctorId")]
+        public UserModel? Doctor { get; set; }
 
-        /// <summary>
-        /// Type of referral (e.g., Physiotherapy, Radiology, Orthopedic Specialist)
-        /// </summary>
+        [Required]
+        public string DoctorName { get; set; } = string.Empty;
+
+        [Required]
         public string ReferralType { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Reason for the referral
-        /// </summary>
+        [Required]
+        public string Department { get; set; } = string.Empty;
+
+        [Required]
+        public string AssignedToRole { get; set; } = string.Empty;
+
+        [Required]
+        public string Urgency { get; set; } = "Routine";
+
+        [Required]
         public string Reason { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Patient diagnosis or clinical findings
-        /// </summary>
-        public string Diagnosis { get; set; } = string.Empty;
+        public string? Notes { get; set; }
 
-        /// <summary>
-        /// Recommended treatment or service requested
-        /// </summary>
-        public string RecommendedTreatment { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Priority level: Low, Normal, High, Urgent
-        /// </summary>
-        public string Priority { get; set; } = "Normal";
-
-        /// <summary>
-        /// Status of the referral:
-        /// - Pending: Created but not sent
-        /// - Sent: Sent to external service
-        /// - Accepted: Accepted by external service
-        /// - InProgress: Service in progress
-        /// - Completed: Service completed
-        /// - Cancelled: Referral cancelled
-        /// </summary>
         public string Status { get; set; } = "Pending";
 
-        /// <summary>
-        /// Additional notes from the referring doctor
-        /// </summary>
-        public string? DoctorNotes { get; set; }
+        public int? LinkedAppointmentId { get; set; }
+        [ForeignKey("LinkedAppointmentId")]
+        public AppointmentModel? LinkedAppointment { get; set; }
 
-        /// <summary>
-        /// External referral ID from the external service
-        /// Used to track referral in external system
-        /// </summary>
-        public string? ExternalReferralId { get; set; }
+        public string? CompletionNotes { get; set; }
 
-        /// <summary>
-        /// URL of the external service that received the referral
-        /// </summary>
-        public string? ExternalServiceUrl { get; set; }
+        public string? CancellationReason { get; set; }
 
-        /// <summary>
-        /// Feedback or response from the external service
-        /// </summary>
-        public string? ExternalServiceFeedback { get; set; }
+        public bool ReportAttached { get; set; } = false;
 
-        /// <summary>
-        /// Timestamp when referral was created
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public string? FhirServiceRequestId { get; set; }
 
-        /// <summary>
-        /// Timestamp when referral was last updated
-        /// </summary>
-        public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
-        /// <summary>
-        /// Timestamp when referral was sent to external service
-        /// </summary>
-        public DateTime? SentAt { get; set; }
-
-        /// <summary>
-        /// Timestamp when referral was accepted by external service
-        /// </summary>
-        public DateTime? AcceptedAt { get; set; }
-
-        /// <summary>
-        /// Timestamp when referral service was completed
-        /// </summary>
-        public DateTime? CompletedAt { get; set; }
-
-        // Navigation properties
-        /// <summary>
-        /// Navigation property to the referring doctor
-        /// </summary>
-        public DoctorModel? Doctor { get; set; }
-
-        /// <summary>
-        /// Therapy plans associated with this referral
-        /// </summary>
-        public ICollection<TherapyPlanModel>? TherapyPlans { get; set; } = new List<TherapyPlanModel>();
-
-        /// <summary>
-        /// Therapy sessions associated with this referral
-        /// </summary>
-        public ICollection<TherapySessionModel>? TherapySessions { get; set; } = new List<TherapySessionModel>();
-
-        /// <summary>
-        /// Medical imaging studies associated with this referral
-        /// </summary>
-        public ICollection<MedicalImagingModel>? MedicalImagings { get; set; } = new List<MedicalImagingModel>();
+        public DateTime? UpdatedAt { get; set; }
     }
 }

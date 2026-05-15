@@ -78,14 +78,15 @@ namespace CLINICSYSTEM.Services
         {
             try
             {
-                var doctor = await _context.Doctors
-                    .Include(d => d.User)
-                    .FirstOrDefaultAsync(d => d.DoctorId == doctorId);
+                var doctor = await _context.Users
+                    .FirstOrDefaultAsync(d => d.Id == doctorId && d.Role == "Doctor");
 
                 if (doctor == null)
                     return null;
 
-                return MapToFhirPractitioner(doctor);
+                var doctorProfile = await _context.Doctors.FirstOrDefaultAsync(dp => dp.UserId == doctor.Id);
+
+                return MapToFhirPractitioner(doctor, doctorProfile);
             }
             catch (Exception ex)
             {
@@ -98,24 +99,38 @@ namespace CLINICSYSTEM.Services
         {
             try
             {
-                var query = _context.Doctors
-                    .Include(d => d.User)
-                    .AsQueryable();
+                var query = _context.Users.Where(u => u.Role == "Doctor");
 
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     query = query.Where(d => 
-                        d.User!.FirstName.Contains(name) || 
-                        d.User!.LastName.Contains(name));
+                        d.FirstName.Contains(name) || 
+                        d.LastName.Contains(name));
                 }
 
+                var users = await query.ToListAsync();
+                var userIds = users.Select(u => u.Id).ToList();
+                
+                var profilesQuery = _context.Doctors.Where(dp => userIds.Contains(dp.UserId));
+                
                 if (!string.IsNullOrWhiteSpace(specialization))
                 {
-                    query = query.Where(d => d.Specialization.Contains(specialization));
+                    profilesQuery = profilesQuery.Where(d => d.Specialization.Contains(specialization));
                 }
 
-                var doctors = await query.ToListAsync();
-                return doctors.Select(MapToFhirPractitioner).ToList();
+                var profiles = await profilesQuery.ToListAsync();
+                var profileMap = profiles.ToDictionary(p => p.UserId);
+
+                var fhirPractitioners = new List<FhirPractitioner>();
+                foreach (var user in users)
+                {
+                    if (profileMap.TryGetValue(user.Id, out var profile))
+                    {
+                        fhirPractitioners.Add(MapToFhirPractitioner(user, profile));
+                    }
+                }
+
+                return fhirPractitioners;
             }
             catch (Exception ex)
             {
@@ -246,8 +261,6 @@ namespace CLINICSYSTEM.Services
             try
             {
                 var referral = await _context.Referrals
-                    .Include(r => r.Doctor)
-                        .ThenInclude(d => d!.User)
                     .FirstOrDefaultAsync(r => r.ReferralId == referralId);
 
                 if (referral == null)
@@ -262,15 +275,52 @@ namespace CLINICSYSTEM.Services
             }
         }
 
+        public async Task<FhirServiceRequest?> GetServiceRequestByFhirIdAsync(string fhirId)
+        {
+            try
+            {
+                var referral = await _context.Referrals
+                    .FirstOrDefaultAsync(r =>
+                        r.FhirServiceRequestId != null &&
+                        (r.FhirServiceRequestId == fhirId ||
+                         r.FhirServiceRequestId.EndsWith(fhirId) ||
+                         r.FhirServiceRequestId.Contains(fhirId)));
+
+                return referral == null ? null : MapToFhirServiceRequest(referral);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving FHIR ServiceRequest by FHIR id: {FhirId}", fhirId);
+                return null;
+            }
+        }
+
+        public async Task<List<FhirServiceRequest>> GetAllServiceRequestsAsync(string? status = null)
+        {
+            try
+            {
+                var query = _context.Referrals.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(status))
+                {
+                    query = query.Where(r => r.Status == status);
+                }
+
+                var referrals = await query.OrderByDescending(r => r.CreatedDate).ToListAsync();
+                return referrals.Select(MapToFhirServiceRequest).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all FHIR ServiceRequests");
+                return new List<FhirServiceRequest>();
+            }
+        }
+
         public async Task<List<FhirServiceRequest>> GetServiceRequestsByPatientAsync(string patientExternalId, string? status = null)
         {
             try
             {
                 var query = _context.Referrals
-                    .Include(r => r.Doctor)
-                        .ThenInclude(d => d!.User)
-                    .Where(r => r.PatientExternalId == patientExternalId)
-                    .AsQueryable();
+                    .Where(r => r.PatientExternalId == patientExternalId);
 
                 if (!string.IsNullOrWhiteSpace(status))
                 {
@@ -278,9 +328,8 @@ namespace CLINICSYSTEM.Services
                 }
 
                 var referrals = await query
-                    .OrderByDescending(r => r.CreatedAt)
+                    .OrderByDescending(r => r.CreatedDate)
                     .ToListAsync();
-
                 return referrals.Select(MapToFhirServiceRequest).ToList();
             }
             catch (Exception ex)
@@ -295,10 +344,7 @@ namespace CLINICSYSTEM.Services
             try
             {
                 var query = _context.Referrals
-                    .Include(r => r.Doctor)
-                        .ThenInclude(d => d!.User)
-                    .Where(r => r.DoctorId == doctorId)
-                    .AsQueryable();
+                    .Where(r => r.DoctorId == doctorId);
 
                 if (!string.IsNullOrWhiteSpace(status))
                 {
@@ -306,9 +352,8 @@ namespace CLINICSYSTEM.Services
                 }
 
                 var referrals = await query
-                    .OrderByDescending(r => r.CreatedAt)
+                    .OrderByDescending(r => r.CreatedDate)
                     .ToListAsync();
-
                 return referrals.Select(MapToFhirServiceRequest).ToList();
             }
             catch (Exception ex)
@@ -614,31 +659,30 @@ namespace CLINICSYSTEM.Services
             };
         }
 
-        private FhirPractitioner MapToFhirPractitioner(DoctorModel doctor)
+        private FhirPractitioner MapToFhirPractitioner(UserModel user, DoctorModel? doctorProfile)
         {
-            var user = doctor.User;
             if (user == null)
                 throw new InvalidOperationException("Doctor user profile not found");
 
             return new FhirPractitioner
             {
-                id = doctor.DoctorId.ToString(),
+                id = user.Id.ToString(),
                 identifier = new List<FhirIdentifier>
                 {
                     new()
                     {
                         system = PRACTITIONER_IDENTIFIER_SYSTEM,
-                        value = doctor.DoctorId.ToString(),
+                        value = user.Id.ToString(),
                         use = "official"
                     },
                     new()
                     {
                         system = "https://clinic-system.com/license-number",
-                        value = doctor.LicenseNumber ?? "",
+                        value = doctorProfile?.LicenseNumber ?? "",
                         use = "official"
                     }
                 },
-                active = doctor.IsActive,
+                active = doctorProfile?.IsActive ?? false,
                 name = new List<FhirHumanName>
                 {
                     new()
@@ -668,11 +712,11 @@ namespace CLINICSYSTEM.Services
                                 new()
                                 {
                                     system = "http://terminology.hl7.org/CodeSystem/v2-0360",
-                                    code = doctor.Specialization,
-                                    display = doctor.Specialization
+                                    code = doctorProfile?.Specialization ?? "Unknown",
+                                    display = doctorProfile?.Specialization ?? "Unknown"
                                 }
                             },
-                            text = doctor.Specialization
+                            text = doctorProfile?.Specialization ?? "Unknown"
                         }
                     }
                 }
@@ -796,7 +840,7 @@ namespace CLINICSYSTEM.Services
 
         private FhirAppointment MapToFhirAppointment(AppointmentModel appointment)
         {
-            var doctorName = appointment.Doctor?.User != null
+            var doctorName = (appointment.Doctor != null && appointment.Doctor.User != null)
                 ? $"{appointment.Doctor.User.FirstName} {appointment.Doctor.User.LastName}"
                 : "Unknown";
 

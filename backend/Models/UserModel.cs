@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
 namespace CLINICSYSTEM.Models
@@ -7,15 +7,8 @@ namespace CLINICSYSTEM.Models
     /// User model for Clinic System authentication
     /// Manages Doctor and Nurse users; Patients are managed by Patient Portal service
     /// </summary>
-    public class UserModel
+    public class UserModel : IdentityUser<int>
     {
-        [Key]
-        public int UserId { get; set; }
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-        [Phone]
-        public string? PhoneNumber { get; set; }
         [Required]
         [StringLength(50)]
         public string FirstName { get; set; } = string.Empty;

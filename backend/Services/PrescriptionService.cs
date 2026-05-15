@@ -9,11 +9,13 @@ namespace CLINICSYSTEM.Services
     {
         private readonly ClinicDbContext _context;
         private readonly PdfService _pdfService;
+        private readonly INotificationService _notificationService;
 
-        public PrescriptionService(ClinicDbContext context, PdfService pdfService)
+        public PrescriptionService(ClinicDbContext context, PdfService pdfService, INotificationService notificationService)
         {
             _context = context;
             _pdfService = pdfService;
+            _notificationService = notificationService;
         }
 
         public async Task<PrescriptionDTO?> CreatePrescriptionAsync(CreatePrescriptionRequest request)
@@ -141,8 +143,34 @@ namespace CLINICSYSTEM.Services
 
         public async Task<bool> SendPrescriptionToPatientAsync(int prescriptionId)
         {
-            // TODO: Implement sending prescription to patient (email or notification)
-            return await Task.FromResult(true);
+            var prescription = await _context.Prescriptions
+                .Include(p => p.Consultation)
+                    .ThenInclude(c => c!.Appointment)
+                    .ThenInclude(a => a!.Doctor)
+                    .ThenInclude(d => d!.User)
+                .FirstOrDefaultAsync(p => p.PrescriptionId == prescriptionId);
+
+            if (prescription?.Consultation?.Appointment?.PatientId == null)
+            {
+                return false;
+            }
+
+            var doctorName = prescription.Consultation.Appointment.Doctor?.User != null
+                ? $"{prescription.Consultation.Appointment.Doctor.User.FirstName} {prescription.Consultation.Appointment.Doctor.User.LastName}"
+                : "Doctor";
+
+            await _notificationService.CreateNotificationAsync(
+                prescription.Consultation.Appointment.PatientId.Value,
+                new CreateNotificationRequest
+                {
+                    Title = "New Prescription",
+                    Message = $"Dr. {doctorName} sent you a prescription for {prescription.MedicationName}",
+                    Type = "Prescription"
+                });
+
+            prescription.Status = "Sent";
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<PrescriptionDTO?> GetPrescriptionDetailsAsync(int prescriptionId)

@@ -31,7 +31,7 @@ namespace CLINICSYSTEM.Services
 
             return new PatientProfileDTO
             {
-                UserId = user.UserId,
+                UserId = user.Id,
                 FullName = $"{user.FirstName} {user.LastName}",
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,

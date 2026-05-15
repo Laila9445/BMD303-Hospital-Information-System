@@ -10,15 +10,18 @@ namespace CLINICSYSTEM.Services
         private readonly ClinicDbContext _context;
         private readonly INotificationService _notificationService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ICurrentUserService _currentUserService;
 
         public AppointmentService(
             ClinicDbContext context,
             INotificationService notificationService,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            ICurrentUserService currentUserService)
         {
             _context = context;
             _notificationService = notificationService;
             _dateTimeProvider = dateTimeProvider;
+            _currentUserService = currentUserService;
         }
 
         // =========================
@@ -85,7 +88,9 @@ namespace CLINICSYSTEM.Services
         // =========================
         public async Task<AppointmentDTO?> BookAppointmentAsync(int patientId, BookAppointmentRequest request)
         {
-            var timeSlot = await _context.TimeSlots.FindAsync(request.TimeSlotId);
+            var timeSlot = await _context.TimeSlots
+                .Include(ts => ts.Schedule)
+                .FirstOrDefaultAsync(ts => ts.TimeSlotId == request.TimeSlotId);
 
             if (timeSlot == null || timeSlot.Status != "Available")
                 return null;
@@ -95,22 +100,76 @@ namespace CLINICSYSTEM.Services
             if (appointmentDateTime < _dateTimeProvider.UtcNow)
                 return null;
 
+            ReferralModel? linkedReferral = null;
+            if (request.ReferralId.HasValue)
+            {
+                linkedReferral = await _context.Referrals.FindAsync(request.ReferralId.Value);
+                if (linkedReferral == null || linkedReferral.Status != "Accepted")
+                {
+                    return null;
+                }
+
+                var userRole = _currentUserService.Role ?? string.Empty;
+                if (linkedReferral.AssignedToRole != userRole)
+                {
+                    return null;
+                }
+            }
+
             var appointment = new AppointmentModel
             {
-            
+                DoctorId = timeSlot.Schedule?.DoctorId ?? request.DoctorId,
                 PatientId = patientId,
+                PatientExternalId = $"PAT-{patientId}",
                 TimeSlotId = request.TimeSlotId,
                 Status = "Scheduled",
                 ReasonForVisit = request.ReasonForVisit,
                 BookedAt = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ReferralId = linkedReferral?.ReferralId
             };
 
             timeSlot.Status = "Booked";
-
             _context.Appointments.Add(appointment);
-            _context.TimeSlots.Update(timeSlot);
             await _context.SaveChangesAsync();
+
+            if (linkedReferral != null)
+            {
+                linkedReferral.Status = "Appointment Booked";
+                linkedReferral.LinkedAppointmentId = appointment.AppointmentId;
+                linkedReferral.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                await _notificationService.CreateNotificationAsync(
+                    linkedReferral.DoctorId,
+                    new CreateNotificationRequest
+                    {
+                        Title = "Referral Appointment Booked",
+                        Message = $"Appointment booked for {linkedReferral.PatientName} — {linkedReferral.ReferralType} on {timeSlot.SlotDate:yyyy-MM-dd}",
+                        Type = "Referral"
+                    });
+            }
+
+            var patientUser = await _context.Users.FindAsync(patientId);
+            if (patientUser != null)
+            {
+                var doctor = await _context.Doctors
+                    .Include(d => d.User)
+                    .FirstOrDefaultAsync(d => d.DoctorId == appointment.DoctorId);
+
+                var doctorName = doctor?.User != null
+                    ? $"{doctor.User.FirstName} {doctor.User.LastName}"
+                    : "Doctor";
+
+                await _notificationService.CreateNotificationAsync(
+                    patientId,
+                    new CreateNotificationRequest
+                    {
+                        Title = "Appointment Scheduled",
+                        Message = $"Your appointment with Dr. {doctorName} is on {timeSlot.SlotDate:yyyy-MM-dd} at {timeSlot.StartTime:hh\\:mm}",
+                        Type = "Appointment"
+                    });
+            }
 
             return await GetAppointmentDetailsAsync(appointment.AppointmentId);
         }
@@ -171,6 +230,15 @@ namespace CLINICSYSTEM.Services
             appointment.TimeSlotId = request.NewTimeSlotId;
             appointment.UpdatedAt = DateTime.UtcNow;
 
+            await _notificationService.CreateNotificationAsync(
+                patientId,
+                new CreateNotificationRequest
+                {
+                    Title = "Appointment Rescheduled",
+                    Message = $"Your appointment has been moved to {newSlot.SlotDate:yyyy-MM-dd} at {newSlot.StartTime:hh\\:mm}",
+                    Type = "Appointment"
+                });
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -190,9 +258,19 @@ namespace CLINICSYSTEM.Services
 
             appointment.Status = "Cancelled";
             appointment.CanceledAt = DateTime.UtcNow;
+            appointment.CancellationReason = request.CancellationReason;
 
             if (appointment.TimeSlot != null)
                 appointment.TimeSlot.Status = "Available";
+
+            await _notificationService.CreateNotificationAsync(
+                patientId,
+                new CreateNotificationRequest
+                {
+                    Title = "Appointment Cancelled",
+                    Message = $"Your appointment on {appointment.TimeSlot?.SlotDate:yyyy-MM-dd} has been cancelled. Reason: {request.CancellationReason}",
+                    Type = "Appointment"
+                });
 
             await _context.SaveChangesAsync();
             return true;

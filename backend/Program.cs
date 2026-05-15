@@ -21,7 +21,12 @@ var builder = WebApplication.CreateBuilder(args);
 // ============================================
 
 // Core
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
@@ -36,7 +41,7 @@ builder.Services.AddDbContext<ClinicDbContext>(options =>
 });
 
 // Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder.Services.AddIdentity<UserModel, IdentityRole<int>>(options =>
 {
     options.Password.RequiredLength = 6;
     options.Password.RequireDigit = false;
@@ -69,6 +74,7 @@ builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 builder.Services.AddScoped<IMedicalImageService, MedicalImageService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IReferralService, ReferralService>();
+builder.Services.AddScoped<IBillingService, CLINICSYSTEM.Services.BillingService>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
@@ -84,7 +90,7 @@ builder.Services
     .ValidateOnStart();
 builder.Services.AddSingleton<ReferralWebSocketClientService>();
 builder.Services.AddSingleton<IReferralWebSocketClient>(sp => sp.GetRequiredService<ReferralWebSocketClientService>());
-builder.Services.AddHostedService(sp => sp.GetRequiredService<ReferralWebSocketClientService>());
+// builder.Services.AddHostedService(sp => sp.GetRequiredService<ReferralWebSocketClientService>());
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -221,6 +227,7 @@ if (initializeDb)
 try
 {
     Console.WriteLine("Clinic API starting...");
+    DataSeeder.SeedAsync(app).Wait();
     app.Urls.Add("http://0.0.0.0:5000");
     await app.RunAsync();
 }

@@ -14,6 +14,8 @@ namespace CLINICSYSTEM.Data.DTOs
 
         [StringLength(500)]
         public string? ReasonForVisit { get; set; }
+
+        public int? ReferralId { get; set; }
     }
 
     public class CreateAppointmentDto

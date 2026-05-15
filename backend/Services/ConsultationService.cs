@@ -8,10 +8,12 @@ namespace CLINICSYSTEM.Services
     public class ConsultationService : IConsultationService
     {
         private readonly ClinicDbContext _context;
+        private readonly INotificationService _notificationService;
 
-        public ConsultationService(ClinicDbContext context)
+        public ConsultationService(ClinicDbContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<ConsultationDTO?> StartConsultationAsync(int appointmentId)
@@ -59,6 +61,8 @@ namespace CLINICSYSTEM.Services
         {
             var consultation = await _context.Consultations
                 .Include(c => c.Appointment)
+                    .ThenInclude(a => a!.Doctor)
+                    .ThenInclude(d => d!.User)
                 .FirstOrDefaultAsync(c => c.ConsultationId == consultationId);
 
             if (consultation == null) return false;
@@ -71,6 +75,22 @@ namespace CLINICSYSTEM.Services
             {
                 consultation.Appointment.Status = "Completed";
                 _context.Appointments.Update(consultation.Appointment);
+
+                if (consultation.Appointment.PatientId.HasValue)
+                {
+                    var doctorName = consultation.Appointment.Doctor?.User != null
+                        ? $"{consultation.Appointment.Doctor.User.FirstName} {consultation.Appointment.Doctor.User.LastName}"
+                        : "Doctor";
+
+                    await _notificationService.CreateNotificationAsync(
+                        consultation.Appointment.PatientId.Value,
+                        new CreateNotificationRequest
+                        {
+                            Title = "Consultation Complete",
+                            Message = $"Your consultation with Dr. {doctorName} is complete. Check your records.",
+                            Type = "Consultation"
+                        });
+                }
             }
 
             _context.Consultations.Update(consultation);

@@ -3,6 +3,7 @@ using System;
 using CLINICSYSTEM.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CLINICSYSTEM.Migrations
 {
     [DbContext(typeof(ClinicDbContext))]
-    partial class ClinicDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515111852_ReferralAndBillingUpdate")]
+    partial class ReferralAndBillingUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
@@ -103,7 +106,7 @@ namespace CLINICSYSTEM.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("InsuranceCoverage")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<decimal?>("InsuranceDiscount")
                         .HasColumnType("decimal(18,2)");
@@ -167,6 +170,8 @@ namespace CLINICSYSTEM.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ServiceId");
 
                     b.ToTable("BillingInvoices");
                 });
@@ -701,68 +706,6 @@ namespace CLINICSYSTEM.Migrations
                     b.ToTable("Patients");
                 });
 
-            modelBuilder.Entity("CLINICSYSTEM.Models.PhysioTreatmentPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CompletedSessions")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("PhysioId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ReferralId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Sessions")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("PhysioId");
-
-                    b.HasIndex("ReferralId");
-
-                    b.ToTable("PhysioTreatmentPlans");
-                });
-
             modelBuilder.Entity("CLINICSYSTEM.Models.PrescriptionModel", b =>
                 {
                     b.Property<int>("PrescriptionId")
@@ -808,111 +751,6 @@ namespace CLINICSYSTEM.Migrations
                     b.HasIndex("ConsultationId");
 
                     b.ToTable("Prescriptions");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.RadiologyReport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Findings")
-                        .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Impression")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("RadiologistId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Recommendations")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("StudyId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("RadiologistId");
-
-                    b.HasIndex("StudyId");
-
-                    b.ToTable("RadiologyReports");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.RadiologyStudy", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("BillingCreated")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("BillingInvoiceId")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("RadiologistId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ReferralId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("StudyDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("StudyType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("RadiologistId");
-
-                    b.HasIndex("ReferralId");
-
-                    b.ToTable("RadiologyStudies");
                 });
 
             modelBuilder.Entity("CLINICSYSTEM.Models.ReferralModel", b =>
@@ -1143,26 +981,16 @@ namespace CLINICSYSTEM.Migrations
 
             modelBuilder.Entity("CLINICSYSTEM.Models.UserModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
+                        .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -1176,6 +1004,92 @@ namespace CLINICSYSTEM.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
@@ -1200,27 +1114,17 @@ namespace CLINICSYSTEM.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -1232,34 +1136,7 @@ namespace CLINICSYSTEM.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1271,30 +1148,9 @@ namespace CLINICSYSTEM.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ClaimType")
+                    b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -1303,7 +1159,7 @@ namespace CLINICSYSTEM.Migrations
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("TEXT");
@@ -1314,8 +1170,9 @@ namespace CLINICSYSTEM.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -1324,13 +1181,13 @@ namespace CLINICSYSTEM.Migrations
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("RoleId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -1339,10 +1196,10 @@ namespace CLINICSYSTEM.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("TEXT");
@@ -1390,15 +1247,26 @@ namespace CLINICSYSTEM.Migrations
                     b.Navigation("TimeSlot");
                 });
 
-            modelBuilder.Entity("CLINICSYSTEM.Models.BillingPayment", b =>
+            modelBuilder.Entity("CLINICSYSTEM.Models.BillingInvoice", b =>
                 {
-                    b.HasOne("CLINICSYSTEM.Models.BillingInvoice", "BillingInvoice")
-                        .WithMany("Payments")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("CLINICSYSTEM.Models.BillingService", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BillingInvoice");
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("CLINICSYSTEM.Models.BillingPayment", b =>
+                {
+                    b.HasOne("CLINICSYSTEM.Models.BillingInvoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("CLINICSYSTEM.Models.ConsultationModel", b =>
@@ -1511,31 +1379,6 @@ namespace CLINICSYSTEM.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("CLINICSYSTEM.Models.PhysioTreatmentPlan", b =>
-                {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Physio")
-                        .WithMany()
-                        .HasForeignKey("PhysioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.ReferralModel", "Referral")
-                        .WithMany()
-                        .HasForeignKey("ReferralId");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Physio");
-
-                    b.Navigation("Referral");
-                });
-
             modelBuilder.Entity("CLINICSYSTEM.Models.PrescriptionModel", b =>
                 {
                     b.HasOne("CLINICSYSTEM.Models.ConsultationModel", "Consultation")
@@ -1545,58 +1388,6 @@ namespace CLINICSYSTEM.Migrations
                         .IsRequired();
 
                     b.Navigation("Consultation");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.RadiologyReport", b =>
-                {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Radiologist")
-                        .WithMany()
-                        .HasForeignKey("RadiologistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.RadiologyStudy", "Study")
-                        .WithMany()
-                        .HasForeignKey("StudyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Radiologist");
-
-                    b.Navigation("Study");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.RadiologyStudy", b =>
-                {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", "Radiologist")
-                        .WithMany()
-                        .HasForeignKey("RadiologistId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CLINICSYSTEM.Models.ReferralModel", "Referral")
-                        .WithMany()
-                        .HasForeignKey("ReferralId");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Radiologist");
-
-                    b.Navigation("Referral");
                 });
 
             modelBuilder.Entity("CLINICSYSTEM.Models.ReferralModel", b =>
@@ -1663,51 +1454,51 @@ namespace CLINICSYSTEM.Migrations
                     b.Navigation("Schedule");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("CLINICSYSTEM.Models.UserModel", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1717,11 +1508,6 @@ namespace CLINICSYSTEM.Migrations
             modelBuilder.Entity("CLINICSYSTEM.Models.AppointmentModel", b =>
                 {
                     b.Navigation("Consultation");
-                });
-
-            modelBuilder.Entity("CLINICSYSTEM.Models.BillingInvoice", b =>
-                {
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("CLINICSYSTEM.Models.ConsultationModel", b =>

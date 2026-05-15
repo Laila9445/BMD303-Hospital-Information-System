@@ -43,6 +43,11 @@ namespace CLINICSYSTEM.Models
         public DateTime BookedAt { get; set; } = DateTime.UtcNow;
         public DateTime? CanceledAt { get; set; }
         public string? CancellationReason { get; set; }
+
+        public int? ReferralId { get; set; }
+        [ForeignKey("ReferralId")]
+        public ReferralModel? Referral { get; set; }
+
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
