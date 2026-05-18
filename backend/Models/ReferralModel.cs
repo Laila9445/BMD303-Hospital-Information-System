@@ -15,7 +15,7 @@ namespace CLINICSYSTEM.Models
 
         public int PatientId { get; set; }
         [ForeignKey("PatientId")]
-        public UserModel? Patient { get; set; }
+        public PatientModel? Patient { get; set; }
 
         public string PatientExternalId { get; set; } = string.Empty;
 
@@ -23,7 +23,7 @@ namespace CLINICSYSTEM.Models
 
         public int DoctorId { get; set; }
         [ForeignKey("DoctorId")]
-        public UserModel? Doctor { get; set; }
+        public DoctorModel? Doctor { get; set; }
 
         [Required]
         public string DoctorName { get; set; } = string.Empty;

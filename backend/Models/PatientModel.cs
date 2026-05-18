@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CLINICSYSTEM.Models
 {
@@ -9,6 +10,9 @@ namespace CLINICSYSTEM.Models
 
         // 🔥 REQUIRED for services + DB context
         public int UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        public UserModel? User { get; set; }
 
         public string ExternalPatientId { get; set; } = string.Empty;
 

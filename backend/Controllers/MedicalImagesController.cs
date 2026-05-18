@@ -24,20 +24,21 @@ namespace CLINICSYSTEM.Controllers
             return userIdClaim != null && int.TryParse(userIdClaim.Value, out var id) ? id : 0;
         }
 
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadImage([FromForm] UploadMedicalImageRequest request)
+        [HttpPost("upload/{patientId}")]
+        public async Task<IActionResult> UploadImage(
+        [FromRoute] int patientId,
+        [FromForm] UploadMedicalImageRequest request)
         {
-            var patientId = GetPatientId();
-            if (patientId == 0) return Unauthorized();
+        if (request.File == null || request.File.Length == 0)
+        return BadRequest("No file provided");
 
-            if (request.File == null || request.File.Length == 0)
-                return BadRequest("No file provided");
+        var image = await _medicalImageService.UploadImageAsync(patientId, request);
 
-            var image = await _medicalImageService.UploadImageAsync(patientId, request);
-            if (image == null) return BadRequest("Failed to upload image");
+        if (image == null)
+        return BadRequest("Failed to upload image");
 
-            return Ok(image);
-        }
+      return Ok(image);
+    }
 
         [HttpGet]
         public async Task<IActionResult> GetMyImages()
@@ -58,13 +59,6 @@ namespace CLINICSYSTEM.Controllers
             return File(imageBytes, "application/octet-stream", $"image_{imageId}");
         }
 
-        [HttpDelete("{imageId}")]
-        public async Task<IActionResult> DeleteImage([FromRoute] int imageId)
-        {
-            var result = await _medicalImageService.DeleteImageAsync(imageId);
-            if (!result) return NotFound();
-
-            return Ok(new { message = "Image deleted successfully" });
-        }
+        
     }
 }

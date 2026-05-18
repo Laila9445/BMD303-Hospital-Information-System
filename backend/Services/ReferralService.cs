@@ -25,29 +25,69 @@ namespace CLINICSYSTEM.Services
             _logger = logger;
         }
 
+        private async Task<int?> GetDoctorDomainIdByUserIdAsync(int userId)
+        {
+            return await _context.Doctors
+                .AsNoTracking()
+                .Where(d => d.UserId == userId)
+                .Select(d => d.DoctorId)
+                .FirstOrDefaultAsync();
+        }
+
+        private async Task<int?> GetPatientDomainIdByUserIdAsync(int userId)
+        {
+            return await _context.Patients
+                .AsNoTracking()
+                .Where(p => p.UserId == userId)
+                .Select(p => p.PatientId)
+                .FirstOrDefaultAsync();
+        }
+
+        private async Task<UserModel?> GetIdentityUserByDoctorDomainIdAsync(int doctorId)
+        {
+            return await _context.Doctors
+                .Include(d => d.User)
+                .Where(d => d.DoctorId == doctorId)
+                .Select(d => d.User)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<ReferralDTO?> CreateReferralAsync(CreateReferralRequest request)
         {
             try
             {
-                var doctor = await _context.Users.FindAsync(request.DoctorId);
-                if (doctor == null || doctor.Role != "Doctor")
+                var doctorProfile = await _context.Doctors
+                    .Include(d => d.User)
+                    .FirstOrDefaultAsync(d => d.DoctorId == request.DoctorId);
+
+                if (doctorProfile == null || doctorProfile.User == null || doctorProfile.User.Role != "Doctor")
                 {
                     throw new BusinessException("DOCTOR_NOT_FOUND", $"Doctor with ID {request.DoctorId} was not found.");
                 }
 
-                var patient = await _context.Users.FindAsync(request.PatientId);
-                if (patient == null || patient.Role != "Patient")
+                var patientProfile = await _context.Patients
+                    .FirstOrDefaultAsync(p => p.PatientId == request.PatientId);
+
+                if (patientProfile == null)
+                {
+                    throw new BusinessException("PATIENT_NOT_FOUND", $"Patient with ID {request.PatientId} was not found.");
+                }
+
+                var identityPatient = await _context.Users.FindAsync(patientProfile.UserId);
+                if (identityPatient == null || identityPatient.Role != "Patient")
                 {
                     throw new BusinessException("PATIENT_NOT_FOUND", $"Patient with ID {request.PatientId} was not found.");
                 }
 
                 var referral = new ReferralModel
                 {
-                    PatientId = request.PatientId,
-                    PatientExternalId = $"PAT-{request.PatientId}",
-                    PatientName = $"{patient.FirstName} {patient.LastName}",
-                    DoctorId = request.DoctorId,
-                    DoctorName = $"{doctor.FirstName} {doctor.LastName}",
+                    PatientId = patientProfile.PatientId,
+                    PatientExternalId = string.IsNullOrWhiteSpace(patientProfile.ExternalPatientId)
+                        ? $"PAT-{patientProfile.PatientId}"
+                        : patientProfile.ExternalPatientId,
+                    PatientName = patientProfile.FullName,
+                    DoctorId = doctorProfile.DoctorId,
+                    DoctorName = $"{doctorProfile.User.FirstName} {doctorProfile.User.LastName}",
                     ReferralType = request.ReferralType,
                     Urgency = request.Urgency,
                     Reason = request.Reason,
@@ -179,8 +219,16 @@ namespace CLINICSYSTEM.Services
                 switch (userRole)
                 {
                     case "Doctor":
-                        query = query.Where(r => r.DoctorId == userId);
+                    {
+                        var doctorId = await GetDoctorDomainIdByUserIdAsync(userId);
+                        if (!doctorId.HasValue)
+                        {
+                            return new List<ReferralDTO>();
+                        }
+
+                        query = query.Where(r => r.DoctorId == doctorId.Value);
                         break;
+                    }
                     case "Physiotherapist":
                         query = query.Where(r => r.AssignedToRole == "Physiotherapist");
                         break;
@@ -188,9 +236,17 @@ namespace CLINICSYSTEM.Services
                         query = query.Where(r => r.AssignedToRole == "Radiologist");
                         break;
                     case "Patient":
-                        var patientExternalId = $"PAT-{userId}";
-                        query = query.Where(r => r.PatientId == userId || r.PatientExternalId == patientExternalId);
+                    {
+                        var patientId = await GetPatientDomainIdByUserIdAsync(userId);
+                        if (!patientId.HasValue)
+                        {
+                            return new List<ReferralDTO>();
+                        }
+
+                        var patientExternalId = $"PAT-{patientId.Value}";
+                        query = query.Where(r => r.PatientId == patientId.Value || r.PatientExternalId == patientExternalId);
                         break;
+                    }
                     case "Nurse":
                         // No filter, return all
                         break;
@@ -237,7 +293,11 @@ namespace CLINICSYSTEM.Services
                 var oldStatus = referral.Status;
                 var newStatus = request.Status;
 
-                ValidateStatusTransition(referral, oldStatus, newStatus, userId, userRole);
+                var currentDoctorId = userRole == "Doctor"
+                    ? await GetDoctorDomainIdByUserIdAsync(userId)
+                    : null;
+
+                ValidateStatusTransition(referral, oldStatus, newStatus, userId, userRole, currentDoctorId);
 
                 referral.Status = newStatus;
                 referral.UpdatedAt = DateTime.UtcNow;
@@ -277,12 +337,12 @@ namespace CLINICSYSTEM.Services
                 // Create notification for the referring doctor
                 if (!string.IsNullOrEmpty(notificationTitle))
                 {
-                    var doctor = await _context.Users.FindAsync(referral.DoctorId);
-                    if (doctor != null)
+                    var doctorUser = await GetIdentityUserByDoctorDomainIdAsync(referral.DoctorId);
+                    if (doctorUser != null)
                     {
                         var notification = new NotificationModel
                         {
-                            UserId = doctor.Id,
+                            UserId = doctorUser.Id,
                             Title = notificationTitle,
                             Message = notificationMessage,
                             IsRead = false,
@@ -349,8 +409,16 @@ namespace CLINICSYSTEM.Services
             switch (userRole)
             {
                 case "Doctor":
-                    query = query.Where(r => r.DoctorId == userId);
+                {
+                    var doctorId = await GetDoctorDomainIdByUserIdAsync(userId);
+                    if (!doctorId.HasValue)
+                    {
+                        return new ReferralStatsDTO();
+                    }
+
+                    query = query.Where(r => r.DoctorId == doctorId.Value);
                     break;
+                }
                 case "Physiotherapist":
                     query = query.Where(r => r.AssignedToRole == "Physiotherapist");
                     break;
@@ -386,7 +454,7 @@ namespace CLINICSYSTEM.Services
             return stats;
         }
 
-        private static void ValidateStatusTransition(ReferralModel referral, string oldStatus, string newStatus, int userId, string userRole)
+        private static void ValidateStatusTransition(ReferralModel referral, string oldStatus, string newStatus, int userId, string userRole, int? currentDoctorId = null)
         {
             if (oldStatus == newStatus)
             {
@@ -412,10 +480,20 @@ namespace CLINICSYSTEM.Services
 
                     if (newStatus == "Cancelled")
                     {
-                        if (userRole == "Nurse" || (userRole == "Doctor" && referral.DoctorId == userId))
+                        if (userRole == "Nurse")
                         {
                             return;
                         }
+
+                        if (userRole == "Doctor")
+                        {
+                            var effectiveDoctorId = currentDoctorId ?? userId;
+                            if (referral.DoctorId == effectiveDoctorId)
+                            {
+                                return;
+                            }
+                        }
+
                         throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
                     }
                     break;
@@ -423,7 +501,8 @@ namespace CLINICSYSTEM.Services
                 case "Accepted":
                     if (newStatus == "Appointment Booked")
                     {
-                        throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
+                        // Allow transition to Appointment Booked (from booking a referral-linked appointment)
+                        return;
                     }
 
                     if (newStatus == "Cancelled")

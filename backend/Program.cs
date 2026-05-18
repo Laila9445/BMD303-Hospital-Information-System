@@ -227,7 +227,10 @@ if (initializeDb)
 try
 {
     Console.WriteLine("Clinic API starting...");
-    DataSeeder.SeedAsync(app).Wait();
+    using (var scope = app.Services.CreateScope())
+    {
+        await DataSeeder.SeedAsync(scope.ServiceProvider);
+    }
     app.Urls.Add("http://0.0.0.0:5000");
     await app.RunAsync();
 }

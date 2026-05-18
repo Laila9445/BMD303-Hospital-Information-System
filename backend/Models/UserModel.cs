@@ -25,6 +25,7 @@ namespace CLINICSYSTEM.Models
         // Navigation properties
         public DoctorModel? DoctorProfile { get; set; }
         public NurseModel? NurseProfile { get; set; }
+        public PatientModel? PatientProfile { get; set; }
     }
 }
 

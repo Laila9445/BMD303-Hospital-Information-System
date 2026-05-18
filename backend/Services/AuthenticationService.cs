@@ -96,7 +96,7 @@ namespace CLINICSYSTEM.Services
                 _logger.LogInformation("User {Email} registered successfully as {Role} with UserId {UserId}", 
                     request.Email, request.Role, user.Id);
 
-                var token = GenerateToken(user);
+                var token = await GenerateToken(user);
 
                 return new AuthResponse
                 {
@@ -149,7 +149,7 @@ namespace CLINICSYSTEM.Services
 
         private async Task EnsureRolesExistAsync()
         {
-            var roles = new[] { "Doctor", "Admin", "Staff","Patient" };
+            var roles = new[] { "Doctor", "Admin", "Staff", "Patient", "Physiotherapist", "Radiologist", "Nurse" };
             
             foreach (var roleName in roles)
             {
@@ -180,7 +180,7 @@ namespace CLINICSYSTEM.Services
                     return new AuthResponse { Success = false, Message = "Invalid email or password" };
                 }
 
-                var token = GenerateToken(user);
+                var token = await GenerateToken(user);
 
                 _logger.LogInformation("User {Email} (UserId: {UserId}) logged in successfully", request.Email, user.Id);
 
@@ -220,10 +220,14 @@ namespace CLINICSYSTEM.Services
             }
         }
 
-        private string GenerateToken(UserModel user)
+        private async Task<string> GenerateToken(UserModel user)
         {
             try
             {
+                // Fetch roles from UserManager (authoritative source)
+                var roles = await _userManager.GetRolesAsync(user);
+                var roleString = roles.FirstOrDefault() ?? user.Role ?? string.Empty;
+                
                 var jwtSettings = _configuration.GetSection("JwtSettings");
                 var secretKey = jwtSettings["SecretKey"];
                 
@@ -240,7 +244,7 @@ namespace CLINICSYSTEM.Services
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                    new Claim(ClaimTypes.Role, user.Role),
+                    new Claim(ClaimTypes.Role, roleString),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
 

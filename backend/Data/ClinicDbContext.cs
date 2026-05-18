@@ -97,6 +97,12 @@ namespace CLINICSYSTEM.Data
                 .HasForeignKey<NurseModel>(n => n.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<PatientModel>()
+                .HasOne(p => p.User)
+                .WithOne(u => u.PatientProfile)
+                .HasForeignKey<PatientModel>(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Nurse - PatientCareTask relationships
             modelBuilder.Entity<PatientCareTaskModel>()
                 .HasOne(t => t.Nurse)
@@ -144,6 +150,12 @@ namespace CLINICSYSTEM.Data
                 .HasOne(r => r.Doctor)
                 .WithMany()
                 .HasForeignKey(r => r.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ReferralModel>()
+                .HasOne(r => r.Patient)
+                .WithMany()
+                .HasForeignKey(r => r.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Consultation relationships

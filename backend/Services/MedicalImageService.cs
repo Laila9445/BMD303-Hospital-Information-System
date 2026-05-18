@@ -18,7 +18,8 @@ namespace CLINICSYSTEM.Services
 
         public async Task<MedicalImageDTO?> UploadImageAsync(int patientId, UploadMedicalImageRequest request)
         {
-            var uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "uploads", "medical-images");
+            var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadsFolder = Path.Combine(rootPath, "uploads", "medical-images");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 

@@ -8,6 +8,8 @@
     <NoWarn>$(NoWarn);1591;NU1903;CS8602;CS8601;CS8604;CS8600;CS8618;CS8625</NoWarn>
     <GenerateStaticWebAssetsOnBuild>false</GenerateStaticWebAssetsOnBuild>
     <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+    <!-- Avoid generating native apphost exe during development to prevent file-lock issues -->
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ namespace CLINICSYSTEM.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Doctor")]
+    [Authorize]
     public class DoctorsController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
@@ -27,7 +27,7 @@ namespace CLINICSYSTEM.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Patient")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllDoctors()
         {
             try

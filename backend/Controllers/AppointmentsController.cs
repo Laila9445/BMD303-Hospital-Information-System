@@ -116,11 +116,11 @@ namespace CLINICSYSTEM.Controllers
             var userId = GetUserId();
             if (userId == 0) return Unauthorized();
 
-            var appointment = await _appointmentService.CreateAppointmentAsync(userId, request);
-            if (appointment == null) 
+            var created = await _appointmentService.CreateAppointmentAsync(userId, request);
+            if (!created)
                 return BadRequest(new { error = "Failed to create appointment. The selected time slot may be unavailable." });
 
-            return Ok(appointment);
+            return Ok(new { success = true });
         }
     }
 }
