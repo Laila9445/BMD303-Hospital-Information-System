@@ -44,7 +44,21 @@ namespace CLINICSYSTEM.Controllers
             var userId = GetUserId();
             if (userId == 0) return Unauthorized();
 
-            var appointment = await _appointmentService.BookAppointmentAsync(userId, request);
+            int targetPatientId = userId;
+            
+            // If the user isn't a patient, they should provide the PatientId they are booking for
+            if (User.IsInRole("Doctor") || User.IsInRole("Nurse") || User.IsInRole("Staff"))
+            {
+                if (!request.PatientId.HasValue)
+                {
+                    return BadRequest(new { success = false, error = "Patient ID is required when booking as staff." });
+                }
+                targetPatientId = request.PatientId.Value;
+                // Wait, request.PatientId is UserId or PatientId? The frontend sends userId
+                // The AppointmentModel.PatientId expects the patient's UserId unless the system stores independent PatientIds 
+            }
+
+            var appointment = await _appointmentService.BookAppointmentAsync(targetPatientId, request);
             if (appointment == null) 
                 return BadRequest(new { success = false, error = "Cannot book appointment. The selected time slot is either unavailable, in the past, or the referral is invalid." });
 

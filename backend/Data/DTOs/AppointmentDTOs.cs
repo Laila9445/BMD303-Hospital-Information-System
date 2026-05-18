@@ -8,6 +8,8 @@ namespace CLINICSYSTEM.Data.DTOs
         [Range(1, int.MaxValue, ErrorMessage = "Valid doctor ID is required")]
         public int DoctorId { get; set; }
 
+        public int? PatientId { get; set; } // Added to let Doctors/Nurses specify the patient
+
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Valid time slot ID is required")]
         public int TimeSlotId { get; set; }
@@ -35,6 +37,8 @@ namespace CLINICSYSTEM.Data.DTOs
     public class AppointmentDTO
     {
         public int AppointmentId { get; set; }
+        public int? PatientId { get; set; }
+        public int? DoctorId { get; set; }
         public string DoctorName { get; set; } = string.Empty;
         public string PatientName { get; set; } = string.Empty;
         public DateTime AppointmentDate { get; set; }

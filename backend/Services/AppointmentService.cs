@@ -86,7 +86,7 @@ namespace CLINICSYSTEM.Services
         // =========================
         // BOOK APPOINTMENT
         // =========================
-        public async Task<AppointmentDTO?> BookAppointmentAsync(int patientId, BookAppointmentRequest request)
+        public async Task<AppointmentDTO?> BookAppointmentAsync(int userOrPatientId, BookAppointmentRequest request)
         {
             var timeSlot = await _context.TimeSlots
                 .Include(ts => ts.Schedule)
@@ -116,11 +116,18 @@ namespace CLINICSYSTEM.Services
                 }
             }
 
+            // Find the actual PatientId linked to the provided user/patient id
+            var realPatient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userOrPatientId || p.PatientId == userOrPatientId);
+            if (realPatient == null)
+            {
+                throw new Exception($"Patient not found for the given ID: {userOrPatientId}. A valid Patient Profile must exist.");
+            }
+
             var appointment = new AppointmentModel
             {
                 DoctorId = timeSlot.Schedule?.DoctorId ?? request.DoctorId,
-                PatientId = patientId,
-                PatientExternalId = $"PAT-{patientId}",
+                PatientId = realPatient.PatientId,
+                PatientExternalId = realPatient.ExternalPatientId,
                 TimeSlotId = request.TimeSlotId,
                 Status = "Scheduled",
                 ReasonForVisit = request.ReasonForVisit,
@@ -150,7 +157,7 @@ namespace CLINICSYSTEM.Services
                     });
             }
 
-            var patientUser = await _context.Users.FindAsync(patientId);
+            var patientUser = await _context.Users.FindAsync(userOrPatientId);
             if (patientUser != null)
             {
                 var doctor = await _context.Doctors
@@ -162,7 +169,7 @@ namespace CLINICSYSTEM.Services
                     : "Doctor";
 
                 await _notificationService.CreateNotificationAsync(
-                    patientId,
+                    userOrPatientId,
                     new CreateNotificationRequest
                     {
                         Title = "Appointment Scheduled",
@@ -279,13 +286,18 @@ namespace CLINICSYSTEM.Services
         // =========================
         // GET PATIENT APPOINTMENTS
         // =========================
-        public async Task<List<AppointmentDTO>> GetPatientAppointmentsAsync(int patientId)
+        public async Task<List<AppointmentDTO>> GetPatientAppointmentsAsync(int userId)
         {
+            // We receive the identity UserId, but the Appointments table uses the internal PatientId.
+            // First we ensure the patient exists or directly query through the Patient navigation property (if linked) or by checking the Patients table.
+            var realPatient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (realPatient == null) return new List<AppointmentDTO>();
+
             var appointments = await _context.Appointments
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
                 .Include(a => a.TimeSlot)
-                .Where(a => a.PatientId == patientId)
+                .Where(a => a.PatientId == realPatient.PatientId || a.PatientExternalId == realPatient.ExternalPatientId)
                 .ToListAsync();
 
             return appointments
@@ -293,6 +305,8 @@ namespace CLINICSYSTEM.Services
                 .Select(a => new AppointmentDTO
                 {
                     AppointmentId = a.AppointmentId,
+                    PatientId = userId,
+                    DoctorId = a.DoctorId,
                     DoctorName = $"{a.Doctor.User.FirstName} {a.Doctor.User.LastName}",
                     PatientName = "",
                     AppointmentDate = a.TimeSlot.SlotDate,

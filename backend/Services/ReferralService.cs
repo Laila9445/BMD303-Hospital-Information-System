@@ -58,7 +58,7 @@ namespace CLINICSYSTEM.Services
             {
                 var doctorProfile = await _context.Doctors
                     .Include(d => d.User)
-                    .FirstOrDefaultAsync(d => d.DoctorId == request.DoctorId);
+                    .FirstOrDefaultAsync(d => d.DoctorId == request.DoctorId || d.UserId == request.DoctorId);
 
                 if (doctorProfile == null || doctorProfile.User == null || doctorProfile.User.Role != "Doctor")
                 {
@@ -66,7 +66,7 @@ namespace CLINICSYSTEM.Services
                 }
 
                 var patientProfile = await _context.Patients
-                    .FirstOrDefaultAsync(p => p.PatientId == request.PatientId);
+                    .FirstOrDefaultAsync(p => p.UserId == request.PatientId || p.PatientId == request.PatientId);
 
                 if (patientProfile == null)
                 {

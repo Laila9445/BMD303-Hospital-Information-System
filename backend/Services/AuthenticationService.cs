@@ -184,6 +184,9 @@ namespace CLINICSYSTEM.Services
 
                 _logger.LogInformation("User {Email} (UserId: {UserId}) logged in successfully", request.Email, user.Id);
 
+                var roles = await _userManager.GetRolesAsync(user);
+                var userRole = roles.FirstOrDefault() ?? user.Role ?? string.Empty;
+
                 return new AuthResponse
                 {
                     Success = true,
@@ -195,7 +198,7 @@ namespace CLINICSYSTEM.Services
                         FirstName = user.FirstName,
                         LastName = user.LastName,
                         PhoneNumber = user.PhoneNumber,
-                        Role = user.Role
+                        Role = userRole
                     },
                     Message = "Login successful"
                 };
@@ -275,6 +278,7 @@ namespace CLINICSYSTEM.Services
             UserId = userId,
             FullName = $"{request.FirstName} {request.LastName}",
             PhoneNumber = request.PhoneNumber ?? string.Empty,
+            ExternalPatientId = Guid.NewGuid().ToString(),
 
             // SAFE nullable handling
             DateOfBirth = null,

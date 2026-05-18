@@ -271,18 +271,22 @@ namespace CLINICSYSTEM.Services
         {
             // Generate time slots for the next 30 days
             var startDate = DateTime.UtcNow.Date;
-            var daysOfWeek = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
-            var dayOfWeekIndex = Array.IndexOf(daysOfWeek, schedule.DayOfWeek);
+            
+            if (!Enum.TryParse<DayOfWeek>(schedule.DayOfWeek, true, out var targetDayOfWeek))
+            {
+                _logger.LogWarning("Invalid DayOfWeek in schedule: {DayOfWeek}", schedule.DayOfWeek);
+                return;
+            }
 
             for (int i = 0; i < 30; i++)
             {
                 var currentDate = startDate.AddDays(i);
-                if ((int)currentDate.DayOfWeek == dayOfWeekIndex || 
-                    (dayOfWeekIndex == 0 && currentDate.DayOfWeek == DayOfWeek.Monday))
+                if (currentDate.DayOfWeek == targetDayOfWeek)
                 {
                     var currentTime = schedule.StartTime;
 
-                    while (currentTime < schedule.EndTime)
+                    // Ensure we don't generate snippets that go past EndTime
+                    while (currentTime.Add(TimeSpan.FromMinutes(schedule.SlotDurationMinutes)) <= schedule.EndTime)
                     {
                         var slot = new TimeSlotModel
                         {
