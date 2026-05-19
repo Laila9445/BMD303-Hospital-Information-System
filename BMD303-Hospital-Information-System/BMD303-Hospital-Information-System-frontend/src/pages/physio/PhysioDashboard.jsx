@@ -1,5 +1,11 @@
+import { useEffect } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import { useReferrals } from '../../context/ReferralContext';
+import { useAuth } from '../../context/AuthContext';
+import { canActAsPhysiotherapist } from '../../utils/authUtils';
+import { filterReferralsByDepartment, getReferralId } from '../../utils/referralUtils';
+import ReferralStaffWorkQueue from '../../components/referrals/ReferralStaffWorkQueue';
 import Card from '../../components/common/Card';
 
 const PageContainer = styled.div`
@@ -118,20 +124,70 @@ const EmptyState = styled.div`
   border: 1px dashed #e5e7eb;
 `;
 
-const PhysioDashboard = () => {
-  const { referrals } = useReferrals();
+const DoctorNotice = styled.div`
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  border-radius: 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-size: 14px;
+  color: #1e40af;
+  line-height: 1.5;
+`;
 
-  const physioReferrals = referrals.filter((r) => r.type === 'Physiotherapy');
-  const pendingCount = physioReferrals.filter((r) => r.status === 'Pending').length;
-  const acceptedCount = physioReferrals.filter((r) => r.status === 'Accepted').length;
-  const completedCount = physioReferrals.filter((r) => r.status === 'Completed').length;
+const PhysioDashboard = () => {
+  const navigate = useNavigate();
+  const { isPhysio } = useAuth();
+  const { referrals, refreshReferrals } = useReferrals();
+  const isStaffViewer = canActAsPhysiotherapist() || isPhysio;
+
+  useEffect(() => {
+    if (!isStaffViewer) refreshReferrals();
+  }, [refreshReferrals, isStaffViewer]);
+
+  if (isStaffViewer) {
+    return (
+      <ReferralStaffWorkQueue
+        department="Physiotherapy"
+        title="Physiotherapy — Staff Dashboard"
+        description="Book appointments for pending referrals, then complete visits after the session."
+      />
+    );
+  }
+
+  const physioReferrals = filterReferralsByDepartment(referrals, 'Physiotherapy');
+  const pendingCount = physioReferrals.filter((r) => String(r.status).toLowerCase() === 'pending').length;
+  const acceptedCount = physioReferrals.filter((r) => String(r.status).toLowerCase() === 'accepted').length;
+  const completedCount = physioReferrals.filter((r) => String(r.status).toLowerCase() === 'completed').length;
 
   return (
     <PageContainer>
       <Header>
         <h1>Physiotherapy Dashboard</h1>
-        <p>Review and manage physiotherapy referrals sent from the clinic.</p>
+        <p>Review physiotherapy referrals sent from the clinic (read-only for doctors).</p>
       </Header>
+
+      <DoctorNotice>
+        <strong>Doctors cannot accept referrals here.</strong> Only a{' '}
+        <strong>Physiotherapist</strong> account can accept and book. Log in as Physiotherapist and open{' '}
+        <strong>Staff dashboard</strong>, or ask your physio team to use{' '}
+        <button
+          type="button"
+          onClick={() => navigate('/physio/staff')}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            color: '#1d4ed8',
+            fontWeight: 600,
+            cursor: 'pointer',
+            textDecoration: 'underline',
+          }}
+        >
+          /physio/staff
+        </button>
+        .
+      </DoctorNotice>
 
       <StatsGrid>
         <StatCard>
@@ -167,9 +223,9 @@ const PhysioDashboard = () => {
               </thead>
               <tbody>
                 {physioReferrals.map((referral) => (
-                  <tr key={referral.id}>
+                  <tr key={getReferralId(referral)}>
                     <Td>{referral.patientName || '—'}</Td>
-                    <Td>{referral.diagnosis || '—'}</Td>
+                    <Td>{referral.reason || '—'}</Td>
                     <Td>{referral.notes || '—'}</Td>
                     <Td>
                       <StatusBadge $status={referral.status}>{referral.status}</StatusBadge>

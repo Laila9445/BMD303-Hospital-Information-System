@@ -5,7 +5,9 @@ import { InputWithLabel } from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import toast from 'react-hot-toast';
 import styled from 'styled-components';
-import { validateRegistration } from '../../utils/validation';
+import { validateRegistration, REGISTER_ROLES } from '../../utils/validation';
+import { getApiErrorMessage } from '../../api/apiUtils';
+import { getRoleDashboardPath } from '../../utils/authUtils';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -85,6 +87,7 @@ const Register = () => {
     role: 'Doctor',
     gender: '',
     dateOfBirth: '',
+    department: '',
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -134,6 +137,10 @@ const Register = () => {
         dateOfBirth: formData.dateOfBirth,
       };
 
+      if (formData.role === 'Nurse' && formData.department) {
+        registerData.department = formData.department;
+      }
+
       console.log('Attempting registration with data:', { ...registerData, password: '[HIDDEN]' });
       const result = await register(registerData);
       console.log('Registration result:', result);
@@ -141,24 +148,13 @@ const Register = () => {
       if (result.success) {
         toast.success('Account created successfully!');
         
-        if (result.user.role === 'Doctor') {
-          navigate('/doctor/dashboard');
-        } else if (result.user.role === 'Nurse') {
-          navigate('/nurse/dashboard');
-        } else if (result.user.role === 'Physiotherapist') {
-          navigate('/physio/staff');
-        } else if (result.user.role === 'Radiologist') {
-          navigate('/radiology/staff');
-        } else {
-          navigate('/patient/dashboard');
-        }
+        navigate(getRoleDashboardPath(result.user?.role) || '/patient/dashboard');
       } else {
         toast.error(result.message || 'Failed to create account');
       }
     } catch (error) {
       console.error('Registration error:', error);
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'An unexpected error occurred';
-      toast.error(errorMessage);
+      toast.error(getApiErrorMessage(error, 'An unexpected error occurred'));
     } finally {
       setLoading(false);
     }
@@ -240,11 +236,11 @@ const Register = () => {
                 cursor: 'pointer',
               }}
             >
-              <option value="Doctor">Doctor</option>
-              <option value="Patient">Patient</option>
-              <option value="Nurse">Nurse</option>
-              <option value="Physiotherapist">Physiotherapist</option>
-              <option value="Radiologist">Radiologist</option>
+              {REGISTER_ROLES.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -271,6 +267,17 @@ const Register = () => {
               required
             />
           </TwoColumns>
+
+          {formData.role === 'Nurse' && (
+            <InputWithLabel
+              label="Department"
+              name="department"
+              placeholder="e.g. Emergency"
+              value={formData.department}
+              onChange={handleChange}
+              error={errors.department}
+            />
+          )}
 
           <TwoColumns>
             <div style={{ marginBottom: '20px' }}>

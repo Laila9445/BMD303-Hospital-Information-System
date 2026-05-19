@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import styled from 'styled-components';
 import { useReferrals } from '../../context/ReferralContext';
+import { filterReferralsByDepartment, getReferralId } from '../../utils/referralUtils';
 import Card from '../../components/common/Card';
 
 const PageContainer = styled.div`
@@ -119,9 +121,13 @@ const EmptyState = styled.div`
 `;
 
 const RadiologyDashboard = () => {
-  const { referrals } = useReferrals();
+  const { referrals, refreshReferrals } = useReferrals();
 
-  const radiologyReferrals = referrals.filter((r) => r.type === 'Radiology');
+  useEffect(() => {
+    refreshReferrals();
+  }, [refreshReferrals]);
+
+  const radiologyReferrals = filterReferralsByDepartment(referrals, 'Radiology');
   const pendingCount = radiologyReferrals.filter((r) => r.status === 'Pending').length;
   const acceptedCount = radiologyReferrals.filter((r) => r.status === 'Accepted').length;
   const completedCount = radiologyReferrals.filter((r) => r.status === 'Completed').length;
@@ -167,9 +173,9 @@ const RadiologyDashboard = () => {
               </thead>
               <tbody>
                 {radiologyReferrals.map((referral) => (
-                  <tr key={referral.id}>
+                  <tr key={getReferralId(referral)}>
                     <Td>{referral.patientName || '—'}</Td>
-                    <Td>{referral.diagnosis || '—'}</Td>
+                    <Td>{referral.reason || '—'}</Td>
                     <Td>{referral.notes || '—'}</Td>
                     <Td>
                       <StatusBadge $status={referral.status}>{referral.status}</StatusBadge>

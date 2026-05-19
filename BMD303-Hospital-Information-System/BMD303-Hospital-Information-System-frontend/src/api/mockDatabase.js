@@ -90,19 +90,7 @@ const initializeDB = () => {
         createdAt: new Date().toISOString()
       }
     ],
-    referrals: [
-      {
-        referralId: 1,
-        doctorId: 1,
-        patientId: 2,
-        referralType: 'radiology',
-        reason: 'X-ray for knee pain',
-        urgency: 'urgent',
-        status: 'pending',
-        notes: 'Priority case',
-        createdAt: new Date().toISOString()
-      }
-    ],
+    referrals: [],
     schedules: [],
     medicalImages: [],
     notifications: []

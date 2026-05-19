@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import doctorService from '../../api/doctorService';
-import referralService from '../../api/referralService';
 import prescriptionService from '../../api/prescriptionService';
-import mockDatabase from '../../api/mockDatabase';
 import Card, { CardHeader, CardBody } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import HomeButton from '../../components/common/HomeButton';
@@ -28,6 +26,14 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { getStatusColor, getStatusText } from '../../utils/statusUtils';
 import ReferralModal from '../../components/medical/ReferralModal';
+import { unwrapList } from '../../api/apiUtils';
+import { resolveDoctorId, getPatientRecordId } from '../../utils/doctorUtils';
+import { dedupeReferralsById, loadDoctorReferralsForUser } from '../../utils/referralUtils';
+import {
+  getRecentPatients,
+  addRecentPatient,
+  mergeRecentWithSearchResults,
+} from '../../utils/patientSearchUtils';
 
 const PageContainer = styled.div`
   padding: 8px 12px 12px 12px;
@@ -227,6 +233,7 @@ const DoctorDashboard = () => {
   const [searchQueries, setSearchQueries] = useState({});
   const [patientSearchQuery, setPatientSearchQuery] = useState('');
   const [patientSearchResults, setPatientSearchResults] = useState([]);
+  const [recentPatients, setRecentPatients] = useState(() => getRecentPatients());
   const [isPatientSearching, setIsPatientSearching] = useState(false);
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
 
@@ -235,56 +242,58 @@ const DoctorDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
+    setRecentPatients(getRecentPatients());
+  }, []);
+
+  useEffect(() => {
+    const onFocus = () => {
+      loadDashboardData();
+      setRecentPatients(getRecentPatients());
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, []);
 
   const loadDashboardData = async () => {
     try {
       setLoading(true);
 
-      const doctorId = user?.doctorId || user?.id || currentUser?.userId || 1;
+      const doctorId = await resolveDoctorId(user || currentUser);
+      if (!doctorId) {
+        setTodayAppointments([]);
+        setReferrals([]);
+        setPrescriptions([]);
+        setStats({ todayCount: 0, pendingConsultations: 0 });
+        return;
+      }
 
-      // Try to get real data first
-      const [appointmentsData, referralsData, prescriptionsData] = await Promise.all([
+      const [appointmentsData, referralsResult, prescriptionsData] = await Promise.all([
         doctorService.getTodayAppointments(),
-        referralService.getDoctorReferrals(doctorId),
+        loadDoctorReferralsForUser(user || currentUser),
         prescriptionService.getDoctorPrescriptions(doctorId),
       ]);
 
-      const appointmentList = Array.isArray(appointmentsData)
-        ? appointmentsData
-        : (appointmentsData?.appointments || appointmentsData?.data || []);
+      const appointmentList = unwrapList(appointmentsData);
+      const referralList = referralsResult.referrals;
+      const prescriptionList = unwrapList(prescriptionsData);
 
-      setTodayAppointments(appointmentList || []);
-      setReferrals(Array.isArray(referralsData) ? referralsData : (referralsData?.referrals || referralsData?.data || []));
-      setPrescriptions(Array.isArray(prescriptionsData)
-        ? prescriptionsData
-        : (prescriptionsData?.prescriptions || prescriptionsData?.data || []));
+      const pendingConsultations = appointmentList.filter((a) =>
+        ['Scheduled', 'Confirmed', 'CheckedIn', 'Payment Pending'].includes(a.status)
+      ).length;
 
+      setTodayAppointments(appointmentList);
+      setReferrals(referralList);
+      setPrescriptions(prescriptionList);
       setStats({
-        todayCount: (appointmentList || []).length,
-        pendingConsultations: Math.floor(Math.random() * 10) + 1, // Mock data for now
+        todayCount: appointmentList.length,
+        pendingConsultations,
       });
     } catch (error) {
-      console.warn('Error loading dashboard data, using mock database', error);
-      
-      // Fallback to mock database
-      const doctorId = currentUser?.userId || 1;
-      const today = new Date().toISOString().split('T')[0];
-      
-      const appointments = mockDatabase.appointments.findAll({ doctorId, date: today });
-      const referrals = mockDatabase.referrals.findAll({ doctorId });
-      const prescriptions = mockDatabase.prescriptions.findAll({ doctorId });
-      
-      setTodayAppointments(appointments);
-      setReferrals(referrals);
-      setPrescriptions(prescriptions);
-      
-      setStats({
-        todayCount: appointments.length,
-        pendingConsultations: Math.floor(Math.random() * 10) + 1,
-      });
-      
-      toast('Using demo data.', { icon: 'ℹ️' });
+      console.warn('Error loading dashboard data', error);
+      setTodayAppointments([]);
+      setReferrals([]);
+      setPrescriptions([]);
+      setStats({ todayCount: 0, pendingConsultations: 0 });
     } finally {
       setLoading(false);
     }
@@ -315,8 +324,8 @@ const DoctorDashboard = () => {
 
     try {
       setIsPatientSearching(true);
-      const results = await doctorService.searchPatients(query);
-      setPatientSearchResults(Array.isArray(results) ? results : (results?.patients || results?.data || []));
+      const raw = unwrapList(await doctorService.searchPatients(query.trim()));
+      setPatientSearchResults(mergeRecentWithSearchResults(raw, query.trim()));
     } catch (error) {
       toast.error('Failed to search patients');
       setPatientSearchResults([]);
@@ -445,19 +454,55 @@ const DoctorDashboard = () => {
               </div>
             )}
 
+            {!patientSearchQuery && recentPatients.length > 0 && (
+              <div>
+                <p style={{ fontSize: '12px', fontWeight: 600, color: '#374151', marginTop: 12, marginBottom: 8 }}>
+                  Recently viewed
+                </p>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {recentPatients.slice(0, 3).map((patient) => (
+                    <div
+                      key={getPatientRecordId(patient)}
+                      onClick={() => {
+                        addRecentPatient(patient);
+                        setRecentPatients(getRecentPatients());
+                        navigate(`/doctor/patients/${getPatientRecordId(patient)}`);
+                      }}
+                      style={{
+                        padding: '10px',
+                        border: '1px solid #bbf7d0',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        backgroundColor: '#f0fdf4',
+                      }}
+                    >
+                      <div style={{ fontSize: '14px', fontWeight: 600 }}>
+                        {patient.firstName} {patient.lastName}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>ID: {getPatientRecordId(patient)}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {patientSearchResults.length > 0 && (
               <div style={{ marginTop: '16px', display: 'grid', gap: '8px' }}>
-                {patientSearchResults.slice(0, 3).map((patient) => (
+                {patientSearchResults.slice(0, 5).map((patient) => (
                   <div
-                    key={patient.patientId}
-                    onClick={() => navigate(`/doctor/patients/${patient.patientId}`)}
+                    key={getPatientRecordId(patient)}
+                    onClick={() => {
+                      addRecentPatient(patient);
+                      setRecentPatients(getRecentPatients());
+                      navigate(`/doctor/patients/${getPatientRecordId(patient)}`);
+                    }}
                     style={{
                       padding: '12px',
                       border: '1px solid #e5e7eb',
                       borderRadius: '6px',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
-                      backgroundColor: '#fff'
+                      backgroundColor: '#fff',
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = '#2563eb';
@@ -474,7 +519,7 @@ const DoctorDashboard = () => {
                           {patient.firstName} {patient.lastName}
                         </div>
                         <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                          ID: {patient.patientId} • {patient.gender} • {patient.age || 'N/A'} years
+                          ID: {getPatientRecordId(patient)} • {patient.gender} • {patient.age || 'N/A'} years
                         </div>
                       </div>
                       <ArrowRightCircleIcon style={{ width: '20px', height: '20px', color: '#2563eb' }} />

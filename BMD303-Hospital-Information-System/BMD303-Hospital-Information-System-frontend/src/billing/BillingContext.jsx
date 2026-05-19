@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import { unwrapList } from '../api/apiUtils';
 import { billingService } from './billingService';
 import { mockPatients } from './billingMockData';
 
@@ -70,7 +71,7 @@ export const BillingProvider = ({ children }) => {
     servicesDispatch({ type: 'SERVICES_LOADING' });
     try {
       const data = await billingService.getServices();
-      servicesDispatch({ type: 'SERVICES_SUCCESS', payload: data });
+      servicesDispatch({ type: 'SERVICES_SUCCESS', payload: unwrapList(data) });
     } catch (error) {
       servicesDispatch({ type: 'SERVICES_ERROR', payload: error?.message || 'Failed to load services.' });
     }
@@ -80,7 +81,7 @@ export const BillingProvider = ({ children }) => {
     invoicesDispatch({ type: 'INVOICES_LOADING' });
     try {
       const data = await billingService.getInvoices();
-      invoicesDispatch({ type: 'INVOICES_SUCCESS', payload: data });
+      invoicesDispatch({ type: 'INVOICES_SUCCESS', payload: unwrapList(data) });
     } catch (error) {
       invoicesDispatch({ type: 'INVOICES_ERROR', payload: error?.message || 'Failed to load invoices.' });
     }
@@ -90,13 +91,15 @@ export const BillingProvider = ({ children }) => {
     paymentsDispatch({ type: 'PAYMENTS_LOADING' });
     try {
       const data = await billingService.getPayments();
-      paymentsDispatch({ type: 'PAYMENTS_SUCCESS', payload: data });
+      paymentsDispatch({ type: 'PAYMENTS_SUCCESS', payload: unwrapList(data) });
     } catch (error) {
       paymentsDispatch({ type: 'PAYMENTS_ERROR', payload: error?.message || 'Failed to load payments.' });
     }
   };
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
     loadServices();
     loadInvoices();
     loadPayments();

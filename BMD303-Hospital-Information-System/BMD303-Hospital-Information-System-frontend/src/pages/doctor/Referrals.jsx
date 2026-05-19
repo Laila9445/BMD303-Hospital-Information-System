@@ -5,8 +5,10 @@ import Button from '../../components/common/Button';
 import ReferralModal from '../../components/medical/ReferralModal';
 import { PlusIcon, CalendarIcon, CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import referralService from '../../api/referralService';
+import { loadDoctorReferralsForUser, getReferralId } from '../../utils/referralUtils';
+import { getApiErrorMessage } from '../../api/apiUtils';
 import { useAuth } from '../../context/AuthContext';
+import { canActAsDoctor } from '../../utils/authUtils';
 import { getStatusColor, getStatusText } from '../../utils/statusUtils';
 import { useBilling } from '../../billing';
 import { formatCurrency } from '../../billing/billingUtils';
@@ -187,18 +189,32 @@ const Referrals = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    if (!user) return;
     loadReferrals();
-  }, []);
+    const onFocus = () => loadReferrals();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user]);
 
   const loadReferrals = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const doctorId = user?.doctorId || user?.id || 1;
-      const data = await referralService.getDoctorReferrals(doctorId);
-      setReferrals(Array.isArray(data) ? data : (data?.referrals || data?.data || []));
+      if (!canActAsDoctor()) {
+        setReferrals([]);
+        return;
+      }
+
+      const { referrals: list, doctorId, error } = await loadDoctorReferralsForUser(user);
+      setReferrals(list);
+
+      if (!doctorId && list.length === 0) {
+        toast.error('Doctor profile not loaded. Please log in again.');
+      } else if (error && list.length === 0) {
+        toast.error(getApiErrorMessage(error, 'Failed to load referrals'));
+      }
     } catch (error) {
       console.error('Error loading referrals:', error);
-      toast.error('Failed to load referrals');
+      toast.error(getApiErrorMessage(error, 'Failed to load referrals'));
       setReferrals([]);
     } finally {
       setLoading(false);
@@ -212,7 +228,8 @@ const Referrals = () => {
   // Build a map of referral invoices for payment status lookup
   const referralInvoices = useMemo(() => {
     const map = new Map();
-    (invoicesState.items || []).forEach((invoice) => {
+    const invoiceList = Array.isArray(invoicesState.items) ? invoicesState.items : [];
+    invoiceList.forEach((invoice) => {
       if (invoice.referenceType === 'Referral' && invoice.referenceId) {
         map.set(String(invoice.referenceId), invoice);
       }
@@ -302,11 +319,11 @@ const Referrals = () => {
               </thead>
               <tbody>
                 {referrals.map((referral) => {
-                  const paymentStatus = getReferralPaymentStatus(referral.id || referral.referralId);
+                  const paymentStatus = getReferralPaymentStatus(getReferralId(referral));
                   const serviceName = referral.referralType || referral.type || '';
                   const servicePrice = servicePriceMap.get(serviceName);
                   return (
-                    <tr key={referral.id || referral.referralId}>
+                    <tr key={getReferralId(referral)}>
                       <td>
                         <span style={{ fontWeight: '600' }}>
                           {referral.patientId || 'N/A'}

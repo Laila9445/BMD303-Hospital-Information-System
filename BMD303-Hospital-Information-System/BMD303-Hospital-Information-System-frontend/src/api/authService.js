@@ -1,80 +1,97 @@
-import apiClient from "./apiClient";
+import apiClient from './apiClient';
+import { unwrapAuthResponse, getApiErrorMessage } from './apiUtils';
+import { applyJwtRoleToUser } from '../utils/authUtils';
 
-const CURRENT_USER_KEY = "clinic_current_user";
+const CURRENT_USER_KEY = 'clinic_current_user';
+
+const persistSession = (payload) => {
+  const auth = unwrapAuthResponse(payload);
+  if (!auth?.token) return null;
+
+  localStorage.removeItem('physio_token');
+  localStorage.setItem('token', auth.token);
+
+  const user = applyJwtRoleToUser(auth.user, auth.token);
+  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+  sessionStorage.removeItem('auth_redirecting');
+
+  return { ...auth, user };
+};
 
 const authService = {
   login: async (email, password) => {
     try {
-      const response = await apiClient.post("/api/Auth/login", { email, password });
-      if (response.data && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(response.data.user));
+      const response = await apiClient.post('/api/Auth/login', { email, password });
+      const auth = persistSession(response.data);
+      if (auth) {
         return {
           success: true,
-          token: response.data.token,
-          user: response.data.user,
-          message: "Login successful"
+          token: auth.token,
+          user: auth.user,
+          message: auth.message || 'Login successful',
         };
       }
-      return { success: false, message: "Login failed" };
+      return { success: false, message: 'Login failed' };
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || "Invalid email or password"
+        message: getApiErrorMessage(error, 'Invalid email or password'),
       };
     }
   },
 
   register: async (userData) => {
     try {
-      const response = await apiClient.post("/api/Auth/register", userData);
-      if (response.data && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(response.data.user));
+      const response = await apiClient.post('/api/Auth/register', userData);
+      const auth = persistSession(response.data);
+      if (auth) {
         return {
           success: true,
-          token: response.data.token,
-          user: response.data.user,
-          message: "Registration successful!"
+          token: auth.token,
+          user: auth.user,
+          message: auth.message || 'Registration successful!',
         };
       }
-      return { success: false, message: "Registration failed" };
+      return { success: false, message: 'Registration failed' };
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || "Registration error"
+        message: getApiErrorMessage(error, 'Registration error'),
       };
     }
   },
 
   getProfile: async () => {
     try {
-      const response = await apiClient.get("/api/Auth/profile");
+      const response = await apiClient.get('/api/Auth/profile');
       return response.data;
-    } catch (error) {
-      const user = localStorage.getItem("user");
+    } catch {
+      const user = localStorage.getItem('user');
       return user ? JSON.parse(user) : null;
     }
   },
 
   logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     localStorage.removeItem(CURRENT_USER_KEY);
-    localStorage.removeItem("physio_token");
-    window.location.href = "/login";
+    localStorage.removeItem('physio_token');
+    sessionStorage.removeItem('auth_redirecting');
+    window.location.href = '/login';
   },
 
   getCurrentUser: () => {
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
+    const raw = localStorage.getItem('user');
+    if (!raw) return null;
+    try {
+      return applyJwtRoleToUser(JSON.parse(raw));
+    } catch {
+      return null;
+    }
   },
 
-  isAuthenticated: () => {
-    return !!localStorage.getItem("token");
-  }
+  isAuthenticated: () => !!localStorage.getItem('token'),
 };
 
 export default authService;

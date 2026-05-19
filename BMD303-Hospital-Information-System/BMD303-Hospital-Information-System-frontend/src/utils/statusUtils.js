@@ -18,6 +18,12 @@ export const getStatusText = (status) => {
       return 'Payment Pending';
     case 'Paid':
       return 'Paid';
+    case 'Pending':
+      return 'Pending';
+    case 'Accepted':
+      return 'Accepted';
+    case 'Appointment Booked':
+      return 'Appointment Booked';
     default:
       return status || 'Unknown';
   }
@@ -41,6 +47,12 @@ export const getStatusColor = (status) => {
       return '#f59e0b';
     case 'Paid':
       return '#16a34a';
+    case 'Pending':
+      return '#f59e0b';
+    case 'Accepted':
+      return '#2563eb';
+    case 'Appointment Booked':
+      return '#6366f1';
     default:
       return '#6b7280';
   }

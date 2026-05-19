@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import toast from 'react-hot-toast';
 import appointmentService from '../../api/appointmentService';
-import mockDatabase from '../../api/mockDatabase';
+import { unwrapList } from '../../api/apiUtils';
+import { getPatientRecordId } from '../../utils/doctorUtils';
 import Card, { CardHeader, CardBody } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { CalendarDaysIcon, ClockIcon, CheckCircleIcon, XCircleIcon, PlusIcon, ArrowPathIcon, TrashIcon } from '@heroicons/react/24/outline';
@@ -92,7 +93,7 @@ const PatientAppointments = () => {
   
   // Get current logged-in patient
   const currentUser = JSON.parse(localStorage.getItem('user'));
-  const patientId = currentUser?.userId || currentUser?.id;
+  const patientId = getPatientRecordId(currentUser);
 
   useEffect(() => {
     loadAppointments();
@@ -102,48 +103,20 @@ const PatientAppointments = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Loading appointments for patient:', patientId);
-      
-      // Try to fetch from API
       const data = await appointmentService.getMyAppointments();
-      console.log('API Response:', data);
-      
-      // Filter appointments for the current logged-in patient only
-      let appointmentList = Array.isArray(data) 
-        ? data.filter(appt => String(appt.patientId) === String(patientId))
-        : (data?.appointments || data?.data || []);
-      
-      if (!Array.isArray(appointmentList)) {
-        appointmentList = [];
+      let appointmentList = unwrapList(data);
+      if (patientId != null) {
+        appointmentList = appointmentList.filter(
+          (appt) =>
+            String(appt.patientId) === String(patientId) ||
+            String(appt.patientUserId) === String(patientId)
+        );
       }
-      
-      console.log('Processed appointments:', appointmentList);
       setAppointments(appointmentList);
     } catch (err) {
       console.error('Error loading appointments:', err);
-      console.log('Using demo data - backend not available');
       setError(err.message || 'Failed to load appointments');
-      // Use demo data when backend is not available
-      setAppointments([
-        {
-          appointmentId: 1,
-          doctorName: 'Ahmed Nabil',
-          appointmentDate: '2026-03-20',
-          startTime: '10:00',
-          endTime: '10:30',
-          status: 'Scheduled',
-          reasonForVisit: 'Knee pain consultation'
-        },
-        {
-          appointmentId: 2,
-          doctorName: 'Ahmed Nabil',
-          appointmentDate: '2026-03-25',
-          startTime: '14:00',
-          endTime: '14:30',
-          status: 'Confirmed',
-          reasonForVisit: 'Follow-up checkup'
-        }
-      ]);
+      setAppointments([]);
     } finally {
       setLoading(false);
     }
@@ -161,15 +134,7 @@ const PatientAppointments = () => {
     } catch (error) {
       console.error('Error cancelling appointment:', error);
       
-      // Fallback to mock database
-      const appointment = mockDatabase.appointments.findById(appointmentId);
-      if (appointment) {
-        mockDatabase.appointments.update(appointmentId, { status: 'Cancelled' });
-        toast.success('Appointment cancelled successfully!');
-        loadAppointments();
-      } else {
-        toast.error('Failed to cancel appointment');
-      }
+      toast.error('Failed to cancel appointment');
     }
   };
 

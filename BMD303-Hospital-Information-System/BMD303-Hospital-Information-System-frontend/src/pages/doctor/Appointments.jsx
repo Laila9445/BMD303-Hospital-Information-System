@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import doctorService from '../../api/doctorService';
 import Card, { CardHeader, CardBody } from '../../components/common/Card';
@@ -8,6 +9,8 @@ import { CalendarDaysIcon, MagnifyingGlassIcon, ClockIcon, UserCircleIcon, PlusI
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import BookAppointmentModal from '../../components/medical/BookAppointmentModal';
+import appointmentService from '../../api/appointmentService';
+import { unwrapList } from '../../api/apiUtils';
 import { useAuth } from '../../context/AuthContext';
 import { useBilling } from '../../billing';
 
@@ -143,7 +146,11 @@ const PaymentBadge = styled.span`
   }
 `;
 
+const getAppointmentPatientId = (appointment) =>
+  appointment?.patientId ?? appointment?.PatientId ?? appointment?.patientUserId ?? null;
+
 const DoctorAppointments = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { invoicesState } = useBilling();
   const [appointments, setAppointments] = useState([]);
@@ -154,10 +161,6 @@ const DoctorAppointments = () => {
   // Get today's date in YYYY-MM-DD format for min attribute
   const today = new Date().toISOString().split('T')[0];
   
-  // Get current logged-in doctor ID
-  const currentUser = user || JSON.parse(localStorage.getItem('user'));
-  const doctorId = currentUser?.userId || currentUser?.id || 1;
-
   useEffect(() => {
     loadAppointments();
   }, [selectedDate]);
@@ -165,16 +168,15 @@ const DoctorAppointments = () => {
   const loadAppointments = async () => {
     try {
       setLoading(true);
-      console.log('Loading appointments for doctor:', doctorId, 'on date:', selectedDate);
-      const data = await doctorService.getAppointments(selectedDate);
-      console.log('Appointments loaded:', data);
-      
-      // Filter appointments for the current logged-in doctor only
-      const filteredAppointments = Array.isArray(data) 
-        ? data.filter(appt => String(appt.doctorId) === String(doctorId))
-        : [];
-      
-      setAppointments(filteredAppointments);
+      let list = [];
+      try {
+        const data = await doctorService.getAppointments(selectedDate);
+        list = unwrapList(data);
+      } catch {
+        const data = await appointmentService.getDoctorAppointments(selectedDate);
+        list = unwrapList(data);
+      }
+      setAppointments(list);
     } catch (error) {
       console.error('Error loading appointments:', error);
       toast.error('Failed to load appointments');
@@ -314,13 +316,22 @@ const DoctorAppointments = () => {
                         )}
                       </td>
                       <td>
-                        <Button 
-                          size="small" 
+                        <Button
+                          size="small"
                           variant="primary"
                           disabled={!canStartConsultation}
-                          onClick={() => console.log('View appointment', appointment.appointmentId)}
+                          onClick={() => {
+                            const pid = getAppointmentPatientId(appointment);
+                            if (pid == null) {
+                              toast.error('Patient ID missing on this appointment');
+                              return;
+                            }
+                            navigate(`/doctor/patients/${pid}/consultation`, {
+                              state: { appointment },
+                            });
+                          }}
                         >
-                          View
+                          Start consultation
                         </Button>
                       </td>
                     </tr>

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import authService from '../api/authService';
+import { applyJwtRoleToUser, getJwtRole } from '../utils/authUtils';
 
 const AuthContext = createContext(null);
 
@@ -17,10 +18,14 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in on mount
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
-      setUser(currentUser);
+      const synced = applyJwtRoleToUser(currentUser);
+      if (synced.role !== currentUser.role) {
+        localStorage.setItem('user', JSON.stringify(synced));
+        localStorage.setItem('clinic_current_user', JSON.stringify(synced));
+      }
+      setUser(synced);
       setIsAuthenticated(true);
     }
     setLoading(false);
@@ -30,16 +35,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.login(email, password);
       if (response.success) {
-        const userData = response.user;
-        setUser(userData);
+        setUser(response.user);
         setIsAuthenticated(true);
-        return { success: true, user: userData };
+        return { success: true, user: response.user };
       }
       return { success: false, message: response.message };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Login failed',
       };
     }
   };
@@ -48,16 +52,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.register(userData);
       if (response.success) {
-        const newUser = response.user;
-        setUser(newUser);
+        setUser(response.user);
         setIsAuthenticated(true);
-        return { success: true, user: newUser };
+        return { success: true, user: response.user };
       }
       return { success: false, message: response.message };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed',
       };
     }
   };
@@ -69,19 +72,25 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/login';
   };
 
-  const value = {
-    user,
-    loading,
-    isAuthenticated,
-    login,
-    register,
-    logout,
-    isDoctor: user?.role === 'Doctor',
-    isPatient: user?.role === 'Patient',
-    isNurse: user?.role === 'Nurse',
-    isPhysio: user?.role === 'Physiotherapist',
-    isRadiology: user?.role === 'Radiologist',
-  };
+  const effectiveRole = user?.role ?? getJwtRole();
+
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      isAuthenticated,
+      login,
+      register,
+      logout,
+      effectiveRole,
+      isDoctor: effectiveRole === 'Doctor',
+      isPatient: effectiveRole === 'Patient',
+      isNurse: effectiveRole === 'Nurse',
+      isPhysio: effectiveRole === 'Physiotherapist',
+      isRadiology: effectiveRole === 'Radiologist',
+    }),
+    [user, loading, isAuthenticated, effectiveRole]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

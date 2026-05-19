@@ -79,6 +79,7 @@ const Sidebar = ({ minimized, onToggleMinimize }) => {
   const { isDoctor, user } = useAuth();
 
   const radiologyPath = user?.role === 'Radiologist' ? '/radiology/staff' : '/radiology/dashboard';
+  const physioPath = user?.role === 'Physiotherapist' ? '/physio/staff' : '/physio/dashboard';
 
   const doctorMenuItems = [
     { icon: HomeIcon, label: 'Dashboard', path: '/doctor/dashboard', key: 'dashboard' },
@@ -88,7 +89,7 @@ const Sidebar = ({ minimized, onToggleMinimize }) => {
     { icon: BeakerIcon, label: 'Prescriptions', path: '/doctor/prescriptions', key: 'prescriptions' },
     { icon: BeakerIcon, label: 'Medical Imaging', path: '/doctor/imaging', key: 'imaging' },
     { icon: DocumentTextIcon, label: 'Referrals', path: '/doctor/referrals', key: 'referrals' },
-    { icon: UserGroupIcon, label: 'Physiotherapy', path: '/physio/dashboard', key: 'physiotherapy' },
+    { icon: UserGroupIcon, label: 'Physiotherapy', path: physioPath, key: 'physiotherapy' },
     { icon: BeakerIcon, label: 'Radiology', path: radiologyPath, key: 'radiology' },
     { icon: UserIcon, label: 'Profile', path: '/doctor/profile', key: 'profile' },
   ];
@@ -96,6 +97,9 @@ const Sidebar = ({ minimized, onToggleMinimize }) => {
   const isActive = (path) => {
     if (path === radiologyPath) {
       return location.pathname.startsWith('/radiology');
+    }
+    if (path === physioPath) {
+      return location.pathname.startsWith('/physio');
     }
     return location.pathname === path;
   };

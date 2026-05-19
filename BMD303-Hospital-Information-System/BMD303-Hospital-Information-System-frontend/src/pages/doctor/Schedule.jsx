@@ -6,6 +6,7 @@ import Button from '../../components/common/Button';
 import { InputWithLabel } from '../../components/common/Input';
 import { ClockIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { normalizeScheduleList, formatDayOfWeekLabel } from '../../utils/doctorUtils';
 
 const PageContainer = styled.div`
   padding: 32px;
@@ -94,7 +95,7 @@ const DoctorSchedule = () => {
     try {
       setLoading(true);
       const data = await doctorService.getSchedules();
-      setSchedules(data || []);
+      setSchedules(normalizeScheduleList(data));
     } catch (error) {
       toast.error('Failed to load schedule');
     } finally {
@@ -127,18 +128,7 @@ const DoctorSchedule = () => {
     }
   };
 
-  const getDayName = (day) => {
-    const days = {
-      'Monday': 'Monday',
-      'Tuesday': 'Tuesday',
-      'Wednesday': 'Wednesday',
-      'Thursday': 'Thursday',
-      'Friday': 'Friday',
-      'Saturday': 'Saturday',
-      'Sunday': 'Sunday',
-    };
-    return days[day] || day;
-  };
+  const getDayName = (day) => formatDayOfWeekLabel(day) || day;
 
   return (
     <PageContainer>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Appointments.css';
 import { useBilling } from '../../billing';
 import { formatCurrency } from '../../billing/billingUtils';
 import toast from 'react-hot-toast';
+import Button from '../../components/common/Button';
 
 const STORAGE_KEY = 'physioAppointments';
 
@@ -65,6 +67,7 @@ function displayStatus(apt) {
 }
 
 const Appointments = () => {
+    const navigate = useNavigate();
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const { servicesState, createInvoice } = useBilling();
@@ -155,11 +158,17 @@ const Appointments = () => {
 
     return (
         <div className="appointments-page">
-            <div className="page-header">
+            <div
+                className="page-header"
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}
+            >
                 <div>
                     <h1>Appointments</h1>
-                    <p>Scheduled sessions from bookings and the clinic</p>
+                    <p>Physiotherapy bookings and scheduled sessions</p>
                 </div>
+                <Button variant="primary" onClick={() => navigate('/physio/booking')}>
+                    Book appointment
+                </Button>
             </div>
 
             <div className="appointments-table-container">

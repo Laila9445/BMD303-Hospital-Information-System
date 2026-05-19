@@ -6,10 +6,44 @@ import Button from '../../components/common/Button';
 import { InputWithLabel, SelectWithLabel } from '../../components/common/Input';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import referralService from '../../api/referralService';
-import { useReferrals } from '../../context/ReferralContext';
 import { validateConsultationField } from '../../utils/validation';
+import { buildReferralType, normalizeUrgency, getReferralId } from '../../utils/referralUtils';
+import { getApiErrorMessage } from '../../api/apiUtils';
 import { useBilling } from '../../billing';
 import { formatCurrency } from '../../billing/billingUtils';
+import { useAuth } from '../../context/AuthContext';
+import { resolveDoctorId, isActiveBillingService } from '../../utils/doctorUtils';
+import { getJwtRole } from '../../utils/authUtils';
+
+/** Shown in Service Name * when referral type is Physiotherapy (matches clinic physio services). */
+const PHYSIOTHERAPY_REFERRAL_SERVICES = [
+  'Orthopedic Physical Therapy',
+  'Post-Surgical Rehabilitation',
+  'Sports Injury Rehabilitation',
+  'Back and Neck Pain Treatment',
+  'Osteoarthritis Treatment',
+  'Manual Therapy',
+  'Electrotherapy',
+];
+
+const serviceMatchesDepartment = (service, department) => {
+  const dept = String(department || '').toLowerCase();
+  const serviceDept = String(service.department || '').toLowerCase();
+  if (serviceDept && serviceDept === dept) return true;
+  if (dept === 'physiotherapy') {
+    const name = String(service.serviceName || '').toLowerCase();
+    return name.includes('physio') || name.includes('rehabilitation');
+  }
+  return false;
+};
+
+/** Doctors create referrals (incl. to Physiotherapy). JWT role wins when present. */
+const mayCreateDoctorReferral = (user) => {
+  const jwtRole = getJwtRole();
+  if (jwtRole === 'Doctor') return true;
+  if (jwtRole === 'Physiotherapist' || jwtRole === 'Radiologist') return false;
+  return user?.role === 'Doctor';
+};
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -85,7 +119,7 @@ const SubmitButton = styled(Button)`
 `;
 
 const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) => {
-  const { addReferral } = useReferrals();
+  const { user } = useAuth();
   const { servicesState, createInvoice } = useBilling();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -100,14 +134,42 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
   const services = useMemo(() => servicesState.items || [], [servicesState.items]);
   const filteredServices = useMemo(() => {
     if (!formData.referralCategory) return [];
-    return services.filter(
-      (service) => service.department === formData.referralCategory && service.activeStatus
+
+    const fromBilling = services.filter(
+      (service) =>
+        serviceMatchesDepartment(service, formData.referralCategory) && isActiveBillingService(service)
     );
+    if (fromBilling.length > 0) return fromBilling;
+
+    if (formData.referralCategory === 'Physiotherapy') {
+      return PHYSIOTHERAPY_REFERRAL_SERVICES.map((label, index) => {
+        const billed = services.find((s) => {
+          const n = String(s.serviceName || '').toLowerCase();
+          const l = label.toLowerCase();
+          if (n === l) return true;
+          if (l.includes('post-surgical') && n.includes('rehabilitation')) return true;
+          if (l.includes('orthopedic') && n.includes('physiotherapy session')) return true;
+          return false;
+        });
+        return {
+          id: billed?.id ?? `physio-referral-${index}`,
+          serviceName: label,
+          department: 'Physiotherapy',
+          price: billed?.price ?? 0,
+          activeStatus: true,
+        };
+      });
+    }
+
+    return [];
   }, [services, formData.referralCategory]);
 
   const selectedService = useMemo(
-    () => services.find((service) => service.serviceName === formData.serviceName),
-    [services, formData.serviceName]
+    () =>
+      filteredServices.find((service) => service.serviceName === formData.serviceName) ||
+      services.find((service) => service.serviceName === formData.serviceName) ||
+      null,
+    [filteredServices, services, formData.serviceName]
   );
 
   const handleChange = (e) => {
@@ -124,6 +186,19 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
     setLoading(true);
 
     try {
+      if (!mayCreateDoctorReferral(user)) {
+        const role = getJwtRole() || user?.role || 'unknown';
+        toast.error(
+          role === 'Physiotherapist'
+            ? 'Referrals to Physiotherapy are created by a Doctor. You are logged in as a Physiotherapist (accept referrals under Physio → Staff). Log out and sign in with your Doctor account, then use Doctor → Referrals.'
+            : role === 'Radiologist'
+              ? 'Referrals are created by a Doctor only. Log out and sign in with your Doctor account, then use Doctor → Referrals.'
+              : `Only Doctor accounts can create referrals. You are signed in as "${role}".`
+        );
+        setLoading(false);
+        return;
+      }
+
       // Validate required fields
       if (!formData.patientId) {
         toast.error('Patient ID is required');
@@ -167,37 +242,40 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
         }
       }
 
-      // Get current user to include doctor information
-      const currentUser = JSON.parse(localStorage.getItem('user'));
-      const referralData = {
-        ...formData,
-        referralType: formData.serviceName,
-        doctorId: currentUser?.userId || currentUser?.id,
-        doctorName: `${currentUser?.firstName} ${currentUser?.lastName}`,
-        createdDate: new Date().toISOString(),
-        status: 'Pending'
+      const numericPatientId = Number(formData.patientId);
+      if (!numericPatientId || Number.isNaN(numericPatientId)) {
+        toast.error('Patient ID must be a numeric clinic id (e.g. 2), not a UUID.');
+        setLoading(false);
+        return;
+      }
+
+      const doctorId = await resolveDoctorId(user);
+      if (!doctorId) {
+        toast.error('Could not resolve doctor profile. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
+      const referralPayload = {
+        patientId: numericPatientId,
+        doctorId,
+        referralType: buildReferralType(formData.referralCategory, formData.serviceName),
+        urgency: normalizeUrgency(formData.urgency),
+        reason: formData.reason,
+        notes: formData.notes || undefined,
       };
 
-      const type = formData.referralCategory;
+      const referralResult = await referralService.createReferral(referralPayload);
+      const newReferralId = getReferralId(referralResult);
 
-      addReferral({
-        patientName: patientName || (formData.patientId ? `Patient #${formData.patientId}` : ''),
-        patientId: formData.patientId,
-        diagnosis: formData.reason,
-        notes: formData.notes || '',
-        type,
-        serviceName: formData.serviceName,
-      });
+      const canCreateInvoice = user?.role === 'Nurse' || user?.role === 'Admin';
 
-      const referralResult = await referralService.createReferral(referralData);
-      const newReferralId = referralResult?.referralId || referralResult?.id || referralResult?.data?.referralId || Date.now();
-
-      // Auto-generate invoice for the referral
-      if (selectedService) {
-        const invoicePatientId = formData.patientId
-          ? (formData.patientId.startsWith('PAT-') ? formData.patientId : `PAT-${1000 + Number(formData.patientId)}`)
-          : 'PAT-1001';
-        const invoicePatientName = patientName || (formData.patientId ? `Patient #${formData.patientId}` : 'Unknown Patient');
+      if (selectedService && canCreateInvoice) {
+        const invoicePatientId = formData.patientId.toString().startsWith('PAT-')
+          ? formData.patientId
+          : `PAT-${1000 + numericPatientId}`;
+        const invoicePatientName =
+          patientName || (formData.patientId ? `Patient #${formData.patientId}` : 'Unknown Patient');
 
         try {
           await createInvoice({
@@ -213,10 +291,16 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
           toast.success('Referral created and invoice generated!');
         } catch (invoiceError) {
           console.error('Error generating invoice for referral:', invoiceError);
-          toast.success('Referral created, but invoice generation failed.');
+          toast.success(
+            getApiErrorMessage(invoiceError, 'Referral created, but invoice generation failed.')
+          );
         }
       } else {
-        toast.success('Referral created successfully!');
+        toast.success(
+          selectedService
+            ? 'Referral created. A nurse will create the billing invoice from Nurse → Billing.'
+            : 'Referral created successfully!'
+        );
       }
 
       onSuccess?.();
@@ -233,8 +317,7 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
       });
     } catch (error) {
       console.error('Error creating referral:', error);
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to create referral';
-      toast.error(errorMessage);
+      toast.error(getApiErrorMessage(error, 'Failed to create referral'));
     } finally {
       setLoading(false);
     }
@@ -293,41 +376,18 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
               required
             >
               <option value="">Select service...</option>
-              {formData.referralCategory === 'Radiology' && (
-                <>
-                  <option value="X-Ray">X-Ray (Chest/Extremities)</option>
-                  <option value="CT Scan">CT Scan (Head/Body)</option>
-                  <option value="MRI">MRI (Brain/Spine/Joints)</option>
-                  <option value="Ultrasound">Ultrasound (Abdomen/Pelvic)</option>
-                  <option value="Mammography">Mammography (Breast)</option>
-                  <option value="DEXA Scan">DEXA Scan (Bone Density)</option>
-                  <option value="Angiography">Angiography (Vascular)</option>
-                  <option value="Fluoroscopy">Fluoroscopy (GI Tract)</option>
-                </>
-              )}
-              {formData.referralCategory === 'Physiotherapy' && (
-                <>
-                  <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
-                  <option value="Neurological Rehabilitation">Neurological Rehabilitation</option>
-                  <option value="Cardiopulmonary Rehabilitation">Cardiopulmonary Rehabilitation</option>
-                  <option value="Sports Injury Rehabilitation">Sports Injury Rehabilitation</option>
-                  <option value="Pediatric Physiotherapy">Pediatric Physiotherapy</option>
-                  <option value="Geriatric Rehabilitation">Geriatric Rehabilitation</option>
-                  <option value="Musculoskeletal Therapy">Musculoskeletal Therapy</option>
-                  <option value="Post-Surgical Rehabilitation">Post-Surgical Rehabilitation</option>
-                  <option value="Chronic Pain Management">Chronic Pain Management</option>
-                  <option value="Balance and Vestibular Therapy">Balance and Vestibular Therapy</option>
-                  <option value="Women's Health Physiotherapy">Women's Health Physiotherapy</option>
-                </>
-              )}
-              {filteredServices.length > 0 && (
-                <optgroup label="Available Services">
-                  {filteredServices.map((service) => (
-                    <option key={service.id} value={service.serviceName}>
-                      {service.serviceName}
-                    </option>
-                  ))}
-                </optgroup>
+              {filteredServices.length > 0 ? (
+                filteredServices.map((service) => (
+                  <option key={service.id ?? service.serviceName} value={service.serviceName}>
+                    {service.price > 0
+                      ? `${service.serviceName} (${formatCurrency(service.price)})`
+                      : service.serviceName}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>
+                  No billing services loaded for {formData.referralCategory || 'this department'}
+                </option>
               )}
             </SelectWithLabel>
           </FormGroup>

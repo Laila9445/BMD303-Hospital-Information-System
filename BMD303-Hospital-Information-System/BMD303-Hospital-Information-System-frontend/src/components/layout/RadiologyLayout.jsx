@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   HomeIcon,
   CalendarDaysIcon,
+  ClockIcon,
   Squares2X2Icon,
   Bars3Icon,
   XMarkIcon,
@@ -139,7 +140,9 @@ const RadiologySidebar = ({ minimized, onToggleMinimize }) => {
   const location = useLocation();
   const { user, logout, isRadiology } = useAuth();
 
-  const dashboardPath = user?.role === 'Doctor' ? '/radiology/dashboard' : '/radiology/staff';
+  const isDoctorViewer = user?.role === 'Doctor';
+  const dashboardPath = isDoctorViewer ? '/radiology/dashboard' : '/radiology/staff';
+  const schedulePath = isDoctorViewer ? '/doctor/schedule' : '/radiology/schedule';
 
   const menuItems = [
     {
@@ -155,6 +158,14 @@ const RadiologySidebar = ({ minimized, onToggleMinimize }) => {
       path: '/radiology/appointments',
       key: 'appointments',
       match: (p) => p === '/radiology/appointments',
+    },
+    {
+      icon: ClockIcon,
+      label: 'Schedule',
+      path: schedulePath,
+      key: 'schedule',
+      match: (p) =>
+        p === '/radiology/schedule' || (isDoctorViewer && p === '/doctor/schedule'),
     },
     {
       icon: Squares2X2Icon,

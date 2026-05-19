@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import doctorService from '../../api/doctorService';
-import mockDatabase from '../../api/mockDatabase';
+import appointmentService from '../../api/appointmentService';
+import { unwrapApiResponse } from '../../api/apiUtils';
+import { addRecentPatient } from '../../utils/patientSearchUtils';
 import Card, { CardHeader, CardBody, CardFooter } from '../../components/common/Card';
 import Button from '../../components/common/Button';
-import { ArrowRightIcon, UserCircleIcon, CalendarIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, UserCircleIcon, CalendarIcon, ClipboardDocumentIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import UploadMedicalImageModal from '../../components/medical/UploadMedicalImageModal';
+import { unwrapList } from '../../api/apiUtils';
+import { getStatusText } from '../../utils/statusUtils';
 
 const PageContainer = styled.div`
   padding: 32px;
@@ -110,6 +115,8 @@ const PatientDetails = () => {
   const [medicalRecord, setMedicalRecord] = useState(null);
   const [medicalImages, setMedicalImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [patientAppointments, setPatientAppointments] = useState([]);
 
   useEffect(() => {
     loadPatientData();
@@ -118,44 +125,33 @@ const PatientDetails = () => {
   const loadPatientData = async () => {
     try {
       setLoading(true);
-      
-      // Try to get real data from API first
-      try {
-        const patientData = await doctorService.getPatientRecord(patientId);
-        const images = await doctorService.getPatientMedicalImages(patientId);
-        
-        setPatient(patientData);
-        setMedicalRecord(patientData?.medicalRecord || null);
-        setMedicalImages(images || []);
-        return; // Success, exit early
-      } catch (apiError) {
-        console.log('API not available, using mock database');
-        
-        // Fallback to mock database
-        const allUsers = mockDatabase.users.findAll();
-        const foundPatient = allUsers.find(u => u.userId === parseInt(patientId));
-        
-        if (!foundPatient) {
-          toast.error('Patient not found');
-          navigate('/doctor/patients');
-          return;
+
+      const patientData = unwrapApiResponse(await doctorService.getPatientRecord(patientId));
+      if (!patientData) {
+        toast.error('Patient not found');
+        navigate('/doctor/patients');
+        return;
+      }
+
+      setPatient(patientData);
+      addRecentPatient(patientData);
+      setMedicalRecord(patientData?.medicalRecord || patientData?.medicalHistory || null);
+
+      const images = await doctorService.getPatientMedicalImages(patientId);
+      setMedicalImages(unwrapList(images));
+
+      const embedded = patientData?.appointments || patientData?.upcomingAppointments;
+      if (Array.isArray(embedded) && embedded.length > 0) {
+        setPatientAppointments(embedded);
+      } else {
+        try {
+          const allAppts = unwrapList(await appointmentService.getDoctorAppointments());
+          setPatientAppointments(
+            allAppts.filter((a) => String(a.patientId ?? a.PatientId) === String(patientId))
+          );
+        } catch {
+          setPatientAppointments([]);
         }
-        
-        // Get patient's appointments as medical record
-        const patientAppointments = mockDatabase.appointments.findAll({ patientId: parseInt(patientId) });
-        const prescriptions = mockDatabase.prescriptions.findAll({ patientId: parseInt(patientId) });
-        
-        setPatient(foundPatient);
-        setMedicalRecord({
-          allergies: 'No known allergies',
-          chronicConditions: prescriptions.length > 0 ? 'Under medication' : 'None',
-          currentMedications: prescriptions.map(p => p.medicationName).join(', ') || 'None',
-          surgicalHistory: 'No previous surgeries',
-          familyHistory: 'No significant family history',
-          totalVisits: patientAppointments.length,
-          lastVisit: patientAppointments.length > 0 ? patientAppointments[patientAppointments.length - 1].appointmentDate : 'N/A'
-        });
-        setMedicalImages([]); // No images in mock database for now
       }
     } catch (error) {
       console.error('Error loading patient data:', error);
@@ -279,24 +275,68 @@ const PatientDetails = () => {
                 </>
               )}
             </CardBody>
-            <CardFooter>
+            <CardFooter style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
               <Button variant="primary" onClick={() => navigate(`/doctor/patients/${patientId}/consultation`)}>
                 <ClipboardDocumentIcon style={{ width: '20px', height: '20px' }} />
                 New Consultation
               </Button>
-              <Button variant="secondary" onClick={() => navigate(`/doctor/patients/${patientId}/images`)}>
-                View Medical Images
+              <Button variant="secondary" onClick={() => setUploadModalOpen(true)}>
+                <PhotoIcon style={{ width: '20px', height: '20px' }} />
+                Add Medical Image
               </Button>
             </CardFooter>
           </Card>
 
-          {medicalImages.length > 0 && (
-            <Card size="large" style={{ marginTop: '24px' }}>
-              <CardHeader>
-                <h3>Medical Images ({medicalImages.length})</h3>
+          <Card size="large" style={{ marginTop: '24px' }}>
+            <CardHeader>
+              <h3>Appointments ({patientAppointments.length})</h3>
+            </CardHeader>
+            <CardBody>
+              {patientAppointments.length === 0 ? (
+                <p style={{ textAlign: 'center', color: '#6b7280', margin: 0 }}>No appointments on record.</p>
+              ) : (
+                patientAppointments.slice(0, 8).map((appt) => (
+                  <div
+                    key={appt.appointmentId}
+                    style={{
+                      padding: '12px',
+                      marginBottom: '10px',
+                      backgroundColor: '#f9fafb',
+                      borderRadius: '8px',
+                      borderLeft: '4px solid #2563eb',
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: '14px' }}>
+                      {appt.appointmentDate
+                        ? new Date(appt.appointmentDate).toLocaleDateString()
+                        : '—'}{' '}
+                      {appt.startTime?.substring?.(0, 5) || ''}
+                      {appt.doctorName ? ` · ${appt.doctorName}` : ''}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: 4 }}>
+                      {getStatusText(appt.status)} · {appt.reasonForVisit || 'Visit'}
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardBody>
+          </Card>
+
+          <Card size="large" style={{ marginTop: '24px' }}>
+            <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3>Medical Images ({medicalImages.length})</h3>
+              <Button variant="secondary" size="small" onClick={() => setUploadModalOpen(true)}>
+                  Add image
+                </Button>
               </CardHeader>
               <CardBody>
-                {medicalImages.slice(0, 3).map((image) => (
+                {medicalImages.length === 0 ? (
+                  <p style={{ textAlign: 'center', color: '#6b7280', margin: 0 }}>
+                    No images yet. Use &quot;Add Medical Image&quot; to upload X-rays, MRI, etc.
+                  </p>
+                ) : (
+                <>
+                {medicalImages.slice(0, 6).map((image) => (
                   <div key={image.imageId} style={{ 
                     padding: '12px', 
                     marginBottom: '12px', 
@@ -315,16 +355,20 @@ const PatientDetails = () => {
                     </div>
                   </div>
                 ))}
-                {medicalImages.length > 3 && (
-                  <Button variant="secondary" style={{ width: '100%' }}>
-                    View All Images ({medicalImages.length})
-                  </Button>
+                  </>
                 )}
               </CardBody>
             </Card>
-          )}
         </div>
       </ContentGrid>
+
+      <UploadMedicalImageModal
+        isOpen={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        patientId={patientId}
+        patientName={`${patient.firstName} ${patient.lastName}`}
+        onUploaded={loadPatientData}
+      />
     </PageContainer>
   );
 };

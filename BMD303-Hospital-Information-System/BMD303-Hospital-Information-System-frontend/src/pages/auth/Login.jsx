@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getRoleDashboardPath } from '../../utils/authUtils';
 import { InputWithLabel } from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import toast from 'react-hot-toast';
@@ -97,19 +98,7 @@ const Login = () => {
       
       if (result.success) {
         toast.success('Login successful!');
-        
-        // Redirect based on role
-        if (result.user.role === 'Doctor') {
-          navigate('/doctor/dashboard');
-        } else if (result.user.role === 'Nurse') {
-          navigate('/nurse/dashboard');
-        } else if (result.user.role === 'Physiotherapist') {
-          navigate('/physio/staff');
-        } else if (result.user.role === 'Radiologist') {
-          navigate('/radiology/staff');
-        } else {
-          navigate('/patient/dashboard');
-        }
+        navigate(getRoleDashboardPath(result.user?.role) || '/patient/dashboard');
       } else {
         toast.error(result.message || 'Login failed');
         setErrors({ email: result.message || 'Invalid credentials' });

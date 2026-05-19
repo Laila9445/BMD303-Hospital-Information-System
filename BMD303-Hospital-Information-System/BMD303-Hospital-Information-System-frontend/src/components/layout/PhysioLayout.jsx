@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   HomeIcon,
   CalendarDaysIcon,
+  ClockIcon,
   Squares2X2Icon,
   Bars3Icon,
   XMarkIcon,
@@ -134,34 +135,46 @@ const LogoutButton = styled.button`
   }
 `;
 
-const menuItems = [
-  {
-    icon: HomeIcon,
-    label: 'Dashboard',
-    path: '/physio/staff',
-    key: 'dashboard',
-    match: (p) => p === '/physio/staff',
-  },
-  {
-    icon: CalendarDaysIcon,
-    label: 'Appointments',
-    path: '/physio/appointments',
-    key: 'appointments',
-    match: (p) => p === '/physio/appointments',
-  },
-  {
-    icon: Squares2X2Icon,
-    label: 'Services',
-    path: '/physio/services',
-    key: 'services',
-    match: (p) => p === '/physio/services',
-  },
-];
-
 const PhysioSidebar = ({ minimized, onToggleMinimize }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, isPhysio } = useAuth();
+
+  const isDoctorViewer = user?.role === 'Doctor';
+  const dashboardPath = isDoctorViewer ? '/physio/dashboard' : '/physio/staff';
+  const schedulePath = isDoctorViewer ? '/doctor/schedule' : '/physio/schedule';
+
+  const menuItems = [
+    {
+      icon: HomeIcon,
+      label: 'Dashboard',
+      path: dashboardPath,
+      key: 'dashboard',
+      match: (p) => p === '/physio/staff' || p === '/physio/dashboard',
+    },
+    {
+      icon: CalendarDaysIcon,
+      label: 'Appointments',
+      path: '/physio/appointments',
+      key: 'appointments',
+      match: (p) => p === '/physio/appointments',
+    },
+    {
+      icon: ClockIcon,
+      label: 'Schedule',
+      path: schedulePath,
+      key: 'schedule',
+      match: (p) =>
+        p === '/physio/schedule' || (isDoctorViewer && p === '/doctor/schedule'),
+    },
+    {
+      icon: Squares2X2Icon,
+      label: 'Services',
+      path: '/physio/services',
+      key: 'services',
+      match: (p) => p === '/physio/services' || p === '/physio/booking',
+    },
+  ];
 
   const displayName =
     [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || user?.email || 'User';

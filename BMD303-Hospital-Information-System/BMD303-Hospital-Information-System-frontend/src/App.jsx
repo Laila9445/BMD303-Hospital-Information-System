@@ -34,6 +34,7 @@ import PhysioSuccessPage from './pages/physio/SuccessPage';
 import PhysioContactPage from './pages/physio/Contactpage';
 import PhysioAppDashboard from './pages/physio/PhysioAppDashboard';
 import PhysioStaffDashboard from './pages/physio/PhysioStaffDashboard';
+import PhysioHomeRedirect from './pages/physio/PhysioHomeRedirect';
 import PhysioPatientsPage from './pages/physio/Patients';
 import PhysioAppointmentsPage from './pages/physio/Appointments';
 import PhysioTreatmentPlansPage from './pages/physio/TreatmentPlans';
@@ -64,6 +65,7 @@ import DoctorDashboard from './pages/doctor/DoctorDashboard';
 import Appointments from './pages/doctor/Appointments';
 import Patients from './pages/doctor/Patients';
 import PatientDetails from './pages/doctor/PatientDetails';
+import PatientConsultation from './pages/doctor/PatientConsultation';
 import Schedule from './pages/doctor/Schedule';
 import Profile from './pages/doctor/Profile';
 import Consultations from './pages/doctor/Consultations';
@@ -115,17 +117,29 @@ function App() {
           <Route
             path="/physio/dashboard"
             element={
-              <ProtectedRoute>
-                <DoctorLayout>
-                  <PhysioDashboard />
-                </DoctorLayout>
-              </ProtectedRoute>
+              <PhysioLayout>
+                <PhysioDashboard />
+              </PhysioLayout>
             }
           />
           <Route path="/physio" element={<PhysioPortalShell />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="services" element={<PhysioServicesPage />} />
-            <Route path="booking" element={<PhysioBookingPage />} />
+            <Route index element={<PhysioHomeRedirect />} />
+            <Route
+              path="services"
+              element={
+                <PhysioLayout>
+                  <PhysioServicesPage />
+                </PhysioLayout>
+              }
+            />
+            <Route
+              path="booking"
+              element={
+                <PhysioLayout>
+                  <PhysioBookingPage />
+                </PhysioLayout>
+              }
+            />
             <Route path="success" element={<PhysioSuccessPage />} />
             <Route
               path="contact"
@@ -146,9 +160,21 @@ function App() {
             <Route
               path="staff"
               element={
-                <PhysioLayout>
-                  <PhysioStaffDashboard />
-                </PhysioLayout>
+                <ProtectedRoute requirePhysio>
+                  <PhysioLayout>
+                    <PhysioStaffDashboard />
+                  </PhysioLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="schedule"
+              element={
+                <ProtectedRoute requireScheduleProvider>
+                  <PhysioLayout>
+                    <Schedule />
+                  </PhysioLayout>
+                </ProtectedRoute>
               }
             />
             <Route
@@ -167,7 +193,14 @@ function App() {
                 </PhysioLayout>
               }
             />
-            <Route path="appointments" element={<PhysioAppointmentsPage />} />
+            <Route
+              path="appointments"
+              element={
+                <PhysioLayout>
+                  <PhysioAppointmentsPage />
+                </PhysioLayout>
+              }
+            />
             <Route
               path="treatment-plans"
               element={
@@ -186,9 +219,21 @@ function App() {
           <Route
             path="/radiology/staff"
             element={
-              <RadiologyLayout>
-                <RadiologyStaffDashboard />
-              </RadiologyLayout>
+              <ProtectedRoute requireRadiologist>
+                <RadiologyLayout>
+                  <RadiologyStaffDashboard />
+                </RadiologyLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/radiology/schedule"
+            element={
+              <ProtectedRoute requireScheduleProvider>
+                <RadiologyLayout>
+                  <Schedule />
+                </RadiologyLayout>
+              </ProtectedRoute>
             }
           />
           <Route path="/radiology/services" element={<RadiologyServicesPage />} />
@@ -241,6 +286,16 @@ function App() {
               <ProtectedRoute requireDoctor>
                 <DoctorLayout>
                   <PatientDetails />
+                </DoctorLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/doctor/patients/:patientId/consultation"
+            element={
+              <ProtectedRoute requireDoctor>
+                <DoctorLayout>
+                  <PatientConsultation />
                 </DoctorLayout>
               </ProtectedRoute>
             }

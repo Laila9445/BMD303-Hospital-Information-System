@@ -1,59 +1,45 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
+import referralService from '../api/referralService';
+import { getApiErrorMessage } from '../api/apiUtils';
+import { dedupeReferralsById } from '../utils/referralUtils';
 
 const ReferralContext = createContext(null);
 
-export const useReferrals = () => useContext(ReferralContext);
+export const useReferrals = () => {
+  const context = useContext(ReferralContext);
+  if (!context) {
+    throw new Error('useReferrals must be used within ReferralProvider');
+  }
+  return context;
+};
 
+/**
+ * Lightweight referral cache backed by the API (no localStorage source of truth).
+ */
 export const ReferralProvider = ({ children }) => {
-  const [referrals, setReferrals] = useState(() => {
-    const saved = localStorage.getItem('referrals');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [referrals, setReferrals] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const addReferral = (referral) => {
-    const newReferral = {
-      ...referral,
-      id: Date.now(),
-      status: 'Pending',
-      createdAt: new Date().toISOString(),
-    };
-    const updated = [...referrals, newReferral];
-    setReferrals(updated);
-    localStorage.setItem('referrals', JSON.stringify(updated));
-    window.dispatchEvent(new Event('referrals-updated'));
-  };
-
-  const updateReferralStatus = (id, status) => {
-    let current = referrals;
+  const refreshReferrals = useCallback(async (status = null) => {
+    setLoading(true);
     try {
-      const raw = localStorage.getItem('referrals');
-      if (raw) current = JSON.parse(raw);
-      if (!Array.isArray(current)) current = [];
-    } catch {
-      current = referrals;
+      const data = await referralService.getMyReferrals(status);
+      setReferrals(dedupeReferralsById(data));
+      return data;
+    } catch (error) {
+      console.error(getApiErrorMessage(error));
+      setReferrals([]);
+      return [];
+    } finally {
+      setLoading(false);
     }
-    const updated = current.map((r) => (r.id === id ? { ...r, status } : r));
-    setReferrals(updated);
-    localStorage.setItem('referrals', JSON.stringify(updated));
-    window.dispatchEvent(new Event('referrals-updated'));
-  };
-
-  useEffect(() => {
-    const syncFromStorage = () => {
-      try {
-        const saved = localStorage.getItem('referrals');
-        setReferrals(saved ? JSON.parse(saved) : []);
-      } catch {
-        setReferrals([]);
-      }
-    };
-    window.addEventListener('referrals-updated', syncFromStorage);
-    return () => window.removeEventListener('referrals-updated', syncFromStorage);
   }, []);
 
-  return (
-    <ReferralContext.Provider value={{ referrals, addReferral, updateReferralStatus }}>
-      {children}
-    </ReferralContext.Provider>
-  );
+  const value = {
+    referrals,
+    loading,
+    refreshReferrals,
+  };
+
+  return <ReferralContext.Provider value={value}>{children}</ReferralContext.Provider>;
 };

@@ -37,11 +37,22 @@ export const validatePhoneNumber = (phone) => {
   return null;
 };
 
-// Role validation
+// Role validation — must match backend RegisterRequest validator (Auth/register)
+export const REGISTER_ROLES = [
+  'Doctor',
+  'Patient',
+  'Nurse',
+  'Physiotherapist',
+  'Radiologist',
+  'Admin',
+  'Staff',
+];
+
 export const validateRole = (role) => {
   if (!role) return 'Role is required';
-  const validRoles = ['Doctor', 'Nurse', 'Admin', 'Staff', 'Patient', 'Physiotherapist', 'Radiologist'];
-  if (!validRoles.includes(role)) return 'Role must be Doctor, Nurse, Admin, Staff, Patient, Physiotherapist, or Radiologist';
+  if (!REGISTER_ROLES.includes(role)) {
+    return 'Role must be Doctor, Nurse, Admin, Staff, Patient, Physiotherapist, or Radiologist';
+  }
   return null;
 };
 
@@ -90,8 +101,8 @@ export const validateDoctorId = (doctorId) => {
 };
 
 export const validateTimeSlotId = (timeSlotId) => {
-  if (!timeSlotId) return 'Time slot ID is required';
-  if (isNaN(timeSlotId) || timeSlotId <= 0) return 'Invalid Time slot ID';
+  if (!timeSlotId) return 'Please select an available time slot';
+  if (isNaN(timeSlotId) || timeSlotId <= 0) return 'Please select a valid time slot';
   return null;
 };
 
@@ -201,12 +212,6 @@ export const validateRegistration = (formData) => {
   errors.role = validateRole(formData.role);
   errors.gender = formData.gender ? null : 'Gender is required';
   errors.dateOfBirth = formData.dateOfBirth ? null : 'Date of birth is required';
-  
-  // Only validate doctor/nurse specific fields if they're provided in the form
-  // These fields are optional for basic registration
-  if (formData.role === 'Doctor' && formData.specialization) {
-    errors.specialization = validateSpecialization(formData.specialization);
-  }
   
   if ((formData.role === 'Doctor' || formData.role === 'Nurse') && formData.licenseNumber) {
     errors.licenseNumber = validateLicenseNumber(formData.licenseNumber, formData.role);
