@@ -1,0 +1,354 @@
+/* ════════════════════════════════════════════
+   PhysioFit — Contact Support Page
+   ════════════════════════════════════════════ */
+
+.ct-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0f9f8 0%, #ffffff 100%);
+    padding: 60px 20px 100px;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    position: relative;
+}
+
+/* Header */
+.ct-header {
+    max-width: 800px;
+    margin: 0 auto 60px;
+    text-align: center;
+    position: relative;
+}
+
+.ct-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    color: #38b2ac;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.ct-back-btn:hover {
+    background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(56, 178, 172, 0.3);
+}
+
+.ct-back-btn:active {
+    transform: translateY(0);
+}
+
+.ct-header h1 {
+    font-size: clamp(36px, 5vw, 48px);
+    font-weight: 800;
+    color: #1a202c;
+    margin: 0 0 16px;
+    letter-spacing: -0.5px;
+}
+
+.ct-subtitle {
+    font-size: 18px;
+    color: #718096;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Container */
+.ct-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Content Grid - Two Columns */
+.ct-content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+}
+
+@media (min-width: 968px) {
+    .ct-content-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 64px;
+    }
+}
+
+/* Info Column (Left) */
+.ct-info-column {
+    background: transparent;
+}
+
+.ct-section-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 32px;
+    letter-spacing: -0.3px;
+}
+
+.ct-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Info Card */
+.ct-info-card {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.ct-info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.ct-info-icon-circle {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.ct-info-body {
+    flex: 1;
+}
+
+.ct-info-body h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 8px;
+}
+
+.ct-info-sub {
+    font-size: 14px;
+    color: #718096;
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+.ct-info-content {
+    font-size: 16px;
+    color: #2d3748;
+    font-weight: 500;
+}
+
+.ct-link {
+    color: #38b2ac;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s;
+}
+
+.ct-link:hover {
+    color: #319795;
+    text-decoration: underline;
+}
+
+/* Form Column (Right) */
+.ct-form-column {
+    background: transparent;
+}
+
+.ct-form-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+    .ct-form-card {
+        padding: 32px 24px;
+    }
+}
+
+.ct-form-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 24px;
+    letter-spacing: -0.3px;
+}
+
+/* Form Fields */
+.ct-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ct-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ct-field-full {
+    grid-column: 1 / -1;
+}
+
+.ct-field label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.ct-field input,
+.ct-field select,
+.ct-field textarea {
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background: white;
+    color: #2d3748;
+}
+
+.ct-field input:focus,
+.ct-field select:focus,
+.ct-field textarea:focus {
+    outline: none;
+    border-color: #38b2ac;
+    box-shadow: 0 0 0 4px rgba(56, 178, 172, 0.1);
+}
+
+.ct-field textarea {
+    resize: vertical;
+    min-height: 140px;
+}
+
+/* Submit Button */
+.ct-submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin-top: 8px;
+}
+
+.ct-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(56, 178, 172, 0.35);
+}
+
+.ct-submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Success Message */
+.ct-success {
+    text-align: center;
+    padding: 48px 24px;
+}
+
+.ct-success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    color: white;
+    animation: successPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes successPop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.ct-success h3 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a202c;
+    margin: 0 0 12px;
+}
+
+.ct-success p {
+    font-size: 16px;
+    color: #718096;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Floating Action Button */
+.ct-floating-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+    color: white;
+    border: none;
+    padding: 16px 28px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(56, 178, 172, 0.4);
+    transition: transform 0.3s, box-shadow 0.3s;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ct-floating-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(56, 178, 172, 0.5);
+}
+
+.ct-floating-btn:active {
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .ct-floating-btn {
+        bottom: 24px;
+        right: 24px;
+        padding: 14px 24px;
+        font-size: 14px;
+    }
+}

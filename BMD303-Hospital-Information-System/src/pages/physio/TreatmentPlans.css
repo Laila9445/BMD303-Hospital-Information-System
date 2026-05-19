@@ -1,0 +1,121 @@
+.treatment-plans-page {
+    padding: 20px;
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.plan-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.plan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.plan-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 5px;
+}
+
+.plan-id {
+    font-size: 12px;
+    color: var(--medium-gray);
+}
+
+.plan-content {
+    flex: 1;
+}
+
+.plan-section {
+    margin-bottom: 15px;
+}
+
+.plan-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-green);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-section p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--dark-gray);
+}
+
+.plan-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding: 12px;
+    background-color: var(--off-white);
+    border-radius: 8px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-item .label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--medium-gray);
+}
+
+.detail-item .value {
+    font-size: 14px;
+    color: var(--dark-gray);
+}
+
+.plan-footer {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--light-gray);
+}
+
+.created-date {
+    font-size: 12px;
+    color: var(--medium-gray);
+}
+
+.status-active {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-green);
+}
+
+.status-completed {
+    background-color: rgba(0, 123, 255, 0.1);
+    color: var(--info-blue);
+}
+
+.status-discontinued {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--error-red);
+}

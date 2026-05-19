@@ -1,0 +1,476 @@
+/* ════════════════════════════════════════════
+   PhysioFit — Booking Page
+   ════════════════════════════════════════════ */
+:root {
+    --primary: #3BB4A6;
+    --secondary: #5FBDB2;
+    --bg: #F5F7F9;
+    --text: #2C2C2C;
+    --text-mid: #4a5568;
+    --text-light: #717182;
+    --border: #E5E5E5;
+    --white: #ffffff;
+    --error: #d4183d;
+}
+
+.bk-page {
+    min-height: 100vh;
+    background: var(--bg);
+    padding: 40px 16px 80px;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: var(--text);
+}
+
+.bk-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* ── Header ── */
+.bk-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.bk-header h1 {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 8px;
+}
+
+.bk-header p {
+    font-size: 15px;
+    color: var(--text-light);
+    margin: 0 0 12px;
+}
+
+.bk-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+}
+
+.bk-back-link:hover {
+    text-decoration: underline;
+}
+
+/* ── Step Indicator ── */
+.bk-steps {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    margin-bottom: 32px;
+    gap: 0;
+}
+
+.bk-step-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+}
+
+.bk-step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+    transition: background 0.3s, color 0.3s;
+    z-index: 1;
+}
+
+.bk-step-circle.active {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.bk-step-label {
+    font-size: 11px;
+    color: var(--text-light);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.bk-step-line {
+    position: absolute;
+    top: 20px;
+    left: calc(50% + 20px);
+    width: calc(100% - 40px);
+    height: 3px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    transition: background 0.3s;
+}
+
+.bk-step-line.active {
+    background: var(--primary);
+}
+
+/* ── Card ── */
+.bk-card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(59, 180, 166, .10);
+    padding: 40px 36px;
+}
+
+.bk-step-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.bk-step-title h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.bk-icon {
+    color: var(--primary);
+}
+
+/* ── Service List ── */
+.bk-service-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bk-service-item {
+    display: block;
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.bk-service-item input {
+    display: none;
+}
+
+.bk-service-item:hover {
+    border-color: var(--secondary);
+}
+
+.bk-service-item.selected {
+    border-color: var(--primary);
+    background: rgba(59, 180, 166, .06);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* ── Sub Title ── */
+.bk-sub-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 14px;
+}
+
+/* ── Calendar ── */
+.bk-calendar {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.bk-cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.bk-cal-nav button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+
+.bk-cal-nav button:hover {
+    background: rgba(59, 180, 166, .10);
+}
+
+.bk-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.bk-cal-day-name {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-light);
+    padding: 6px 0;
+}
+
+.bk-cal-day {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+    transition: background 0.15s, color 0.15s;
+}
+
+.bk-cal-day:hover:not(.disabled):not(.selected) {
+    background: rgba(59, 180, 166, .12);
+}
+
+.bk-cal-day.today {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.bk-cal-day.selected {
+    background: var(--primary);
+    color: var(--white);
+    font-weight: 700;
+}
+
+.bk-cal-day.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+/* ── Time Slots ── */
+.bk-time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.bk-time-slot {
+    padding: 12px;
+    border: 2px solid var(--primary);
+    border-radius: 10px;
+    background: none;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, color 0.2s;
+}
+
+.bk-time-slot:hover {
+    background: rgba(59, 180, 166, .10);
+}
+
+.bk-time-slot.selected {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.bk-time-slot.booked {
+    border-color: #ccc;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+/* ── Form Fields ── */
+.bk-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.bk-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.bk-field label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-mid);
+    letter-spacing: .4px;
+}
+
+.bk-field input,
+.bk-field textarea {
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--white);
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.bk-field input:focus,
+.bk-field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 180, 166, .12);
+}
+
+/* ── Summary ── */
+.bk-summary {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.bk-summary-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.bk-summary-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.bk-summary-label {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.bk-summary-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ── Nav Buttons ── */
+.bk-nav-btns {
+    display: flex;
+    gap: 14px;
+    margin-top: 32px;
+}
+
+.bk-btn-back {
+    flex: 1;
+    padding: 13px;
+    border: 2px solid var(--border);
+    border-radius: 25px;
+    background: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+    transition: background 0.2s;
+}
+
+.bk-btn-back:hover {
+    background: #f0f0f0;
+}
+
+.bk-btn-next {
+    flex: 1;
+    padding: 13px;
+    border: none;
+    border-radius: 25px;
+    background: var(--primary);
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.bk-btn-next:hover:not(.disabled) {
+    background: var(--secondary);
+}
+
+.bk-btn-next:active {
+    transform: scale(0.98);
+}
+
+.bk-btn-next.disabled,
+.bk-btn-next:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* ── Floating Help ── */
+.bk-help-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 20px rgba(59, 180, 166, .35);
+    transition: background 0.2s, transform 0.1s;
+    z-index: 99;
+}
+
+.bk-help-btn:hover {
+    background: var(--secondary);
+}
+
+.bk-help-btn:active {
+    transform: scale(0.96);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+    .bk-card {
+        padding: 28px 20px;
+    }
+
+    .bk-time-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bk-step-label {
+        display: none;
+    }
+}
