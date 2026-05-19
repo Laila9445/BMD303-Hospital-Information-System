@@ -7,6 +7,7 @@ using System.Text;
 using CLINICSYSTEM.Data;
 using CLINICSYSTEM.Data.DTOs;
 using CLINICSYSTEM.Models;
+using CLINICSYSTEM.Constants;
 using CLINICSYSTEM.Helpers;
 
 namespace CLINICSYSTEM.Services
@@ -83,15 +84,15 @@ namespace CLINICSYSTEM.Services
                 _logger.LogInformation("User created with UserId: {UserId}", user.Id);
 
                 // Create role-specific profile
-                if (request.Role == "Doctor")
+                if (request.Role is RegistrationRoles.Doctor or RegistrationRoles.Radiologist or RegistrationRoles.Physiotherapist)
                 {
                     await CreateDoctorProfileAsync(user.Id, request);
                 }
-                else if (request.Role == "Patient")
+                else if (request.Role == RegistrationRoles.Patient)
                 {
-                 await CreatePatientProfileAsync(user.Id, request);
+                    await CreatePatientProfileAsync(user.Id, request);
                 }
-                // Admin and Staff roles don't need additional profiles
+                // Admin, Staff, and Nurse profiles are optional / created elsewhere
 
                 _logger.LogInformation("User {Email} registered successfully as {Role} with UserId {UserId}", 
                     request.Email, request.Role, user.Id);
@@ -125,10 +126,17 @@ namespace CLINICSYSTEM.Services
         {
             try
             {
+                var defaultSpecialization = request.Role switch
+                {
+                    RegistrationRoles.Radiologist => "Radiology",
+                    RegistrationRoles.Physiotherapist => "Physiotherapy",
+                    _ => "General"
+                };
+
                 var doctor = new DoctorModel
                 {
                     UserId = userId,
-                    Specialization = request.Specialization ?? "General",
+                    Specialization = request.Specialization ?? defaultSpecialization,
                     LicenseNumber = request.LicenseNumber,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow

@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using CLINICSYSTEM.Constants;
 
 namespace CLINICSYSTEM.Data.DTOs
 {
     /// <summary>
     /// Registration request for Clinic System users
-    /// Allows Doctor, Nurse, Admin, Staff, and Patient roles
     /// </summary>
     public class RegisterRequest
     {
@@ -29,7 +29,7 @@ namespace CLINICSYSTEM.Data.DTOs
         public string PhoneNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Role is required")]
-        [RegularExpression("^(Doctor|Nurse|Admin|Staff|Patient)$", ErrorMessage = "Role must be either 'Doctor', 'Nurse', 'Admin', 'Staff', or 'Patient'")]
+        [RegularExpression(RegistrationRoles.Pattern, ErrorMessage = RegistrationRoles.AllowedRolesMessage)]
         public string Role { get; set; } = string.Empty;
 
         // Doctor-specific fields (optional)

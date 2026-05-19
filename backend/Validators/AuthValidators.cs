@@ -42,8 +42,8 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
 
         RuleFor(x => x.Role)
             .NotEmpty()
-            .Must(role => role == "Doctor" || role == "Patient")
-            .WithMessage("Role must be either 'Doctor' or 'Patient'.");
+            .Must(RegistrationRoles.IsValid)
+            .WithMessage(RegistrationRoles.AllowedRolesMessage);
     }
 }
 

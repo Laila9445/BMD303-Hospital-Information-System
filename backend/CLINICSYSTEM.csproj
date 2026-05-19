@@ -41,4 +41,12 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
   </ItemGroup>
 
+  <!-- Nested git clone; SDK glob would compile every .cs twice (CS0111 / CS8863). -->
+  <ItemGroup>
+    <Compile Remove="BMD303-Hospital-Information-System\**" />
+    <Content Remove="BMD303-Hospital-Information-System\**" />
+    <EmbeddedResource Remove="BMD303-Hospital-Information-System\**" />
+    <None Remove="BMD303-Hospital-Information-System\**" />
+  </ItemGroup>
+
 </Project>

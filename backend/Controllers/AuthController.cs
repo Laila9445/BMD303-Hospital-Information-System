@@ -8,8 +8,7 @@ namespace CLINICSYSTEM.Controllers
 {
     /// <summary>
     /// Authentication and authorization endpoints for Clinic System
-    /// Only manages Doctor, Admin, and Staff authentication
-    /// Patient authentication is handled by the Patient Portal microservice
+    /// Registers and authenticates clinic users (all roles including Radiologist and Physiotherapist).
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]

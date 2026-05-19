@@ -1,11 +1,11 @@
+using CLINICSYSTEM.Constants;
 using CLINICSYSTEM.Data.DTOs;
 using FluentValidation;
 
 namespace CLINICSYSTEM.Validators
 {
     /// <summary>
-    /// Validator for clinic user registration requests
-    /// Validates Doctor, Nurse, Admin, and Staff registrations
+    /// Validator for clinic user registration requests (POST /api/Auth/register).
     /// </summary>
     public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
@@ -37,28 +37,33 @@ namespace CLINICSYSTEM.Validators
 
             RuleFor(x => x.Role)
                 .NotEmpty().WithMessage("Role is required")
-                .Must(role => role == "Doctor" || role == "Nurse" || role == "Admin" || role == "Staff" || role == "Patient")
-                .WithMessage("Role must be 'Doctor', 'Nurse', 'Admin', 'Staff', or 'Patient'");
+                .Must(RegistrationRoles.IsValid)
+                .WithMessage(RegistrationRoles.AllowedRolesMessage);
 
             // Doctor-specific validation
             RuleFor(x => x.Specialization)
                 .NotEmpty().WithMessage("Specialization is required for doctors")
                 .Length(2, 100).WithMessage("Specialization must be between 2 and 100 characters")
-                .When(x => x.Role == "Doctor");
+                .When(x => x.Role == RegistrationRoles.Doctor);
+
+            RuleFor(x => x.Specialization)
+                .Length(2, 100).WithMessage("Specialization must be between 2 and 100 characters")
+                .When(x => (x.Role == RegistrationRoles.Radiologist || x.Role == RegistrationRoles.Physiotherapist)
+                    && !string.IsNullOrWhiteSpace(x.Specialization));
 
             RuleFor(x => x.LicenseNumber)
                 .Length(5, 50).WithMessage("License number must be between 5 and 50 characters")
-                .When(x => !string.IsNullOrWhiteSpace(x.LicenseNumber) && x.Role == "Doctor");
+                .When(x => !string.IsNullOrWhiteSpace(x.LicenseNumber) && x.Role == RegistrationRoles.Doctor);
 
             // Nurse-specific validation
             RuleFor(x => x.Department)
                 .NotEmpty().WithMessage("Department is required for nurses")
                 .Length(2, 100).WithMessage("Department must be between 2 and 100 characters")
-                .When(x => x.Role == "Nurse");
+                .When(x => x.Role == RegistrationRoles.Nurse);
 
             RuleFor(x => x.LicenseNumber)
                 .Length(5, 50).WithMessage("License number must be between 5 and 50 characters")
-                .When(x => !string.IsNullOrWhiteSpace(x.LicenseNumber) && x.Role == "Nurse");
+                .When(x => !string.IsNullOrWhiteSpace(x.LicenseNumber) && x.Role == RegistrationRoles.Nurse);
         }
     }
 
