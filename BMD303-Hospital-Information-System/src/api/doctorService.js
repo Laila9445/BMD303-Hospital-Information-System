@@ -1,4 +1,5 @@
 import apiClient from './apiClient';
+import { unwrapList, unwrapApiResponse } from './apiUtils';
 
 const USE_MOCK_ON_ERROR = false;
 
@@ -6,13 +7,21 @@ const doctorService = {
   // Get all doctors (for patient view)
   getAllDoctors: async () => {
     const response = await apiClient.get('/api/Doctors');
-    return response.data;
+    return unwrapList(response.data);
+  },
+
+  /** Orthopedics physicians for patient self-booking (single clinic doctor). */
+  getBookableDoctors: async () => {
+    const response = await apiClient.get('/api/Doctors', {
+      params: { forPatientBooking: true },
+    });
+    return unwrapList(response.data);
   },
 
   // Get doctor profile
   getProfile: async () => {
     const response = await apiClient.get('/api/Doctors/profile');
-    return response.data;
+    return unwrapApiResponse(response.data);
   },
 
   // Update doctor profile
@@ -24,7 +33,7 @@ const doctorService = {
   // Get today's appointments
   getTodayAppointments: async () => {
     const response = await apiClient.get('/api/Doctors/appointments/today');
-    return response.data;
+    return unwrapList(response.data);
   },
 
   // Get appointments for specific date
@@ -35,12 +44,18 @@ const doctorService = {
     return response.data;
   },
 
+  // List all patients
+  getAllPatients: async () => {
+    const response = await apiClient.get('/api/Doctors/patients');
+    return unwrapList(response.data);
+  },
+
   // Search patients
   searchPatients: async (query) => {
     const response = await apiClient.get('/api/Doctors/patients/search', {
       params: { query },
     });
-    return response.data;
+    return unwrapList(response.data);
   },
 
   // Get patient record by ID

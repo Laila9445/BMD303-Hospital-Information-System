@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import doctorService from '../../api/doctorService';
+import { getApiErrorMessage } from '../../api/apiUtils';
 import Card, { CardHeader, CardBody } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { InputWithLabel } from '../../components/common/Input';
@@ -130,7 +131,7 @@ const DoctorProfile = () => {
         });
       }
     } catch (error) {
-      toast.error('Failed to load profile');
+      toast.error(getApiErrorMessage(error, 'Failed to load doctor profile'));
     } finally {
       setLoading(false);
     }

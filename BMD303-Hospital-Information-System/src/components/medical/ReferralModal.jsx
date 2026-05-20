@@ -8,6 +8,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import referralService from '../../api/referralService';
 import { useReferrals } from '../../context/ReferralContext';
 import { validateConsultationField } from '../../utils/validation';
+import { normalizeUrgency } from '../../utils/referralUtils';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -145,17 +146,20 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
 
       // Get current user to include doctor information
       const currentUser = JSON.parse(localStorage.getItem('user'));
-      const referralData = {
-        ...formData,
+      const referralPayload = {
+        patientId: Number(formData.patientId),
         doctorId: currentUser?.userId || currentUser?.id,
-        doctorName: `${currentUser?.firstName} ${currentUser?.lastName}`,
-        createdDate: new Date().toISOString(),
-        status: 'Pending'
+        referralType: formData.referralType,
+        urgency: normalizeUrgency(formData.urgency),
+        reason: formData.reason,
+        notes: formData.notes || undefined,
       };
 
       const type = formData.referralType.startsWith('radiology-')
         ? 'Radiology'
-        : 'Physiotherapy';
+        : formData.referralType.startsWith('physiotherapy-')
+          ? 'Physiotherapy'
+          : 'Physiotherapy';
 
       addReferral({
         patientName: patientName || (formData.patientId ? `Patient #${formData.patientId}` : ''),
@@ -165,7 +169,7 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
         type,
       });
 
-      await referralService.createReferral(referralData);
+      await referralService.createReferral(referralPayload);
       
       toast.success('Referral created successfully!');
       onSuccess?.();
@@ -239,17 +243,17 @@ const ReferralModal = ({ isOpen, onClose, onSuccess, patientId, patientName }) =
               
               {/* Physiotherapy Options */}
               <optgroup label="💪 Physiotherapy">
-                <option value="physio-orthopedic">Orthopedic Rehabilitation</option>
-                <option value="physio-neurological">Neurological Rehabilitation</option>
-                <option value="physio-cardiopulmonary">Cardiopulmonary Rehabilitation</option>
-                <option value="physio-sports">Sports Injury Rehabilitation</option>
-                <option value="physio-pediatric">Pediatric Physiotherapy</option>
-                <option value="physio-geriatric">Geriatric Rehabilitation</option>
-                <option value="physio-musculoskeletal">Musculoskeletal Therapy</option>
-                <option value="physio-post-surgical">Post-Surgical Rehabilitation</option>
-                <option value="physio-chronic-pain">Chronic Pain Management</option>
-                <option value="physio-balance">Balance and Vestibular Therapy</option>
-                <option value="physio-womens">Women's Health Physiotherapy</option>
+                <option value="physiotherapy-orthopedic">Orthopedic Rehabilitation</option>
+                <option value="physiotherapy-neurological">Neurological Rehabilitation</option>
+                <option value="physiotherapy-cardiopulmonary">Cardiopulmonary Rehabilitation</option>
+                <option value="physiotherapy-sports">Sports Injury Rehabilitation</option>
+                <option value="physiotherapy-pediatric">Pediatric Physiotherapy</option>
+                <option value="physiotherapy-geriatric">Geriatric Rehabilitation</option>
+                <option value="physiotherapy-musculoskeletal">Musculoskeletal Therapy</option>
+                <option value="physiotherapy-post-surgical">Post-Surgical Rehabilitation</option>
+                <option value="physiotherapy-chronic-pain">Chronic Pain Management</option>
+                <option value="physiotherapy-balance">Balance and Vestibular Therapy</option>
+                <option value="physiotherapy-womens">Women's Health Physiotherapy</option>
               </optgroup>
             </SelectWithLabel>
           </FormGroup>

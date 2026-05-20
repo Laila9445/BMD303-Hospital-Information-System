@@ -104,7 +104,7 @@ const NurseAppointments = () => {
       
       // Try to get real appointments from service
       try {
-        const data = await appointmentService.getMyAppointments();
+        const data = await appointmentService.getNurseAppointments();
         const allAppointments = Array.isArray(data) ? data : (data?.appointments || []);
         console.log('Real API appointments:', allAppointments);
         setAppointments(allAppointments);

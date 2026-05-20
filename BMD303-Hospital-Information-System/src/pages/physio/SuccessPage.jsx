@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Calendar, Clock, Home, Plus, Download } from "lucide-react";
 import "./SuccessPage.css";
@@ -6,7 +6,6 @@ import "./SuccessPage.css";
 export default function SuccessPage() {
     const navigate = useNavigate();
     const [data, setData] = useState(null);
-    const savedAppointmentRef = useRef(false);
 
     useEffect(() => {
         const d = sessionStorage.getItem("bookingData");
@@ -14,25 +13,7 @@ export default function SuccessPage() {
         else navigate("/physio/login");
     }, [navigate]);
 
-    useEffect(() => {
-        if (!data || savedAppointmentRef.current) return;
-        savedAppointmentRef.current = true;
-        const bookingData = data;
-        const appointment = {
-            id: Date.now(),
-            patient: bookingData.patientName || bookingData.name || "Patient",
-            service: bookingData.service,
-            date: bookingData.date,
-            time: bookingData.time,
-            status: "Scheduled",
-        };
-        const existing = JSON.parse(localStorage.getItem("physioAppointments") || "[]");
-        localStorage.setItem(
-            "physioAppointments",
-            JSON.stringify([...existing, appointment])
-        );
-        window.dispatchEvent(new Event("physio-appointments-updated"));
-    }, [data]);
+    // Booking is persisted in BookingPage.handleConfirm (avoid duplicate entries).
 
     if (!data) return null;
 

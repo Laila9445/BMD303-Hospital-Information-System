@@ -1,53 +1,62 @@
 import apiClient from './apiClient';
-
-const USE_MOCK_ON_ERROR = false;
+import { unwrapApiResponse, unwrapList, getApiErrorMessage } from './apiUtils';
 
 const referralService = {
-  // Create a referral
   createReferral: async (referralData) => {
-    try {
-      console.log('Creating referral with data:', referralData);
-      const response = await apiClient.post('/api/Referrals', referralData);
-      console.log('Referral creation response:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Referral creation error:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-      throw error;
-    }
+    const response = await apiClient.post('/api/Referrals', referralData);
+    return unwrapApiResponse(response.data);
   },
 
-  // Get doctor's referrals
   getDoctorReferrals: async (doctorId, status = null) => {
     const params = status ? { status } : {};
     const response = await apiClient.get(`/api/Referrals/doctor/${doctorId}`, { params });
-    return response.data;
+    return unwrapList(response.data);
   },
 
-  // Get patient's referrals
+  getMyReferrals: async (status = null) => {
+    const params = status ? { status } : {};
+    const response = await apiClient.get('/api/Referrals/my-referrals', { params });
+    return unwrapList(response.data);
+  },
+
   getPatientReferrals: async (patientExternalId) => {
     const response = await apiClient.get(`/api/Referrals/patient/${patientExternalId}`);
-    return response.data;
+    return unwrapList(response.data);
   },
 
-  // Get referral details
   getReferralDetails: async (referralId) => {
     const response = await apiClient.get(`/api/Referrals/${referralId}`);
-    return response.data;
+    return unwrapApiResponse(response.data);
   },
 
-  // Update referral status
-  updateReferralStatus: async (referralId, status) => {
-    const response = await apiClient.put(`/api/Referrals/${referralId}/status`, { status });
-    return response.data;
+  updateReferralStatus: async (referralId, payload) => {
+    const response = await apiClient.put(`/api/Referrals/${referralId}/status`, payload);
+    return unwrapApiResponse(response.data);
   },
 
-  // Send referral to external system
-  sendToExternalSystem: async (referralId) => {
-    const response = await apiClient.post(`/api/Referrals/${referralId}/send`);
-    return response.data;
+  getLinkedAppointment: async (referralId) => {
+    const response = await apiClient.get(`/api/Referrals/${referralId}/appointment`);
+    return unwrapApiResponse(response.data);
   },
+
+  getReferralStats: async () => {
+    const response = await apiClient.get('/api/Referrals/stats');
+    return unwrapApiResponse(response.data);
+  },
+
+  getPhysioReferrals: async (status = null) => {
+    const params = status ? { status } : {};
+    const response = await apiClient.get('/api/Physio/referrals', { params });
+    return unwrapList(response.data);
+  },
+
+  getRadiologyReferrals: async (status = null) => {
+    const params = status ? { status } : {};
+    const response = await apiClient.get('/api/Radiology/referrals', { params });
+    return unwrapList(response.data);
+  },
+
+  getApiErrorMessage,
 };
 
 export default referralService;

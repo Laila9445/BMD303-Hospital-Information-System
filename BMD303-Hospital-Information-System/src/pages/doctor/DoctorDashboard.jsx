@@ -3,8 +3,10 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import doctorService from '../../api/doctorService';
 import referralService from '../../api/referralService';
+import consultationService from '../../api/consultationService';
+import { unwrapList, getApiErrorMessage } from '../../api/apiUtils';
+import { resolveDoctorId } from '../../utils/doctorUtils';
 import prescriptionService from '../../api/prescriptionService';
-import mockDatabase from '../../api/mockDatabase';
 import Card, { CardHeader, CardBody } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import HomeButton from '../../components/common/HomeButton';
@@ -241,50 +243,41 @@ const DoctorDashboard = () => {
     try {
       setLoading(true);
 
-      const doctorId = user?.doctorId || user?.id || currentUser?.userId || 1;
+      const domainDoctorId = await resolveDoctorId(user || currentUser);
+      if (!domainDoctorId) {
+        toast.error('Doctor profile not found. Log out and sign in again, or contact admin.');
+        setTodayAppointments([]);
+        setReferrals([]);
+        setPrescriptions([]);
+        setStats({ todayCount: 0, pendingConsultations: 0 });
+        return;
+      }
 
-      // Try to get real data first
-      const [appointmentsData, referralsData, prescriptionsData] = await Promise.all([
+      const [appointmentsData, referralsData, prescriptionsData, pendingConsultations] = await Promise.all([
         doctorService.getTodayAppointments(),
-        referralService.getDoctorReferrals(doctorId),
-        prescriptionService.getDoctorPrescriptions(doctorId),
+        referralService.getDoctorReferrals(domainDoctorId).catch(() => []),
+        prescriptionService.getDoctorPrescriptions(domainDoctorId).catch(() => []),
+        consultationService.getDoctorPending().catch(() => []),
       ]);
 
-      const appointmentList = Array.isArray(appointmentsData)
-        ? appointmentsData
-        : (appointmentsData?.appointments || appointmentsData?.data || []);
+      const appointmentList = unwrapList(appointmentsData);
+      const pendingList = unwrapList(pendingConsultations);
 
-      setTodayAppointments(appointmentList || []);
-      setReferrals(Array.isArray(referralsData) ? referralsData : (referralsData?.referrals || referralsData?.data || []));
-      setPrescriptions(Array.isArray(prescriptionsData)
-        ? prescriptionsData
-        : (prescriptionsData?.prescriptions || prescriptionsData?.data || []));
+      setTodayAppointments(appointmentList);
+      setReferrals(unwrapList(referralsData));
+      setPrescriptions(unwrapList(prescriptionsData));
 
       setStats({
-        todayCount: (appointmentList || []).length,
-        pendingConsultations: Math.floor(Math.random() * 10) + 1, // Mock data for now
+        todayCount: appointmentList.length,
+        pendingConsultations: pendingList.length,
       });
     } catch (error) {
-      console.warn('Error loading dashboard data, using mock database', error);
-      
-      // Fallback to mock database
-      const doctorId = currentUser?.userId || 1;
-      const today = new Date().toISOString().split('T')[0];
-      
-      const appointments = mockDatabase.appointments.findAll({ doctorId, date: today });
-      const referrals = mockDatabase.referrals.findAll({ doctorId });
-      const prescriptions = mockDatabase.prescriptions.findAll({ doctorId });
-      
-      setTodayAppointments(appointments);
-      setReferrals(referrals);
-      setPrescriptions(prescriptions);
-      
-      setStats({
-        todayCount: appointments.length,
-        pendingConsultations: Math.floor(Math.random() * 10) + 1,
-      });
-      
-      toast('Using demo data.', { icon: 'ℹ️' });
+      console.error('Error loading dashboard data', error);
+      toast.error(getApiErrorMessage(error, 'Failed to load dashboard'));
+      setTodayAppointments([]);
+      setReferrals([]);
+      setPrescriptions([]);
+      setStats({ todayCount: 0, pendingConsultations: 0 });
     } finally {
       setLoading(false);
     }

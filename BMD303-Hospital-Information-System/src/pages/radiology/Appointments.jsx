@@ -47,6 +47,8 @@ function formatDisplayTime(apt) {
 
 function displayPatient(apt) {
     if (apt.patient != null && apt.patient !== '') return apt.patient;
+    if (apt.name != null && apt.name !== '') return apt.name;
+    if (apt.patientName != null && apt.patientName !== '') return apt.patientName;
     return apt.patient_id != null ? `Patient #${apt.patient_id}` : '—';
 }
 

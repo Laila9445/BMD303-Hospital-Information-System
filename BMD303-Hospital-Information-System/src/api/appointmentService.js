@@ -1,21 +1,19 @@
 import apiClient from './apiClient';
+import { unwrapApiResponse, unwrapList } from './apiUtils';
 
 const appointmentService = {
-  // Get available time slots for a doctor
   getAvailableSlots: async (doctorId, startDate, endDate) => {
     const response = await apiClient.get('/api/Appointments/available-slots', {
       params: { doctorId, startDate, endDate },
     });
-    return response.data;
+    return unwrapList(response.data);
   },
 
-  // Book an appointment
   bookAppointment: async (appointmentData) => {
     const response = await apiClient.post('/api/Appointments/book', appointmentData);
-    return response.data;
+    return unwrapApiResponse(response.data);
   },
 
-  // Reschedule appointment
   rescheduleAppointment: async (appointmentId, newTimeSlotId) => {
     const response = await apiClient.put('/api/Appointments/reschedule', {
       appointmentId,
@@ -24,7 +22,6 @@ const appointmentService = {
     return response.data;
   },
 
-  // Cancel appointment
   cancelAppointment: async (appointmentId, cancellationReason) => {
     const response = await apiClient.put('/api/Appointments/cancel', {
       appointmentId,
@@ -33,28 +30,30 @@ const appointmentService = {
     return response.data;
   },
 
-  // Get patient's appointments
   getMyAppointments: async () => {
     const response = await apiClient.get('/api/Appointments/my-appointments');
-    return response.data;
+    return unwrapList(response.data);
   },
 
-  // Get doctor appointments (for doctor view)
-  getDoctorAppointments: async () => {
-    const response = await apiClient.get('/api/Appointments/doctor-appointments');
-    return response.data;
+  getDoctorAppointments: async (date = null) => {
+    const params = date ? { date } : {};
+    const response = await apiClient.get('/api/Appointments/doctor-appointments', { params });
+    return unwrapList(response.data);
   },
 
-  // Create appointment (for admin/doctor)
   createAppointment: async (appointmentData) => {
     const response = await apiClient.post('/api/Appointments/create', appointmentData);
-    return response.data;
+    return unwrapApiResponse(response.data);
   },
 
-  // Get appointment details by ID
   getAppointmentDetails: async (appointmentId) => {
     const response = await apiClient.get(`/api/Appointments/${appointmentId}`);
-    return response.data;
+    return unwrapApiResponse(response.data);
+  },
+
+  getNurseAppointments: async () => {
+    const response = await apiClient.get('/api/Nurse/appointments');
+    return unwrapList(response.data);
   },
 };
 

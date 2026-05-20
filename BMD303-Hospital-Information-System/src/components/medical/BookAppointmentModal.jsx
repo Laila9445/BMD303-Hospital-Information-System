@@ -6,7 +6,21 @@ import { InputWithLabel, SelectWithLabel } from '../../components/common/Input';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import appointmentService from '../../api/appointmentService';
 import doctorService from '../../api/doctorService';
+import authService from '../../api/authService';
+import { unwrapList, getApiErrorMessage } from '../../api/apiUtils';
 import { validateAppointment } from '../../utils/validation';
+import {
+  resolveDoctorId,
+  getPatientRecordId,
+  normalizeScheduleList,
+  getNextDateForScheduleDays,
+  DEFAULT_WEEKDAY_SCHEDULE,
+  formatScheduleDaysSummary,
+} from '../../utils/doctorUtils';
+import {
+  filterSlotsForDate,
+  formatSlotOptionLabel,
+} from '../../utils/appointmentUtils';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -81,11 +95,9 @@ const SubmitButton = styled(Button)`
   margin-top: 8px;
 `;
 
-const formatTime = (time) => {
-  if (!time) return '';
-  const str = typeof time === 'string' ? time : '';
-  // Handle "HH:mm:ss" and "HH:mm"
-  return str.slice(0, 5);
+const getWeekdayName = (dateStr) => {
+  if (!dateStr) return '';
+  return new Date(`${dateStr}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long' });
 };
 
 const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }) => {
@@ -93,6 +105,8 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
   const [doctors, setDoctors] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [scheduleDays, setScheduleDays] = useState([]);
+  const [slotsLoadError, setSlotsLoadError] = useState(null);
   const [patientSearchQuery, setPatientSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -111,165 +125,101 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
   const currentUser = JSON.parse(localStorage.getItem('user'));
   const canRegisterNewPatients = currentUser && (currentUser.role === 'Nurse' || currentUser.role === 'Doctor');
   const [formData, setFormData] = useState({
-    doctorId: '1', // Auto-select the only doctor
+    doctorId: '',
     patientId: '',
     appointmentDate: '',
     timeSlotId: '',
     reasonForVisit: '',
-    status: 'Scheduled'
+    status: 'Scheduled',
   });
 
-  // Define loadDoctors first using useCallback
+  const syncSchedulesForDoctor = useCallback(
+    async (doctorId) => {
+      if (!doctorId) {
+        setScheduleDays(DEFAULT_WEEKDAY_SCHEDULE);
+        return;
+      }
+
+      try {
+        const profileDoctorId = await resolveDoctorId(currentUser);
+        const isOwnSchedule =
+          profileDoctorId != null && Number(doctorId) === Number(profileDoctorId);
+
+        const schedules = isOwnSchedule
+          ? normalizeScheduleList(await doctorService.getSchedules())
+          : DEFAULT_WEEKDAY_SCHEDULE;
+
+        setScheduleDays(schedules.length ? schedules : DEFAULT_WEEKDAY_SCHEDULE);
+
+        const suggested = getNextDateForScheduleDays(
+          schedules.length ? schedules : DEFAULT_WEEKDAY_SCHEDULE
+        );
+        if (suggested) {
+          setFormData((prev) => ({
+            ...prev,
+            appointmentDate: prev.appointmentDate || suggested,
+          }));
+        }
+      } catch {
+        setScheduleDays(DEFAULT_WEEKDAY_SCHEDULE);
+      }
+    },
+    [currentUser]
+  );
+
   const loadDoctors = useCallback(async () => {
     try {
-      const data = await doctorService.getAllDoctors();
-      const doctorList = Array.isArray(data) ? data : (data?.doctors || data?.data || []);
+      const isPatient = currentUser?.role === 'Patient';
+      const data = isPatient
+        ? await doctorService.getBookableDoctors()
+        : await doctorService.getAllDoctors();
+      const doctorList = unwrapList(data);
       setDoctors(doctorList);
 
-      // Auto-select first doctor if available and not already selected
-      if (doctorList.length > 0) {
-        setFormData(prev => ({
-          ...prev,
-          doctorId: prev.doctorId || doctorList[0].doctorId
-        }));
-      }
+      const profileDoctorId = await resolveDoctorId(currentUser);
+      const bookableId = doctorList[0]?.doctorId ?? doctorList[0]?.DoctorId;
+      const resolvedId = isPatient ? bookableId : (profileDoctorId || bookableId);
+
+      const resolvedIdStr = resolvedId != null ? String(resolvedId) : '';
+      setFormData((prev) => ({
+        ...prev,
+        doctorId: prev.doctorId && !isPatient ? prev.doctorId : resolvedIdStr,
+      }));
+      await syncSchedulesForDoctor(resolvedId || null);
     } catch (error) {
       console.error('Error loading doctors:', error);
-
-      // Fallback mock doctors with Arabic names for local testing
-      const mockDoctors = [
-        { doctorId: 1, firstName: 'أحمد', lastName: 'النجار', specialization: 'طبيب عام' },
-        { doctorId: 2, firstName: 'سارة', lastName: 'القصير', specialization: 'أمراض قلب' },
-      ];
-      setDoctors(mockDoctors);
-
-      setFormData(prev => ({
-        ...prev,
-        doctorId: prev.doctorId || mockDoctors[0].doctorId
-      }));
-    }
-  }, []);
-
-  // Define loadAvailableSlots second
-  const loadAvailableSlots = useCallback(async (doctorId, date) => {
-    setLoadingSlots(true);
-    try {
-      // Get available slots for the selected date
-      const allSlots = await appointmentService.getAvailableSlots(doctorId, date, date);
-      console.log('Returned slots from API:', allSlots);
-      console.log('For date:', date, 'and doctorId:', doctorId);
-      
-      if (Array.isArray(allSlots)) {
-        setAvailableSlots(allSlots);
+      const profileDoctorId = await resolveDoctorId(currentUser);
+      if (profileDoctorId) {
+        setFormData((prev) => ({ ...prev, doctorId: String(profileDoctorId) }));
+        await syncSchedulesForDoctor(profileDoctorId);
       } else {
-        // If API doesn't return data, generate all possible slots and mark booked ones
-        const today = new Date().toISOString().split('T')[0];
-        const isToday = date === today;
-        
-        // Generate all time slots from 9:00 AM to 5:00 PM
-        const generatedSlots = [];
-        const startHour = 9;
-        const endHour = 17;
-        let slotId = 1;
-        
-        for (let hour = startHour; hour < endHour; hour++) {
-          // :00 slot
-          const startTime1 = `${hour.toString().padStart(2, '0')}:00:00`;
-          const endTime1 = `${hour.toString().padStart(2, '0')}:30:00`;
-          
-          // :30 slot
-          const startTime2 = `${hour.toString().padStart(2, '0')}:30:00`;
-          const endTime2 = `${(hour + 1).toString().padStart(2, '0')}:00:00`;
-          
-          generatedSlots.push({
-            timeSlotId: slotId++,
-            slotDate: date,
-            startTime: startTime1,
-            endTime: endTime1,
-            status: 'Available'
-          });
-          
-          generatedSlots.push({
-            timeSlotId: slotId++,
-            slotDate: date,
-            startTime: startTime2,
-            endTime: endTime2,
-            status: 'Available'
-          });
-        }
-        
-        // Check for existing appointments on this date and mark slots as booked
-        const existingAppointments = mockDatabase.appointments.findAll({ doctorId, date });
-        
-        const slotsWithStatus = generatedSlots.map(slot => {
-          const isBooked = existingAppointments.some(appt => {
-            const apptStart = appt.startTime?.substring(0, 5);
-            const slotStart = slot.startTime.substring(0, 5);
-            return apptStart === slotStart && (appt.status === 'Scheduled' || appt.status === 'Confirmed' || appt.status === 'Completed');
-          });
-          
-          return {
-            ...slot,
-            status: isBooked ? 'Booked' : 'Available'
-          };
-        });
-        
-        setAvailableSlots(slotsWithStatus);
+        await syncSchedulesForDoctor(null);
+      }
+    }
+  }, [currentUser, syncSchedulesForDoctor]);
+
+  const loadAvailableSlots = useCallback(async (doctorId, date) => {
+    if (!doctorId || !date) {
+      setAvailableSlots([]);
+      return;
+    }
+
+    setLoadingSlots(true);
+    setSlotsLoadError(null);
+    try {
+      const raw = await appointmentService.getAvailableSlots(doctorId, date, date);
+      const slots = filterSlotsForDate(unwrapList(raw), date);
+
+      setAvailableSlots(slots);
+      if (slots.length === 0) {
+        setFormData((prev) => ({ ...prev, timeSlotId: '' }));
       }
     } catch (error) {
       console.error('Error loading available slots:', error);
-
-      // Fallback: Generate all possible slots for local testing
-      const mockSlots = [];
-      const startHour = 9;
-      const endHour = 17;
-      let slotId = 1;
-      
-      for (let hour = startHour; hour < endHour; hour++) {
-        // :00 slot
-        const startTime1 = `${hour.toString().padStart(2, '0')}:00:00`;
-        const endTime1 = `${hour.toString().padStart(2, '0')}:30:00`;
-        
-        // :30 slot
-        const startTime2 = `${hour.toString().padStart(2, '0')}:30:00`;
-        const endTime2 = `${(hour + 1).toString().padStart(2, '0')}:00:00`;
-        
-        mockSlots.push({
-          timeSlotId: slotId++,
-          slotDate: date,
-          startTime: startTime1,
-          endTime: endTime1,
-          status: 'Available'
-        });
-        
-        mockSlots.push({
-          timeSlotId: slotId++,
-          slotDate: date,
-          startTime: startTime2,
-          endTime: endTime2,
-          status: 'Available'
-        });
-      }
-      
-      // Mark booked slots based on existing appointments
-      const currentUser = JSON.parse(localStorage.getItem('user'));
-      const doctorIdToCheck = currentUser?.role === 'Doctor' ? currentUser.userId : 1;
-      const existingAppointments = mockDatabase.appointments.findAll({ doctorId: doctorIdToCheck, date });
-      
-      const slotsWithStatus = mockSlots.map(slot => {
-        const isBooked = existingAppointments.some(appt => {
-          const apptStart = appt.startTime?.substring(0, 5);
-          const slotStart = slot.startTime.substring(0, 5);
-          return apptStart === slotStart && (appt.status === 'Scheduled' || appt.status === 'Confirmed' || appt.status === 'Completed');
-        });
-        
-        return {
-          ...slot,
-          status: isBooked ? 'Booked' : 'Available'
-        };
-      });
-      
-      setAvailableSlots(slotsWithStatus);
+      setAvailableSlots([]);
+      setFormData((prev) => ({ ...prev, timeSlotId: '' }));
+      const message = getApiErrorMessage(error, 'Could not load time slots');
+      setSlotsLoadError(message);
     } finally {
       setLoadingSlots(false);
     }
@@ -287,20 +237,9 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
 
     try {
       setIsSearching(true);
-      // Search in mock database
-      const allUsers = mockDatabase.users.findAll();
-      const term = query.toLowerCase().trim();
-      
-      const results = allUsers.filter(u => 
-        u.role === 'Patient' && (
-          String(u.userId).includes(term) ||
-          u.firstName.toLowerCase().includes(term) ||
-          u.lastName.toLowerCase().includes(term) ||
-          u.email.toLowerCase().includes(term)
-        )
-      );
-      
-      setSearchResults(results.slice(0, 5)); // Limit to 5 results
+      const data = await doctorService.searchPatients(query.trim());
+      const results = unwrapList(data);
+      setSearchResults(results.slice(0, 8));
     } catch (error) {
       console.error('Error searching patients:', error);
       setSearchResults([]);
@@ -311,9 +250,10 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
 
   const handleSelectPatient = (patient) => {
     setSelectedPatient(patient);
+    const pid = getPatientRecordId(patient);
     setFormData(prev => ({
       ...prev,
-      patientId: patient.userId
+      patientId: pid != null ? String(pid) : '',
     }));
     setPatientSearchQuery(`${patient.firstName} ${patient.lastName}`);
     setSearchResults([]);
@@ -329,40 +269,44 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
   };
 
   const handleCreateAndBook = async () => {
-    // Validate new patient data
     if (!newPatientData.firstName || !newPatientData.lastName || !newPatientData.email) {
       toast.error('Please fill in patient first name, last name, and email');
       return;
     }
 
+    if (!formData.timeSlotId) {
+      toast.error('Please select an available time slot');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Create new patient user account
-      const newUser = mockDatabase.users.create({
+      const registerResult = await authService.register({
         firstName: newPatientData.firstName,
         lastName: newPatientData.lastName,
         email: newPatientData.email,
-        password: 'temp123', // Temporary password
+        password: 'TempPass1!',
+        confirmPassword: 'TempPass1!',
+        phoneNumber: newPatientData.phoneNumber || '01234567890',
         role: 'Patient',
-        phoneNumber: newPatientData.phoneNumber,
-        gender: newPatientData.gender,
-        dateOfBirth: newPatientData.dateOfBirth
+        gender: newPatientData.gender || 'Male',
+        dateOfBirth: newPatientData.dateOfBirth || '2000-01-01',
       });
 
-      console.log('Created new patient:', newUser);
-      toast.success(`Patient ${newUser.firstName} ${newUser.lastName} registered successfully!`);
+      if (!registerResult.success) {
+        toast.error(registerResult.message || 'Failed to register patient');
+        return;
+      }
 
-      // Now book appointment with the new patient ID
-      const appointmentData = {
-        doctorId: 1,
-        patientId: newUser.userId,
-        appointmentDate: formData.appointmentDate,
-        timeSlotId: formData.timeSlotId,
-        reasonForVisit: formData.reasonForVisit,
-        status: 'Scheduled'
-      };
+      toast.success(`Patient ${registerResult.user.firstName} ${registerResult.user.lastName} registered!`);
 
-      await appointmentService.bookAppointment(appointmentData);
+      const newPatientId = getPatientRecordId(registerResult.user);
+      await appointmentService.bookAppointment({
+        doctorId: Number(formData.doctorId),
+        patientId: Number(newPatientId),
+        timeSlotId: Number(formData.timeSlotId),
+        reasonForVisit: formData.reasonForVisit || '',
+      });
       toast.success('Appointment booked successfully for new patient!');
 
       onSuccess?.();
@@ -391,7 +335,7 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
       setAvailableSlots([]);
     } catch (error) {
       console.error('Error creating patient and booking appointment:', error);
-      toast.error(error.response?.data?.message || 'Failed to create patient or book appointment');
+      toast.error(getApiErrorMessage(error, 'Failed to create patient or book appointment'));
     } finally {
       setLoading(false);
     }
@@ -400,6 +344,7 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
   // Now use the functions in useEffect - they're already defined above
   useEffect(() => {
     if (isOpen) {
+      setSlotsLoadError(null);
       loadDoctors();
       
       // Auto-select current patient if user is a patient (they can only book for themselves)
@@ -439,11 +384,18 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
     }
   }, [isOpen, formData.doctorId, formData.appointmentDate, loadAvailableSlots]);
 
+  useEffect(() => {
+    if (isOpen && formData.doctorId) {
+      syncSchedulesForDoctor(formData.doctorId);
+    }
+  }, [isOpen, formData.doctorId, syncSchedulesForDoctor]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      ...(name === 'doctorId' || name === 'appointmentDate' ? { timeSlotId: '' } : {}),
     }));
   };
 
@@ -452,6 +404,24 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
     setLoading(true);
 
     try {
+      if (currentUser?.role !== 'Patient' && !formData.patientId) {
+        toast.error('Please select a patient');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.timeSlotId) {
+        toast.error('Please select an available time slot');
+        setLoading(false);
+        return;
+      }
+
+      if (availableSlots.length === 0) {
+        toast.error('No time slots for this date. Pick a weekday when the doctor has schedule hours, or add schedule under Doctor → Schedule.');
+        setLoading(false);
+        return;
+      }
+
       // Validate form using backend validation rules
       const validationErrors = validateAppointment(formData);
       if (Object.keys(validationErrors).length > 0) {
@@ -497,11 +467,15 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
         }
       }
 
-      // Auto-select the only doctor in the clinic (doctorId: 1)
       const appointmentData = {
-        ...formData,
-        doctorId: 1 // Only one doctor in this clinic
+        doctorId: Number(formData.doctorId),
+        timeSlotId: Number(formData.timeSlotId),
+        reasonForVisit: formData.reasonForVisit || '',
       };
+
+      if (currentUser?.role !== 'Patient' && formData.patientId) {
+        appointmentData.patientId = Number(formData.patientId);
+      }
 
       const isReschedule = Boolean(initialData?.appointmentId);
 
@@ -518,19 +492,19 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
 
       // Reset form
       setFormData({
-        doctorId: '1',
+        doctorId: formData.doctorId,
         patientId: '',
         appointmentDate: '',
         timeSlotId: '',
         reasonForVisit: '',
-        status: 'Scheduled'
+        status: 'Scheduled',
       });
       setSelectedPatient(null);
       setPatientSearchQuery('');
       setAvailableSlots([]);
     } catch (error) {
       console.error('Error booking appointment:', error);
-      toast.error(error.response?.data?.message || 'Failed to book appointment');
+      toast.error(getApiErrorMessage(error, 'Failed to book appointment'));
     } finally {
       setLoading(false);
     }
@@ -643,7 +617,7 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
                           {patient.firstName} {patient.lastName}
                         </div>
                         <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                          ID: {patient.userId} • {patient.email}
+                          ID: {getPatientRecordId(patient)} • {patient.email}
                         </div>
                       </div>
                     ))}
@@ -659,7 +633,8 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
                     fontSize: '13px',
                     color: '#15803d'
                   }}>
-                    ✓ Selected: {selectedPatient.firstName} {selectedPatient.lastName} (ID: {selectedPatient.userId})
+                    ✓ Selected: {selectedPatient.firstName} {selectedPatient.lastName} (ID:{' '}
+                    {getPatientRecordId(selectedPatient)})
                   </div>
                 )}
               </>
@@ -806,6 +781,57 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
             )}
           </FormGroup>
 
+          {currentUser?.role === 'Patient' && doctors.length === 1 && (
+            <FormGroup>
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#374151' }}>
+                Doctor
+              </label>
+              <div
+                style={{
+                  padding: '12px 14px',
+                  background: '#f3f4f6',
+                  borderRadius: 8,
+                  fontSize: 15,
+                  color: '#111827',
+                }}
+              >
+                Dr. {doctors[0].firstName} {doctors[0].lastName}
+                {doctors[0].specialization ? ` — ${doctors[0].specialization}` : ' — Orthopedics'}
+              </div>
+            </FormGroup>
+          )}
+
+          {currentUser?.role !== 'Patient' && doctors.length > 1 && (
+            <FormGroup>
+              <SelectWithLabel
+                label="Doctor"
+                name="doctorId"
+                value={formData.doctorId}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select a doctor</option>
+                {doctors.map((doctor) => {
+                  const id = doctor.doctorId ?? doctor.DoctorId;
+                  return (
+                    <option key={id} value={id}>
+                      {doctor.firstName} {doctor.lastName}
+                      {doctor.specialization ? ` — ${doctor.specialization}` : ''}
+                    </option>
+                  );
+                })}
+              </SelectWithLabel>
+            </FormGroup>
+          )}
+
+          {currentUser?.role === 'Patient' && doctors.length === 0 && (
+            <FormGroup>
+              <p style={{ color: '#b45309', fontSize: 14, margin: 0 }}>
+                No orthopedics doctor is available for booking. Please contact the clinic.
+              </p>
+            </FormGroup>
+          )}
+
           <FormGroup>
             <InputWithLabel
               label="Appointment Date"
@@ -839,208 +865,93 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
           </FormGroup>
 
           <FormGroup>
-            <label style={{ 
-              display: 'block', 
-              fontSize: '14px', 
-              fontWeight: '600', 
-              color: '#374151',
-              marginBottom: '12px'
-            }}>
-              Available Time Slots
-            </label>
-            
+            {slotsLoadError && (
+              <div style={{ padding: '12px', marginBottom: '12px', color: '#b91c1c', backgroundColor: '#fef2f2', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5 }}>
+                <strong>Could not load time slots.</strong>
+                <br />
+                {slotsLoadError}
+                <br />
+                If this mentions the server, ensure the backend is running at{' '}
+                <code>http://localhost:5000</code>, then refresh the page.
+              </div>
+            )}
+
             {loadingSlots ? (
               <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
                 Loading available slots...
               </div>
             ) : availableSlots.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#dc2626', backgroundColor: '#fef2f2', borderRadius: '8px' }}>
-                No time slots available for the selected date.
-              </div>
-            ) : (
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', 
-                gap: '10px',
-                maxHeight: '300px',
-                overflowY: 'auto',
-                padding: '4px'
-              }}>
-                {availableSlots.map((slot) => {
-                  const isBooked = slot.status === 'Booked';
-                  const isSelected = String(formData.timeSlotId) === String(slot.timeSlotId);
-
-                  // Check if slot time is in the past (for today's appointments)
-                  let isPastTime = false;
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  const appointmentDate = new Date(formData.appointmentDate);
-                  appointmentDate.setHours(0, 0, 0, 0);
-
-                  if (appointmentDate.getTime() === today.getTime()) {
-                    const now = new Date();
-                    const currentHour = now.getHours();
-                    const currentMinute = now.getMinutes();
-                    const slotTime = slot.startTime.substring(0, 5).split(':');
-                    const slotHour = parseInt(slotTime[0]);
-                    const slotMinute = parseInt(slotTime[1]);
-                    isPastTime = slotHour < currentHour || (slotHour === currentHour && slotMinute <= currentMinute);
-                  }
-
-                  return (
-                    <button
-                      key={slot.timeSlotId}
-                      type="button"
-                      onClick={() => {
-                        if (!isBooked && !isPastTime) {
-                          handleChange({
-                            target: { name: 'timeSlotId', value: slot.timeSlotId }
-                          });
-                        }
-                      }}
-                      disabled={isBooked || isPastTime}
-                      title={isPastTime ? 'This time has already passed' : isBooked ? 'This slot is booked' : ''}
-                      style={{
-                        padding: '10px 8px',
-                        border: isSelected
-                          ? '2px solid #2563eb'
-                          : isPastTime
-                          ? '1px solid #d1d5db'
-                          : isBooked
-                          ? '1px solid #fca5a5'
-                          : '1px solid #d1d5db',
-                        borderRadius: '8px',
-                        backgroundColor: isPastTime
-                          ? '#f3f4f6'
-                          : isBooked
-                          ? '#fef2f2'
-                          : isSelected
-                          ? '#eff6ff'
-                          : 'white',
-                        cursor: (isBooked || isPastTime) ? 'not-allowed' : 'pointer',
-                        opacity: (isBooked || isPastTime) ? 0.5 : 1,
-                        transition: 'all 0.2s',
-                        position: 'relative'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isBooked && !isPastTime) {
-                          e.currentTarget.style.transform = 'translateY(-2px)';
-                          e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isBooked && !isPastTime) {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }
-                      }}
-                    >
-                      <div style={{
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: isPastTime ? '#9ca3af' : (isBooked ? '#dc2626' : (isSelected ? '#2563eb' : '#111827'))
-                      }}>
-                        {formatTime(slot.startTime)}
-                      </div>
-                      <div style={{
-                        fontSize: '11px',
-                        color: isPastTime ? '#9ca3af' : (isBooked ? '#dc2626' : '#6b7280'),
-                        marginTop: '4px'
-                      }}>
-                        {formatTime(slot.endTime)}
-                      </div>
-                      {isPastTime && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '4px',
-                          right: '4px',
-                          width: '8px',
-                          height: '8px',
-                          borderRadius: '50%',
-                          backgroundColor: '#9ca3af'
-                        }} />
-                      )}
-                      {isBooked && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '4px',
-                          right: '4px',
-                          width: '8px',
-                          height: '8px',
-                          borderRadius: '50%',
-                          backgroundColor: '#dc2626'
-                        }} />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-            
-            {(availableSlots.some(s => s.status === 'Booked') || availableSlots.some(s => {
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              const appointmentDate = new Date(formData.appointmentDate);
-              appointmentDate.setHours(0, 0, 0, 0);
-              if (appointmentDate.getTime() === today.getTime()) {
-                const now = new Date();
-                const currentHour = now.getHours();
-                const currentMinute = now.getMinutes();
-                const slotTime = s.startTime.substring(0, 5).split(':');
-                const slotHour = parseInt(slotTime[0]);
-                const slotMinute = parseInt(slotTime[1]);
-                return slotHour < currentHour || (slotHour === currentHour && slotMinute <= currentMinute);
-              }
-              return false;
-            })) && (
-              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {availableSlots.some(s => s.status === 'Booked') && (
-                  <div style={{
-                    padding: '8px',
-                    backgroundColor: '#fef2f2',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    color: '#dc2626',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#dc2626' }} />
-                    Red slots are already booked
-                  </div>
+              <div style={{ padding: '16px', color: '#92400e', backgroundColor: '#fffbeb', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5 }}>
+                <strong>
+                  No time slots for{' '}
+                  {formData.appointmentDate
+                    ? `${getWeekdayName(formData.appointmentDate)} (${formData.appointmentDate})`
+                    : 'this date'}
+                  .
+                </strong>
+                <br />
+                {scheduleDays.length > 0 ? (
+                  <>
+                    Working days: <strong>{formatScheduleDaysSummary(scheduleDays)}</strong>.
+                    Pick a date on one of those weekdays (Mon–Fri if schedule is not set yet).
+                  </>
+                ) : (
+                  <>
+                    You have no working hours yet. Add them under <strong>Doctor → Schedule</strong>.
+                  </>
                 )}
-                {availableSlots.some(s => {
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  const appointmentDate = new Date(formData.appointmentDate);
-                  appointmentDate.setHours(0, 0, 0, 0);
-                  if (appointmentDate.getTime() === today.getTime()) {
-                    const now = new Date();
-                    const currentHour = now.getHours();
-                    const currentMinute = now.getMinutes();
-                    const slotTime = s.startTime.substring(0, 5).split(':');
-                    const slotHour = parseInt(slotTime[0]);
-                    const slotMinute = parseInt(slotTime[1]);
-                    return slotHour < currentHour || (slotHour === currentHour && slotMinute <= currentMinute);
-                  }
-                  return false;
-                }) && (
-                  <div style={{
-                    padding: '8px',
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    color: '#6b7280',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#9ca3af' }} />
-                    Gray slots have already passed
-                  </div>
+                {scheduleDays.length > 0 && (
+                  <>
+                    <br />
+                    <br />
+                    {(() => {
+                      const suggested = getNextDateForScheduleDays(scheduleDays);
+                      if (!suggested) return null;
+                      return (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="small"
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, appointmentDate: suggested, timeSlotId: '' }));
+                          }}
+                        >
+                          Use next available day ({suggested}, {getWeekdayName(suggested)})
+                        </Button>
+                      );
+                    })()}
+                  </>
                 )}
               </div>
-            )}
+            ) : null}
+
+            <SelectWithLabel
+              label="Time slot"
+              name="timeSlotId"
+              value={formData.timeSlotId}
+              onChange={handleChange}
+              required
+              disabled={loadingSlots || !formData.appointmentDate || !formData.doctorId}
+              style={{ marginTop: 12 }}
+            >
+              <option value="">
+                {loadingSlots
+                  ? 'Loading slots...'
+                  : !formData.doctorId
+                    ? 'Select a doctor first'
+                    : !formData.appointmentDate
+                      ? 'Select a date first'
+                      : availableSlots.length
+                        ? 'Select a time slot'
+                        : 'No slots on this date'}
+              </option>
+              {availableSlots.map((slot) => (
+                <option key={slot.timeSlotId} value={slot.timeSlotId}>
+                  {formatSlotOptionLabel(slot)}
+                </option>
+              ))}
+            </SelectWithLabel>
+
           </FormGroup>
 
           <FormGroup>
@@ -1075,7 +986,13 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
             type="button"
             variant="primary" 
             size="large"
-            disabled={loading}
+            disabled={
+              loading
+              || !formData.doctorId
+              || !formData.appointmentDate
+              || !formData.timeSlotId
+              || (currentUser?.role !== 'Patient' && !formData.patientId && !isNewPatient)
+            }
             onClick={() => {
               if (isNewPatient) {
                 handleCreateAndBook();
@@ -1086,6 +1003,17 @@ const BookAppointmentModal = ({ isOpen, onClose, onSuccess, initialData, title }
           >
             {loading ? 'Processing...' : (isNewPatient ? 'Register & Book Appointment' : 'Book Appointment')}
           </SubmitButton>
+          {!loading && (
+            <p style={{ marginTop: '10px', fontSize: '12px', color: '#6b7280', textAlign: 'center' }}>
+              {!formData.patientId && currentUser?.role !== 'Patient' && !isNewPatient
+                ? 'Select a patient to enable booking.'
+                : !formData.timeSlotId
+                  ? 'Choose a time slot from the dropdown to enable booking.'
+                  : slotsLoadError
+                    ? 'Fix the slot loading error above, then try again.'
+                    : null}
+            </p>
+          )}
         </Form>
       </ModalContainer>
     </ModalOverlay>

@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, UserPlus, Users } from 'lucide-react';
+import toast from 'react-hot-toast';
 import Sidebar from '../../components/radiology/Sidebar';
+import patientService from '../../api/patientService';
+import { getApiErrorMessage } from '../../api/apiUtils';
 
 interface Patient {
     id: string;
@@ -13,21 +16,47 @@ interface Patient {
     avatarColor: string;
 }
 
-const initialPatients: Patient[] = [
-    { id: 'PT-001', name: 'Ahmed Hassan', age: 45, gender: 'Male', phone: '+20 123 456 7890', status: 'active', lastVisit: '2024-04-20', avatarColor: '#378ADD' },
-    { id: 'PT-002', name: 'Sara Mohamed', age: 32, gender: 'Female', phone: '+20 111 234 5678', status: 'critical', lastVisit: '2024-04-19', avatarColor: '#E74C3C' },
-    { id: 'PT-003', name: 'Omar Ali', age: 28, gender: 'Male', phone: '+20 100 987 6543', status: 'active', lastVisit: '2024-04-18', avatarColor: '#27AE60' },
-    { id: 'PT-004', name: 'Fatma Khaled', age: 56, gender: 'Female', phone: '+20 122 345 6789', status: 'inactive', lastVisit: '2024-04-15', avatarColor: '#F39C12' },
-    { id: 'PT-005', name: 'Youssef Ahmed', age: 41, gender: 'Male', phone: '+20 115 678 9012', status: 'active', lastVisit: '2024-04-21', avatarColor: '#9B59B6' },
-    { id: 'PT-006', name: 'Maria Saad', age: 37, gender: 'Female', phone: '+20 109 876 5432', status: 'active', lastVisit: '2024-04-17', avatarColor: '#1ABC9C' },
-    { id: 'PT-007', name: 'Karim Mostafa', age: 50, gender: 'Male', phone: '+20 127 890 1234', status: 'critical', lastVisit: '2024-04-21', avatarColor: '#E67E22' },
-    { id: 'PT-008', name: 'Nour El-Din', age: 29, gender: 'Male', phone: '+20 113 456 7890', status: 'active', lastVisit: '2024-04-16', avatarColor: '#3498DB' },
-    { id: 'PT-009', name: 'Laila Mahmoud', age: 43, gender: 'Female', phone: '+20 106 789 0123', status: 'inactive', lastVisit: '2024-04-10', avatarColor: '#E91E63' },
-    { id: 'PT-010', name: 'Hassan Ibrahim', age: 62, gender: 'Male', phone: '+20 120 123 4567', status: 'active', lastVisit: '2024-04-19', avatarColor: '#00BCD4' },
-];
+const avatarColors = ['#378ADD', '#E74C3C', '#27AE60', '#F39C12', '#9B59B6', '#1ABC9C', '#E67E22', '#3498DB', '#E91E63', '#00BCD4'];
+
+function mapApiPatient(p: Record<string, unknown>, index: number): Patient {
+    const first = String(p.firstName ?? '');
+    const last = String(p.lastName ?? '');
+    const dob = p.dateOfBirth ? new Date(String(p.dateOfBirth)) : null;
+    const age = dob && !Number.isNaN(dob.getTime())
+        ? Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+        : 0;
+    return {
+        id: String(p.externalPatientId ?? p.patientId ?? index),
+        name: `${first} ${last}`.trim() || String(p.fullName ?? 'Patient'),
+        age,
+        gender: String(p.gender ?? '—'),
+        phone: String(p.phoneNumber ?? ''),
+        status: 'active',
+        lastVisit: new Date().toISOString().split('T')[0],
+        avatarColor: avatarColors[index % avatarColors.length],
+    };
+}
 
 export default function Patients() {
-    const [patients] = useState<Patient[]>(initialPatients);
+    const [patients, setPatients] = useState<Patient[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const data = await patientService.getAllPatients('radiology');
+                const list = (Array.isArray(data) ? data : []).map((p, i) =>
+                    mapApiPatient(p as Record<string, unknown>, i)
+                );
+                setPatients(list);
+            } catch (error) {
+                toast.error(getApiErrorMessage(error, 'Failed to load patients'));
+                setPatients([]);
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState<'all' | 'active' | 'critical'>('all');
     const [currentPage] = useState(1);

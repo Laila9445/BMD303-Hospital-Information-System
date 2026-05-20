@@ -1,8 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Calendar, Clock, User, Check } from "lucide-react";
+import toast from "react-hot-toast";
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isBefore, startOfToday } from "date-fns";
+import {
+    getTakenTimesForDate,
+    isSlotTaken,
+    tryReserveDepartmentSlot,
+} from "../../utils/bookingSlotUtils";
 import "../physio/BookingPage.css";
+
+const DEPARTMENT = "radiology";
 
 const services = [
     { id: "mri", name: "MRI Imaging" },
@@ -65,17 +73,45 @@ export default function RadiologyBookingPage() {
         }
     };
 
+    const selectedDateIso = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
+    const takenTimes = useMemo(
+        () => (selectedDateIso ? getTakenTimesForDate(DEPARTMENT, selectedDateIso) : []),
+        [selectedDateIso]
+    );
+
+    useEffect(() => {
+        if (selectedTime && takenTimes.includes(selectedTime)) {
+            setSelectedTime("");
+        }
+    }, [selectedTime, takenTimes]);
+
     const handleConfirm = () => {
+        if (!selectedDate || !selectedTime) return;
+
+        if (isSlotTaken(DEPARTMENT, selectedDateIso, selectedTime)) {
+            toast.error("This time slot is already booked. Please choose another time.");
+            return;
+        }
+
         const data = {
+            id: `radiology-${Date.now()}`,
             service: services.find((s) => s.id === selectedService)?.name,
-            date: selectedDate ? format(selectedDate, "dd MMMM yyyy") : "",
+            date: format(selectedDate, "dd MMMM yyyy"),
+            dateIso: selectedDateIso,
             time: selectedTime,
             name: fullName,
+            patient: fullName,
             phone,
             email,
             notes,
         };
         sessionStorage.setItem("bookingData", JSON.stringify(data));
+
+        if (!tryReserveDepartmentSlot(DEPARTMENT, data)) {
+            toast.error("This time slot is already booked. Please choose another time.");
+            return;
+        }
+
         navigate("/radiology/success");
     };
 
@@ -184,16 +220,21 @@ export default function RadiologyBookingPage() {
                                 🕐 Available Time
                             </h3>
                             <div className="bk-time-grid">
-                                {timeSlots.map((t) => (
-                                    <button
-                                        key={t}
-                                        type="button"
-                                        className={`bk-time-slot ${selectedTime === t ? "selected" : ""}`}
-                                        onClick={() => setSelectedTime(t)}
-                                    >
-                                        {t}
-                                    </button>
-                                ))}
+                                {timeSlots.map((t) => {
+                                    const booked = takenTimes.includes(t);
+                                    return (
+                                        <button
+                                            key={t}
+                                            type="button"
+                                            disabled={booked}
+                                            title={booked ? "Already booked" : ""}
+                                            className={`bk-time-slot ${selectedTime === t ? "selected" : ""} ${booked ? "disabled" : ""}`}
+                                            onClick={() => !booked && setSelectedTime(t)}
+                                        >
+                                            {t}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}

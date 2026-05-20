@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import doctorService from '../../api/doctorService';
-import mockDatabase from '../../api/mockDatabase';
+import { getApiErrorMessage } from '../../api/apiUtils';
 import Card, { CardHeader, CardBody } from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { InputWithLabel } from '../../components/common/Input';
@@ -122,65 +122,25 @@ const Patients = () => {
     loadAllPatients();
   }, []);
 
+  const normalizePatient = (p) => ({
+    patientId: p.patientId ?? p.PatientId ?? p.userId,
+    firstName: p.firstName ?? p.FirstName ?? '',
+    lastName: p.lastName ?? p.LastName ?? '',
+    email: p.email ?? p.Email ?? '',
+    phoneNumber: p.phoneNumber ?? p.PhoneNumber ?? '',
+    dateOfBirth: p.dateOfBirth ?? p.DateOfBirth ?? null,
+    gender: p.gender ?? p.Gender ?? '',
+  });
+
   const loadAllPatients = async () => {
     try {
       setLoading(true);
-      // Get all patients from mock database
-      const allUsers = mockDatabase.users.findAll();
-      const allPatients = allUsers.filter(u => u.role === 'Patient');
-      
-      console.log('Loaded all patients:', allPatients);
-      setPatients(allPatients);
+      const data = await doctorService.getAllPatients();
+      setPatients((Array.isArray(data) ? data : []).map(normalizePatient));
     } catch (error) {
       console.error('Error loading patients:', error);
-      // Fallback demo data
-      setPatients([
-        {
-          patientId: 1,
-          firstName: 'Mohamed',
-          lastName: 'Ahmed',
-          email: 'mohamed.ahmed@email.com',
-          phoneNumber: '+201001234567',
-          dateOfBirth: '1985-05-15',
-          gender: 'Male'
-        },
-        {
-          patientId: 2,
-          firstName: 'Sarah',
-          lastName: 'Mahmoud',
-          email: 'sarah.m@email.com',
-          phoneNumber: '+201002345678',
-          dateOfBirth: '1990-08-22',
-          gender: 'Female'
-        },
-        {
-          patientId: 3,
-          firstName: 'Omar',
-          lastName: 'Hassan',
-          email: 'omar.hassan@email.com',
-          phoneNumber: '+201003456789',
-          dateOfBirth: '1978-12-10',
-          gender: 'Male'
-        },
-        {
-          patientId: 4,
-          firstName: 'Fatima',
-          lastName: 'Ali',
-          email: 'fatima.ali@email.com',
-          phoneNumber: '+201004567890',
-          dateOfBirth: '1995-03-28',
-          gender: 'Female'
-        },
-        {
-          patientId: 5,
-          firstName: 'Khaled',
-          lastName: 'Ibrahim',
-          email: 'khaled.ibrahim@email.com',
-          phoneNumber: '+201005678901',
-          dateOfBirth: '1988-11-05',
-          gender: 'Male'
-        }
-      ]);
+      toast.error(getApiErrorMessage(error, 'Failed to load patients'));
+      setPatients([]);
     } finally {
       setLoading(false);
     }
@@ -196,21 +156,8 @@ const Patients = () => {
     try {
       setLoading(true);
       
-      // Search in mock database
-      const allUsers = mockDatabase.users.findAll();
-      const term = searchQuery.toLowerCase().trim();
-      
-      const results = allUsers.filter(u => 
-        u.role === 'Patient' && (
-          u.firstName.toLowerCase().includes(term) ||
-          u.lastName.toLowerCase().includes(term) ||
-          u.email.toLowerCase().includes(term) ||
-          String(u.userId).includes(term)
-        )
-      );
-      
-      console.log('Search results:', results);
-      setPatients(results);
+      const data = await doctorService.searchPatients(searchQuery.trim());
+      setPatients((Array.isArray(data) ? data : []).map(normalizePatient));
       
       if (results.length === 0) {
         toast.info('No patients found matching your search');
