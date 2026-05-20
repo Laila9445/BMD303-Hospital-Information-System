@@ -494,6 +494,12 @@ namespace CLINICSYSTEM.Services
                             }
                         }
 
+                        if (userRole is "Physiotherapist" or "Radiologist"
+                            && referral.AssignedToRole == userRole)
+                        {
+                            return;
+                        }
+
                         throw new BusinessException("INVALID_STATUS_TRANSITION", $"Invalid status transition from {oldStatus} to {newStatus}");
                     }
                     break;

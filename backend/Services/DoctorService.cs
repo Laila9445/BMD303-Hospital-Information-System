@@ -41,6 +41,55 @@ namespace CLINICSYSTEM.Services
                 .ToListAsync();
         }
 
+        /// <summary>Single clinic orthopedics physician for patient self-booking (Dr. Ahmed Nabil).</summary>
+        public async Task<List<DoctorListDTO>> GetPatientBookableDoctorsAsync()
+        {
+            const string preferredEmail = "dr.ahmed.nabil@clinic.com";
+
+            var doctors = await _context.Doctors
+                .Include(d => d.User)
+                .Where(d => d.IsActive && d.User.Role == "Doctor")
+                .ToListAsync();
+
+            var preferred = doctors.FirstOrDefault(d =>
+                string.Equals(d.User.Email, preferredEmail, StringComparison.OrdinalIgnoreCase));
+            if (preferred != null)
+            {
+                return new List<DoctorListDTO> { MapDoctorList(preferred) };
+            }
+
+            var ahmedNabil = doctors
+                .Where(d =>
+                    string.Equals(d.User.FirstName, "Ahmed", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(d.User.LastName, "Nabil", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(d => d.DoctorId)
+                .FirstOrDefault();
+
+            if (ahmedNabil != null)
+            {
+                return new List<DoctorListDTO> { MapDoctorList(ahmedNabil) };
+            }
+
+            var ortho = doctors
+                .Where(d => (d.Specialization ?? "").Contains("Orthoped", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(d => d.DoctorId)
+                .FirstOrDefault();
+
+            return ortho != null
+                ? new List<DoctorListDTO> { MapDoctorList(ortho) }
+                : new List<DoctorListDTO>();
+        }
+
+        private static DoctorListDTO MapDoctorList(DoctorModel d) => new()
+        {
+            DoctorId = d.DoctorId,
+            FirstName = d.User.FirstName,
+            LastName = d.User.LastName,
+            Specialization = d.Specialization,
+            Email = d.User.Email,
+            PhoneNumber = d.User.PhoneNumber
+        };
+
         public async Task<DoctorProfileDTO?> GetProfileAsync(int userId)
         {
             var cacheKey = $"doctor_profile_{userId}";
@@ -113,12 +162,16 @@ namespace CLINICSYSTEM.Services
 {
     var targetDate = date.Date;
 
+    var dayStart = targetDate;
+    var dayEnd = targetDate.AddDays(1);
+
     var appointments = await _context.Appointments
         .Include(a => a.Patient)
         .Include(a => a.TimeSlot)
         .Where(a => a.DoctorId == doctorId
             && a.TimeSlot != null
-            && a.TimeSlot.SlotDate == targetDate)
+            && a.TimeSlot.SlotDate >= dayStart
+            && a.TimeSlot.SlotDate < dayEnd)
         .Select(a => new DayAppointmentDTO
         {
             AppointmentId = a.AppointmentId,
@@ -168,19 +221,51 @@ namespace CLINICSYSTEM.Services
 
         public async Task<List<PatientSearchDTO>> SearchPatientsAsync(string searchTerm)
         {
+            var term = searchTerm.Trim();
+            var query = _context.Patients
+                .Include(p => p.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(term))
+            {
+                query = query.Where(p =>
+                    p.FullName.Contains(term) ||
+                    (p.ExternalPatientId != null && p.ExternalPatientId.Contains(term)) ||
+                    (p.PhoneNumber != null && p.PhoneNumber.Contains(term)) ||
+                    (p.User != null && (p.User.FirstName.Contains(term) || p.User.LastName.Contains(term) || p.User.Email.Contains(term))));
+            }
+
+            var results = await query.OrderBy(p => p.FullName).Take(50).ToListAsync();
+            return MapPatientSearchResults(results);
+        }
+
+        public async Task<List<PatientSearchDTO>> GetAllPatientsAsync()
+        {
             var results = await _context.Patients
-                .Where(p => p.FullName.Contains(searchTerm) || 
-                           p.ExternalPatientId.Contains(searchTerm))
+                .Include(p => p.User)
+                .OrderBy(p => p.FullName)
                 .ToListAsync();
 
-            return results.Select(p => new PatientSearchDTO
+            return MapPatientSearchResults(results);
+        }
+
+        private static List<PatientSearchDTO> MapPatientSearchResults(List<PatientModel> results)
+        {
+            return results.Select(p =>
             {
-                PatientId = p.PatientId,
-                FirstName = p.FullName.Split(' ')[0],
-                LastName = p.FullName.Contains(" ") ? p.FullName.Split(' ')[1] : "",
-                Email = p.ExternalPatientId
-            })
-            .ToList();
+                var first = p.User?.FirstName ?? p.FullName.Split(' ', 2)[0];
+                var last = p.User?.LastName ?? (p.FullName.Contains(' ') ? p.FullName.Split(' ', 2)[1] : "");
+                return new PatientSearchDTO
+                {
+                    PatientId = p.PatientId,
+                    FirstName = first,
+                    LastName = last,
+                    Email = p.User?.Email ?? p.ExternalPatientId,
+                    PhoneNumber = p.PhoneNumber ?? p.User?.PhoneNumber,
+                    DateOfBirth = p.DateOfBirth,
+                    Gender = p.Gender
+                };
+            }).ToList();
         }
 
         public async Task<List<MedicalImageDTO>> GetPatientMedicalImagesAsync(int patientId)

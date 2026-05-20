@@ -118,6 +118,40 @@ namespace CLINICSYSTEM.Services
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<List<PendingConsultationDTO>> GetDoctorPendingConsultationsAsync(int doctorId)
+        {
+            var today = DateTime.UtcNow.Date;
+            var tomorrow = today.AddDays(1);
+
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.TimeSlot)
+                .Include(a => a.Consultation)
+                .Where(a =>
+                    a.DoctorId == doctorId &&
+                    a.TimeSlot != null &&
+                    a.TimeSlot.SlotDate >= today &&
+                    a.TimeSlot.SlotDate < tomorrow &&
+                    a.Status != "Cancelled" &&
+                    a.Status != "Completed")
+                .ToListAsync();
+
+            return appointments
+                .Where(a => a.Consultation == null || a.Consultation.Status != "Completed")
+                .OrderBy(a => a.TimeSlot!.StartTime)
+                .Select(a => new PendingConsultationDTO
+                {
+                    AppointmentId = a.AppointmentId,
+                    PatientName = a.Patient?.FullName ?? "Patient",
+                    AppointmentDate = a.TimeSlot!.SlotDate,
+                    StartTime = a.TimeSlot.StartTime,
+                    EndTime = a.TimeSlot.EndTime,
+                    Status = a.Status,
+                    ReasonForVisit = a.ReasonForVisit
+                })
+                .ToList();
+        }
+
         public async Task<List<PatientConsultationHistoryDTO>> GetPatientConsultationHistoryAsync(int patientId)
         {
             return await _context.Consultations

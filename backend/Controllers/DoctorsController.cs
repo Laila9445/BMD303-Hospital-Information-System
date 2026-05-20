@@ -28,11 +28,13 @@ namespace CLINICSYSTEM.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAllDoctors()
+        public async Task<IActionResult> GetAllDoctors([FromQuery] bool forPatientBooking = false)
         {
             try
             {
-                var doctors = await _doctorService.GetAllDoctorsAsync();
+                var doctors = forPatientBooking
+                    ? await _doctorService.GetPatientBookableDoctorsAsync()
+                    : await _doctorService.GetAllDoctorsAsync();
                 return Ok(doctors);
             }
             catch (Exception ex)
@@ -52,7 +54,12 @@ namespace CLINICSYSTEM.Controllers
 
                 var profile = await _doctorService.GetProfileAsync(userId);
                 if (profile == null)
-                    return NotFound(new { message = "Doctor profile not found" });
+                {
+                    return NotFound(new
+                    {
+                        message = "Doctor profile not found. Log out and sign in again, or ask an admin to link your account to a doctor profile."
+                    });
+                }
 
                 return Ok(profile);
             }
@@ -131,6 +138,21 @@ namespace CLINICSYSTEM.Controllers
             {
                 _logger.LogError(ex, "Error retrieving appointments");
                 return StatusCode(500, new { message = "An error occurred while retrieving appointments" });
+            }
+        }
+
+        [HttpGet("patients")]
+        public async Task<IActionResult> GetPatients()
+        {
+            try
+            {
+                var patients = await _doctorService.GetAllPatientsAsync();
+                return Ok(patients);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving patients");
+                return StatusCode(500, new { message = "An error occurred while retrieving patients" });
             }
         }
 

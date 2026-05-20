@@ -53,4 +53,16 @@ namespace CLINICSYSTEM.Data.DTOs
         public string? Diagnosis { get; set; }
         public string? Notes { get; set; }
     }
+
+    /// <summary>Today's scheduled appointments that still need a consultation started.</summary>
+    public class PendingConsultationDTO
+    {
+        public int AppointmentId { get; set; }
+        public string PatientName { get; set; } = string.Empty;
+        public DateTime AppointmentDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string? ReasonForVisit { get; set; }
+    }
 }

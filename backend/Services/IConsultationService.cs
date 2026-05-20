@@ -9,5 +9,6 @@ namespace CLINICSYSTEM.Services
         Task<bool> EndConsultationAsync(int consultationId);
         Task<ConsultationDTO?> GetConsultationDetailsAsync(int consultationId);
         Task<List<PatientConsultationHistoryDTO>> GetPatientConsultationHistoryAsync(int patientId);
+        Task<List<PendingConsultationDTO>> GetDoctorPendingConsultationsAsync(int doctorId);
     }
 }

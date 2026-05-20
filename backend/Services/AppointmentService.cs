@@ -29,14 +29,20 @@ namespace CLINICSYSTEM.Services
         // =========================
         public async Task<List<TimeSlotDTO>> GetAvailableSlotsAsync(int doctorId, DateTime startDate, DateTime endDate)
         {
+            var rangeStart = startDate.Date;
+            var rangeEnd = endDate.Date;
+
+            // SQLite does not reliably translate DateTime.Date in LINQ — filter in memory.
             var slots = await _context.TimeSlots
                 .Include(ts => ts.Schedule)
                 .Where(ts =>
                     ts.Schedule != null &&
                     ts.Schedule.DoctorId == doctorId &&
-                    ts.SlotDate >= startDate &&
-                    ts.SlotDate <= endDate &&
                     ts.Status == "Available")
+                .ToListAsync();
+
+            return slots
+                .Where(ts => ts.SlotDate.Date >= rangeStart && ts.SlotDate.Date <= rangeEnd)
                 .Select(ts => new TimeSlotDTO
                 {
                     TimeSlotId = ts.TimeSlotId,
@@ -45,9 +51,6 @@ namespace CLINICSYSTEM.Services
                     EndTime = ts.EndTime,
                     Status = ts.Status
                 })
-                .ToListAsync();
-
-            return slots
                 .OrderBy(x => x.SlotDate)
                 .ThenBy(x => x.StartTime)
                 .ToList();
@@ -58,14 +61,16 @@ namespace CLINICSYSTEM.Services
         // =========================
         public async Task<bool> CreateAppointmentAsync(int patientId, CreateAppointmentRequest request)
         {
-            var timeSlot = await _context.TimeSlots.FindAsync(request.TimeSlotId);
+            var timeSlot = await _context.TimeSlots
+                .Include(ts => ts.Schedule)
+                .FirstOrDefaultAsync(ts => ts.TimeSlotId == request.TimeSlotId);
 
-            if (timeSlot == null || timeSlot.Status != "Available")
+            if (timeSlot == null || !string.Equals(timeSlot.Status, "Available", StringComparison.OrdinalIgnoreCase))
                 return false;
 
             var appointment = new AppointmentModel
             {
-                
+                DoctorId = timeSlot.Schedule?.DoctorId ?? 0,
                 PatientId = patientId,
                 TimeSlotId = request.TimeSlotId,
                 Status = "Scheduled",
@@ -74,7 +79,11 @@ namespace CLINICSYSTEM.Services
                 CreatedAt = DateTime.UtcNow
             };
 
+            if (appointment.DoctorId == 0)
+                return false;
+
             timeSlot.Status = "Booked";
+            timeSlot.UpdatedAt = DateTime.UtcNow;
 
             _context.Appointments.Add(appointment);
             _context.TimeSlots.Update(timeSlot);
@@ -88,17 +97,24 @@ namespace CLINICSYSTEM.Services
         // =========================
         public async Task<AppointmentDTO?> BookAppointmentAsync(int userOrPatientId, BookAppointmentRequest request)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var timeSlot = await _context.TimeSlots
                 .Include(ts => ts.Schedule)
                 .FirstOrDefaultAsync(ts => ts.TimeSlotId == request.TimeSlotId);
 
-            if (timeSlot == null || timeSlot.Status != "Available")
+            if (timeSlot == null || !string.Equals(timeSlot.Status, "Available", StringComparison.OrdinalIgnoreCase))
+            {
+                await transaction.RollbackAsync();
                 return null;
+            }
 
-            var appointmentDateTime = timeSlot.SlotDate.Add(timeSlot.StartTime);
-
+            var appointmentDateTime = timeSlot.SlotDate.Date.Add(timeSlot.StartTime);
             if (appointmentDateTime < _dateTimeProvider.UtcNow)
+            {
+                await transaction.RollbackAsync();
                 return null;
+            }
 
             ReferralModel? linkedReferral = null;
             if (request.ReferralId.HasValue)
@@ -106,21 +122,24 @@ namespace CLINICSYSTEM.Services
                 linkedReferral = await _context.Referrals.FindAsync(request.ReferralId.Value);
                 if (linkedReferral == null || linkedReferral.Status != "Accepted")
                 {
+                    await transaction.RollbackAsync();
                     return null;
                 }
 
                 var userRole = _currentUserService.Role ?? string.Empty;
                 if (linkedReferral.AssignedToRole != userRole)
                 {
+                    await transaction.RollbackAsync();
                     return null;
                 }
             }
 
-            // Find the actual PatientId linked to the provided user/patient id
-            var realPatient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userOrPatientId || p.PatientId == userOrPatientId);
+            var realPatient = await _context.Patients.FirstOrDefaultAsync(p =>
+                p.UserId == userOrPatientId || p.PatientId == userOrPatientId);
             if (realPatient == null)
             {
-                throw new Exception($"Patient not found for the given ID: {userOrPatientId}. A valid Patient Profile must exist.");
+                await transaction.RollbackAsync();
+                return null;
             }
 
             var appointment = new AppointmentModel
@@ -137,8 +156,18 @@ namespace CLINICSYSTEM.Services
             };
 
             timeSlot.Status = "Booked";
+            timeSlot.UpdatedAt = DateTime.UtcNow;
             _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                return null;
+            }
 
             if (linkedReferral != null)
             {
@@ -147,17 +176,24 @@ namespace CLINICSYSTEM.Services
                 linkedReferral.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
 
-                await _notificationService.CreateNotificationAsync(
-                    linkedReferral.DoctorId,
-                    new CreateNotificationRequest
-                    {
-                        Title = "Referral Appointment Booked",
-                        Message = $"Appointment booked for {linkedReferral.PatientName} — {linkedReferral.ReferralType} on {timeSlot.SlotDate:yyyy-MM-dd}",
-                        Type = "Referral"
-                    });
+                var referringDoctorUserId = await _context.Doctors
+                    .Where(d => d.DoctorId == linkedReferral.DoctorId)
+                    .Select(d => d.UserId)
+                    .FirstOrDefaultAsync();
+                if (referringDoctorUserId != 0)
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        referringDoctorUserId,
+                        new CreateNotificationRequest
+                        {
+                            Title = "Referral Appointment Booked",
+                            Message = $"Appointment booked for {linkedReferral.PatientName} — {linkedReferral.ReferralType} on {timeSlot.SlotDate:yyyy-MM-dd}",
+                            Type = "Referral"
+                        });
+                }
             }
 
-            var patientUser = await _context.Users.FindAsync(userOrPatientId);
+            var patientUser = await _context.Users.FindAsync(realPatient.UserId);
             if (patientUser != null)
             {
                 var doctor = await _context.Doctors
@@ -169,7 +205,7 @@ namespace CLINICSYSTEM.Services
                     : "Doctor";
 
                 await _notificationService.CreateNotificationAsync(
-                    userOrPatientId,
+                    realPatient.UserId,
                     new CreateNotificationRequest
                     {
                         Title = "Appointment Scheduled",
@@ -178,6 +214,7 @@ namespace CLINICSYSTEM.Services
                     });
             }
 
+            await transaction.CommitAsync();
             return await GetAppointmentDetailsAsync(appointment.AppointmentId);
         }
 

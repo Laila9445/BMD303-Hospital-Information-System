@@ -13,9 +13,32 @@ namespace CLINICSYSTEM.Controllers
     {
         private readonly IConsultationService _consultationService;
 
-        public ConsultationsController(IConsultationService consultationService)
+        private readonly IDoctorService _doctorService;
+
+        public ConsultationsController(IConsultationService consultationService, IDoctorService doctorService)
         {
             _consultationService = consultationService;
+            _doctorService = doctorService;
+        }
+
+        private int GetUserId()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return claim != null && int.TryParse(claim.Value, out var id) ? id : 0;
+        }
+
+        /// <summary>Today's appointments awaiting consultation (Scheduled, no completed consultation).</summary>
+        [HttpGet("doctor/pending")]
+        public async Task<IActionResult> GetDoctorPendingConsultations()
+        {
+            var userId = GetUserId();
+            if (userId == 0) return Unauthorized();
+
+            var doctorId = await _doctorService.GetDoctorIdByUserIdAsync(userId);
+            if (doctorId == null) return NotFound(new { message = "Doctor profile not found" });
+
+            var list = await _consultationService.GetDoctorPendingConsultationsAsync(doctorId.Value);
+            return Ok(list);
         }
 
         // ============================================

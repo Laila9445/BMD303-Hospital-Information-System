@@ -39,16 +39,24 @@ namespace CLINICSYSTEM.Controllers
         [HttpGet("patients")]
         public async Task<IActionResult> GetPatients()
         {
-            var patientIds = await _context.Referrals
-                .Where(r => r.AssignedToRole == "Physiotherapist")
-                .Select(r => r.PatientId)
-                .Distinct()
-                .ToListAsync();
-
-            var patients = await _context.Users
-                .Where(u => patientIds.Contains(u.Id))
-                .Select(u => new { userId = u.Id, firstName = u.FirstName, lastName = u.LastName, email = u.Email, phoneNumber = u.PhoneNumber })
-                .ToListAsync();
+            var patients = await (
+                from p in _context.Patients
+                join u in _context.Users on p.UserId equals u.Id
+                orderby p.FullName
+                select new
+                {
+                    patientId = p.PatientId,
+                    userId = u.Id,
+                    firstName = u.FirstName,
+                    lastName = u.LastName,
+                    fullName = p.FullName,
+                    email = u.Email,
+                    phoneNumber = p.PhoneNumber ?? u.PhoneNumber,
+                    externalPatientId = p.ExternalPatientId,
+                    dateOfBirth = p.DateOfBirth,
+                    gender = p.Gender,
+                    address = p.Address
+                }).ToListAsync();
 
             return Ok(ApiResponse.Ok(patients));
         }

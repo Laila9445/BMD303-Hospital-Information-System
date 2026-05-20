@@ -6,12 +6,14 @@ namespace CLINICSYSTEM.Services
     {
         Task<int?> GetDoctorIdByUserIdAsync(int userId);
         Task<List<DoctorListDTO>> GetAllDoctorsAsync();
+        Task<List<DoctorListDTO>> GetPatientBookableDoctorsAsync();
         Task<DoctorProfileDTO?> GetProfileAsync(int userId);
         Task<bool> UpdateProfileAsync(int userId, UpdateDoctorProfileRequest request);
         Task<List<DayAppointmentDTO>> GetTodayAppointmentsAsync(int doctorId);
         Task<List<DayAppointmentDTO>> GetAppointmentsAsync(int doctorId, DateTime date);
         Task<PatientRecordDetailDTO?> GetPatientRecordAsync(int patientId);
         Task<List<PatientSearchDTO>> SearchPatientsAsync(string searchTerm);
+        Task<List<PatientSearchDTO>> GetAllPatientsAsync();
         Task<List<MedicalImageDTO>> GetPatientMedicalImagesAsync(int patientId);
         Task<bool> CreateScheduleAsync(int doctorId, CreateScheduleRequest request);
         Task<List<DoctorScheduleDTO>> GetSchedulesAsync(int doctorId);
