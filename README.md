@@ -37,7 +37,7 @@ The system replaces disconnected, paper-based hospital workflows with a single p
 2. The referral appears in the **patient's profile** and in the receiving department's queue.
 3. The **radiologist / physiotherapist** accepts it and schedules a session (the patient picks a treatment, date and time, then finalizes the booking).
 4. When the service is completed, the **patient can pay** the invoice.
-## 🔌 API
+##  API
 The API is documented with Swagger/OpenAPI and has two groups of endpoints.
 ### Referral endpoints (`/api/Referrals`)
 | Method | Endpoint | Purpose |
