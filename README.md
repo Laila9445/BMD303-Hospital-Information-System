@@ -54,7 +54,4 @@ The API is documented with Swagger/OpenAPI and has two groups of endpoints.
 ### FHIR endpoints (`/fhir`)
 Read-only, interoperability-oriented resources:
 `metadata` · `Patient` · `Practitioner` · `Condition` · `CarePlan` · `ServiceRequest` · `Appointment` · `Observation` (including `Observation/encounter/{encounterId}`)
-##  Tech Stack
-- **Backend:** .NET (ASP.NET Core Web API), JWT authentication, role-based authorization, Swagger/OpenAPI
-- **Interoperability:** FHIR-style resource endpoints
-- **Frontend:** web application with protected routes and role-based dashboards
+
